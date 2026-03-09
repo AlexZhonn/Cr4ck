@@ -1,0 +1,314 @@
+<div class="flex flex-col h-screen bg-[#0d1117] text-gray-200 font-sans">
+  <!-- Top Nav -->
+  <header
+    class="flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-[#30363d]"
+  >
+    <div class="flex items-center gap-3">
+      <span class="text-xl font-bold tracking-tight text-white">Cr4ck</span>
+      <span class="text-[#30363d]">|</span>
+      <span class="text-sm text-gray-400">OOP Design Practice</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        class="px-3 py-1.5 text-xs rounded bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] transition-colors"
+      >
+        Problems
+      </button>
+      <button
+        class="px-3 py-1.5 text-xs rounded bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] transition-colors"
+      >
+        Leaderboard
+      </button>
+      <div
+        class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-xs font-bold"
+      >
+        A
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- LEFT PANEL: Problem Description -->
+    <div class="w-[400px] flex-shrink-0 flex flex-col border-r border-[#30363d] overflow-hidden">
+      <!-- Tabs -->
+      <div class="flex border-b border-[#30363d] bg-[#161b22]">
+        <button
+          (click)="activeTab.set('description')"
+          [class]="
+            activeTab() === 'description'
+              ? 'px-4 py-2.5 text-sm text-white border-b-2 border-violet-500 font-medium'
+              : 'px-4 py-2.5 text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors'
+          "
+        >
+          Description
+        </button>
+        <button
+          (click)="activeTab.set('feedback')"
+          [class]="
+            activeTab() === 'feedback'
+              ? 'px-4 py-2.5 text-sm text-white border-b-2 border-violet-500 font-medium flex items-center gap-2'
+              : 'px-4 py-2.5 text-sm text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors flex items-center gap-2'
+          "
+        >
+          Design Review
+          @if (feedback().length > 0) {
+            <span class="w-2 h-2 rounded-full bg-violet-400"></span>
+          }
+        </button>
+      </div>
+
+      <!-- Description Panel -->
+      @if (activeTab() === 'description') {
+        <div class="flex-1 overflow-y-auto p-5 space-y-5">
+          <!-- Title + Difficulty -->
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-xs text-gray-500 font-mono">{{ problem.id }}</span>
+            </div>
+            <h1 class="text-lg font-bold text-white">{{ problem.title }}</h1>
+            <span [class]="'text-xs font-semibold ' + difficultyClass">{{
+              problem.difficulty
+            }}</span>
+          </div>
+
+          <div class="h-px bg-[#30363d]"></div>
+
+          <!-- Description -->
+          <div>
+            <p class="text-sm text-gray-300 leading-relaxed">{{ problem.description }}</p>
+          </div>
+
+          <!-- Requirements -->
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+              Requirements
+            </h3>
+            <ul class="space-y-1.5">
+              @for (req of problem.requirements; track req) {
+                <li class="flex items-start gap-2 text-sm text-gray-300">
+                  <span class="mt-1 w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0"></span>
+                  {{ req }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Constraints -->
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+              Constraints
+            </h3>
+            <ul class="space-y-1.5">
+              @for (con of problem.constraints; track con) {
+                <li class="flex items-start gap-2 text-sm text-gray-300">
+                  <span class="mt-1 text-yellow-500 text-xs">⚠</span>
+                  {{ con }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- OOP Concepts Hint -->
+          <div class="rounded-lg bg-[#161b22] border border-[#30363d] p-4">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-violet-400 mb-2">
+              Expected OOP Concepts
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              @for (tag of ['Encapsulation', 'Composition', 'Single Responsibility']; track tag) {
+                <span
+                  class="px-2 py-0.5 text-xs rounded-full bg-violet-900/40 text-violet-300 border border-violet-800/50"
+                  >{{ tag }}</span
+                >
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Feedback Panel -->
+      @if (activeTab() === 'feedback') {
+        <div class="flex-1 overflow-y-auto p-5 space-y-4">
+          @if (isSubmitting()) {
+            <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-500">
+              <div
+                class="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"
+              ></div>
+              <span class="text-sm">Analyzing your design...</span>
+            </div>
+          } @else if (feedback().length === 0) {
+            <div class="flex flex-col items-center justify-center h-full gap-2 text-gray-500">
+              <svg
+                class="w-10 h-10 opacity-30"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span class="text-sm">Submit your code to see design feedback</span>
+            </div>
+          } @else {
+            <!-- Score -->
+            @if (testResult()) {
+              <div class="rounded-lg bg-[#161b22] border border-[#30363d] p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-sm font-semibold text-white">Design Score</span>
+                  <span class="text-2xl font-bold text-violet-400">78</span>
+                </div>
+                <div class="w-full bg-[#0d1117] rounded-full h-2">
+                  <div
+                    class="bg-gradient-to-r from-violet-600 to-pink-500 h-2 rounded-full"
+                    style="width: 78%"
+                  ></div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                  <span>Tests: {{ testResult()!.passed }}/{{ testResult()!.total }} passed</span>
+                  <span>Good</span>
+                </div>
+              </div>
+            }
+
+            <!-- Feedback Items -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Design Review
+              </h3>
+              @for (item of feedback(); track item.message) {
+                <div
+                  [class]="
+                    'flex items-start gap-3 rounded-lg p-3 text-sm ' +
+                    (item.type === 'pass'
+                      ? 'bg-green-950/30 border border-green-900/40'
+                      : item.type === 'warn'
+                        ? 'bg-yellow-950/30 border border-yellow-900/40'
+                        : 'bg-blue-950/30 border border-blue-900/40')
+                  "
+                >
+                  @if (item.type === 'pass') {
+                    <span class="text-green-400 mt-0.5 flex-shrink-0">✔</span>
+                    <span class="text-green-300">{{ item.message }}</span>
+                  } @else if (item.type === 'warn') {
+                    <span class="text-yellow-400 mt-0.5 flex-shrink-0">⚠</span>
+                    <span class="text-yellow-300">{{ item.message }}</span>
+                  } @else {
+                    <span class="text-blue-400 mt-0.5 flex-shrink-0">💡</span>
+                    <span class="text-blue-300">{{ item.message }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- RIGHT PANEL: Editor + Console -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Editor Toolbar -->
+      <div
+        class="flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-[#30363d]"
+      >
+        <!-- Language Selector -->
+        <div class="flex items-center gap-1 bg-[#0d1117] rounded-md p-1">
+          @for (lang of languages; track lang) {
+            <button
+              (click)="selectLanguage(lang)"
+              [class]="
+                selectedLanguage() === lang
+                  ? 'px-3 py-1 text-xs rounded font-medium bg-[#21262d] text-white border border-[#30363d]'
+                  : 'px-3 py-1 text-xs rounded font-medium text-gray-500 hover:text-gray-300 transition-colors'
+              "
+            >
+              {{ lang }}
+            </button>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+          <button
+            (click)="runCode()"
+            [disabled]="isRunning() || isSubmitting()"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-gray-300 disabled:opacity-50 transition-colors"
+          >
+            @if (isRunning()) {
+              <span
+                class="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"
+              ></span>
+              Running...
+            } @else {
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Run
+            }
+          </button>
+          <button
+            (click)="submit()"
+            [disabled]="isRunning() || isSubmitting()"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-violet-600 hover:bg-violet-500 text-white font-semibold disabled:opacity-50 transition-colors"
+          >
+            @if (isSubmitting()) {
+              <span
+                class="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"
+              ></span>
+              Analyzing...
+            } @else {
+              Submit
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Monaco Editor -->
+      <div class="flex-1 overflow-hidden">
+        <ngx-monaco-editor
+          class="h-full w-full"
+          [options]="editorOptions()"
+          [ngModel]="code()"
+          (ngModelChange)="onCodeChange($event)"
+        />
+      </div>
+
+      <!-- Console -->
+      @if (showConsole()) {
+        <div class="border-t border-[#30363d] bg-[#0d1117]" style="height: 180px">
+          <div
+            class="flex items-center justify-between px-4 py-1.5 border-b border-[#30363d] bg-[#161b22]"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400 font-semibold">Console</span>
+              @if (testResult()) {
+                <span
+                  [class]="
+                    testResult()!.passed === testResult()!.total
+                      ? 'text-xs text-green-400 font-medium'
+                      : 'text-xs text-red-400 font-medium'
+                  "
+                >
+                  {{ testResult()!.passed }}/{{ testResult()!.total }} tests passed
+                </span>
+              }
+            </div>
+            <button
+              (click)="showConsole.set(false)"
+              class="text-gray-500 hover:text-gray-300 text-xs transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          <pre
+            class="p-4 text-xs font-mono text-gray-300 overflow-y-auto h-[calc(100%-36px)] leading-relaxed"
+            >{{ consoleOutput() }}</pre
+          >
+        </div>
+      }
+    </div>
+  </div>
+</div>
