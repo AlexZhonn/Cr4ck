@@ -1,0 +1,31 @@
+<header class="landing-header">
+  <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 text-emerald-400">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="4 17 10 11 4 5"></polyline>
+        <line x1="12" y1="19" x2="20" y2="19"></line>
+      </svg>
+      <span class="font-mono font-bold text-lg tracking-tight" (click)="GotoLandingPage()"
+        >Cr4ck</span
+      >
+    </div>
+    <div class="text-xs font-mono text-gray-500">OOP &amp; System Design Practice</div>
+  </div>
+
+  <div class="nav-actions">
+    <button class="btn-nav" (click)="GotoProblems()">Problems</button>
+    <button class="btn-nav" (click)="GotoAbout()">About</button>
+    <button class="btn-signin" (click)="GotoLogin()">Sign in</button>
+    <button class="btn-register" (click)="GotoRegister()">Register</button>
+  </div>
+</header>
