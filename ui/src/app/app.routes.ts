@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
+import { LandingPageComponent } from './LandingPage/landing';
 import { SandboxComponent } from './sandbox/sandbox';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'sandbox', pathMatch: 'full' },
+  { path: '', component: LandingPageComponent },
   { path: 'sandbox', component: SandboxComponent },
-  // {path: './', component: LandingPage}
 ];

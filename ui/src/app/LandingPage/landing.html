@@ -1,0 +1,97 @@
+<div class="landing-root">
+  <!-- Header -->
+  <header class="landing-header">
+    <div class="flex items-center gap-2 text-emerald-400">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="4 17 10 11 4 5"></polyline>
+        <line x1="12" y1="19" x2="20" y2="19"></line>
+      </svg>
+      <span class="font-mono font-bold text-lg tracking-tight">Cr4ck</span>
+    </div>
+    <div class="text-sm font-mono text-gray-500">OOP &amp; System Design Practice</div>
+  </header>
+
+  <!-- Hero -->
+  <main class="landing-hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>AI-Powered Code Evaluation</span>
+      </div>
+
+      <h1 class="hero-title">
+        Master <span class="text-emerald-400">OOP</span> &amp; System Design
+      </h1>
+
+      <p class="hero-subtitle">
+        Practice real-world object-oriented design challenges across multiple languages and
+        frameworks. Get instant AI architectural feedback on your submissions.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-launch" (click)="launch()">
+          Start Practicing
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Feature pills -->
+      <div class="feature-pills">
+        <span class="pill">Java</span>
+        <span class="pill">Python</span>
+        <span class="pill">TypeScript</span>
+        <span class="pill">C++</span>
+        <span class="pill pill-accent">AI Feedback</span>
+      </div>
+    </div>
+
+    <!-- Terminal preview decoration -->
+    <div class="terminal-preview" aria-hidden="true">
+      <div class="terminal-bar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="terminal-title">solution.java</span>
+      </div>
+      <pre
+        class="terminal-code"
+      ><span class="c-keyword">public class</span> <span class="c-class">Library</span> &#123;
+  <span class="c-keyword">private final</span> List&lt;Book&gt; books;
+
+  <span class="c-keyword">public</span> <span class="c-fn">Library</span>() &#123;
+    <span class="c-keyword">this</span>.books = <span class="c-keyword">new</span> ArrayList&lt;&gt;();
+  &#125;
+
+  <span class="c-keyword">public boolean</span> <span class="c-fn">borrow</span>(Book book, User user) &#123;
+    <span class="c-keyword">if</span> (!book.isAvailable()) <span class="c-keyword">return false</span>;
+    book.checkout(user);
+    <span class="c-keyword">return true</span>;
+  &#125;
+&#125;</pre>
+      <div class="terminal-feedback">
+        <span class="feedback-pass">✔</span> Encapsulation implemented correctly
+      </div>
+      <div class="terminal-feedback">
+        <span class="feedback-warn">⚠</span> Consider a BorrowService to separate concerns
+      </div>
+    </div>
+  </main>
+</div>

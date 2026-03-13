@@ -4,14 +4,7 @@
   overflow: hidden;
 }
 
-/* Make monaco editor fill its container */
+/* Override ngx-monaco-editor-v2 hardcoded 200px host height */
 ngx-monaco-editor {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-ngx-monaco-editor .editor-container {
-  flex: 1;
   height: 100% !important;
 }
