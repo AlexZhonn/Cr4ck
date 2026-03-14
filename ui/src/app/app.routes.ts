@@ -5,6 +5,8 @@ import { LoginComponent } from './Login/login';
 import { RegisterComponent } from './Register/register';
 import { ProblemSetComponent } from './ProblemSet/problem-set';
 import { authGuard } from './guards/auth.guard';
+import { AboutComponent } from './About/about';
+import { ProblemComponent } from './Problem/problem';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -12,4 +14,6 @@ export const routes: Routes = [
   { path: 'sandbox', component: SandboxComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'about', component: AboutComponent },
+  { path: 'problems/:id', component: ProblemComponent },
 ];

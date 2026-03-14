@@ -1,0 +1,150 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+}
+
+.about-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.about-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+}
+
+.about-content {
+  width: 100%;
+  max-width: 760px;
+}
+
+/* Hero */
+.about-hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.terminal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.about-subtitle {
+  font-size: 1rem;
+  color: #9ca3af;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto 2rem auto;
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  background-color: #34d399;
+  color: #0a0a0a;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-cta:hover {
+  background-color: #6ee7b7;
+}
+
+/* Cards grid */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 640px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about-card {
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.card-icon {
+  color: #34d399;
+  margin-bottom: 0.875rem;
+}
+
+.about-card h3 {
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.about-card p {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Stack pills */
+.about-stack {
+  text-align: center;
+}
+
+.stack-label {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.stack-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pill {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+}

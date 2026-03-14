@@ -130,18 +130,44 @@ Please evaluate this submission."""
             detail="AI returned malformed response — please try again",
         )
 
-    # Award XP and increment challenges_completed
+    # Award XP, increment challenges_completed, and update streak
+    from datetime import date, timezone
     xp_earned = _xp_for_score(feedback.score)
+
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT last_login_at, streak_days FROM users WHERE id = %s",
+            (str(current_user.id),),
+        )
+        row = cur.fetchone()
+        last_login = row["last_login_at"]
+        current_streak = row["streak_days"] or 0
+
+    today = date.today()
+    if last_login is None:
+        new_streak = 1
+    else:
+        last_date = last_login.astimezone(timezone.utc).date()
+        delta = (today - last_date).days
+        if delta == 0:
+            new_streak = current_streak  # already active today
+        elif delta == 1:
+            new_streak = current_streak + 1  # consecutive day
+        else:
+            new_streak = 1  # gap — reset
+
     with db.cursor() as cur:
         cur.execute(
             """
             UPDATE users
             SET xp = xp + %s,
                 challenges_completed = challenges_completed + 1,
+                streak_days = %s,
+                last_login_at = NOW(),
                 updated_at = NOW()
             WHERE id = %s
             """,
-            (xp_earned, str(current_user.id)),
+            (xp_earned, new_streak, str(current_user.id)),
         )
 
     feedback.xp_earned = xp_earned

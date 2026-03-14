@@ -2,45 +2,9 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../Header/header';
+import { Challenge, CHALLENGES } from '../data/challenges';
 
-interface Challenge {
-  id: string;
-  title: string;
-  framework: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  description: string;
-}
 
-const CHALLENGES: Challenge[] = [
-  {
-    id: 'oop_001',
-    title: 'Library System',
-    framework: 'Java / OOP',
-    difficulty: 'Easy',
-    description: `Design a simple library system where users can borrow and return books.\n- Users can borrow books\n- Users can return books\n- Library tracks inventory\n- A book cannot be borrowed if already checked out`,
-  },
-  {
-    id: 'oop_002',
-    title: 'Notification Service',
-    framework: 'TypeScript / Design Patterns',
-    difficulty: 'Medium',
-    description: `Design a notification service that supports multiple delivery channels (Email, SMS, Push).\n- Send notifications through Email, SMS, and Push channels\n- Users can subscribe to specific channels\n- Channels can be added without modifying core logic`,
-  },
-  {
-    id: 'oop_003',
-    title: 'E-Commerce Cart',
-    framework: 'Python / OOP',
-    difficulty: 'Medium',
-    description: `Build a shopping cart system with discount strategies.\n- Add/remove items from cart\n- Apply discount codes (percentage, fixed amount)\n- Calculate total with taxes\n- Support the Strategy pattern for pricing`,
-  },
-  {
-    id: 'sys_001',
-    title: 'Rate Limiter',
-    framework: 'Java / System Design',
-    difficulty: 'Hard',
-    description: `Implement a token bucket rate limiter that can throttle API requests per user.\n- Limit requests per user per time window\n- Token bucket algorithm\n- Thread-safe implementation\n- Configurable rate and burst capacity`,
-  },
-];
 
 @Component({
   selector: 'app-problem-set',
@@ -58,7 +22,7 @@ export class ProblemSetComponent {
   }
 
   selectChallenge(id: string) {
-    this.router.navigate(['/sandbox'], { queryParams: { challenge: id } });
+    this.router.navigate(['/problems', id]);
   }
 
   difficultyClass(difficulty: string): string {

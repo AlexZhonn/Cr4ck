@@ -29,10 +29,12 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => this._user() !== null);
 
-  constructor(private router: Router) {
-    // On startup, try to restore session from stored tokens
+  constructor(private router: Router) {}
+
+  /** Called by APP_INITIALIZER — awaited before any route renders. */
+  async restore(): Promise<void> {
     if (this.getAccessToken()) {
-      this.fetchMe().catch(() => this.clearTokens());
+      await this.fetchMe().catch(() => this.clearTokens());
     }
   }
 
