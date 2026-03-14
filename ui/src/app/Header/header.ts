@@ -22,6 +22,7 @@ export class HeaderComponent {
   GotoRegister() { this.router.navigate(['/register']); }
   GotoProblems() { this.router.navigate(['/problems']); }
   GotoAbout() { this.router.navigate(['/about']); }
+  GotoProfile() { this.router.navigate(['/profile']); }
 
   async logout() {
     await this.auth.logout();

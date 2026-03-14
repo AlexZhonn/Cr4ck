@@ -25,7 +25,7 @@
     <button class="btn-nav" (click)="GotoProblems()">Problems</button>
     <button class="btn-nav" (click)="GotoAbout()">About</button>
     @if (isLoggedIn()) {
-      <span class="nav-username">{{ user()?.username }}</span>
+      <button class="nav-username btn-nav" (click)="GotoProfile()">{{ user()?.username }}</button>
       <button class="btn-signin" (click)="logout()">Sign out</button>
     } @else {
       <button class="btn-signin" (click)="GotoLogin()">Sign in</button>

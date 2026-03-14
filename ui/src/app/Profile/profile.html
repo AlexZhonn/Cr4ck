@@ -1,0 +1,59 @@
+<div class="profile-root">
+  <app-header></app-header>
+
+  @if (user()) {
+  <main class="profile-container">
+    <div class="profile-content">
+
+      <!-- Avatar + name -->
+      <div class="profile-hero">
+        <div class="avatar">{{ user()!.username[0].toUpperCase() }}</div>
+        <div>
+          <h1 class="profile-name">{{ user()!.username }}</h1>
+          <p class="profile-email">{{ user()!.email }}</p>
+          <span class="role-badge">{{ user()!.role }}</span>
+        </div>
+      </div>
+
+      <!-- Level + XP bar -->
+      <div class="xp-card">
+        <div class="xp-header">
+          <span class="xp-label">Level {{ level(user()!.xp) }}</span>
+          <span class="xp-count font-mono">{{ user()!.xp }} XP total</span>
+        </div>
+        <div class="xp-bar-track">
+          <div class="xp-bar-fill" [style.width.%]="xpProgress(user()!.xp)"></div>
+        </div>
+        <p class="xp-next">{{ 100 - xpProgress(user()!.xp) }} XP to level {{ level(user()!.xp) + 1 }}</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value text-emerald-400">{{ user()!.challenges_completed }}</span>
+          <span class="stat-label">Challenges completed</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value text-amber-400">{{ user()!.streak_days }}</span>
+          <span class="stat-label">Day streak</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value text-purple-400">{{ level(user()!.xp) }}</span>
+          <span class="stat-label">Current level</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button class="btn-problems" (click)="goProblems()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        Browse challenges
+      </button>
+
+    </div>
+  </main>
+  }
+</div>

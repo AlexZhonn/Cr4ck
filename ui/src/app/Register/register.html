@@ -79,7 +79,9 @@
           />
         </div>
 
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
 
         <button type="submit" class="btn-submit" [disabled]="isLoading">
           {{ isLoading ? 'Creating account...' : 'Get Started' }}

@@ -27,7 +27,7 @@ interface EvaluationFeedback {
 export class SandboxComponent implements OnInit {
   challenges = CHALLENGES;
   activeChallengeId = signal(CHALLENGES[0].id);
-  code = signal(CHALLENGES[0].starterCode);
+  code = CHALLENGES[0].starterCode;
   isEvaluating = signal(false);
   feedback = signal<EvaluationFeedback | null>(null);
   evalError = signal<string | null>(null);
@@ -51,7 +51,7 @@ export class SandboxComponent implements OnInit {
     const challenge = CHALLENGES.find(c => c.id === id);
     if (!challenge) return;
     this.activeChallengeId.set(id);
-    this.code.set(challenge.starterCode);
+    this.code = challenge.starterCode;
     this.feedback.set(null);
     this.editorOptions = this.buildEditorOptions(challenge.language);
   }
@@ -79,7 +79,7 @@ export class SandboxComponent implements OnInit {
           challenge_id: challenge.id,
           challenge_title: challenge.title,
           language: challenge.language,
-          code: this.code(),
+          code: this.code,
           problem_description: challenge.description,
         }),
       });
