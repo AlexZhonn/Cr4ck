@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../Header/header';
-import { Challenge, CHALLENGES } from '../data/challenges';
+import { CHALLENGES, TOPICS, Topic } from '../data/challenges';
 
 @Component({
   selector: 'app-problem-set',
@@ -12,30 +12,26 @@ import { Challenge, CHALLENGES } from '../data/challenges';
   styleUrl: './problem-set.css',
 })
 export class ProblemSetComponent {
-  challenges = CHALLENGES;
+  readonly topics = TOPICS;
+  readonly totalChallenges = CHALLENGES.length;
+
   constructor(private router: Router) {}
 
-  goHome() {
-    this.router.navigate(['/']);
+  countForTopic(topic: Topic): number {
+    return CHALLENGES.filter(c => c.topic === topic).length;
   }
 
-  selectChallenge(id: string) {
-    this.router.navigate(['/problems', id]);
+  difficultyRange(topic: Topic): string {
+    const challenges = CHALLENGES.filter(c => c.topic === topic);
+    const has = (d: string) => challenges.some(c => c.difficulty === d);
+    const parts: string[] = [];
+    if (has('Easy')) parts.push('Easy');
+    if (has('Medium')) parts.push('Medium');
+    if (has('Hard')) parts.push('Hard');
+    return parts.join(' · ');
   }
 
-  difficultyClass(difficulty: string): string {
-    const map: Record<string, string> = {
-      Easy: 'badge-easy',
-      Medium: 'badge-medium',
-      Hard: 'badge-hard',
-    };
-    return map[difficulty] ?? '';
-  }
-
-  descriptionPreview(description: string): string {
-    return description
-      .split('\n')
-      .filter((line) => !line.startsWith('-'))
-      .join(' ');
+  goToTopic(topic: Topic) {
+    this.router.navigate(['/problems/topic', topic]);
   }
 }

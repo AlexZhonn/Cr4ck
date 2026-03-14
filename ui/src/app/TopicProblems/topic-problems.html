@@ -1,0 +1,71 @@
+<div class="topic-page">
+  <app-header></app-header>
+
+  @if (topicMeta()) {
+    <main class="topic-main">
+
+      <!-- Back + title -->
+      <div class="topic-nav">
+        <button class="btn-back" (click)="goBack()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          All topics
+        </button>
+      </div>
+
+      <div class="topic-header">
+        <h1 class="topic-title">{{ topicMeta()!.label }}</h1>
+        <p class="topic-desc">{{ topicMeta()!.description }}</p>
+      </div>
+
+      <!-- Difficulty filter -->
+      <div class="filter-bar">
+        @for (f of filters; track f) {
+          <button
+            class="filter-btn"
+            [class.active]="activeFilter() === f"
+            [class.filter-easy]="f === 'Easy'"
+            [class.filter-medium]="f === 'Medium'"
+            [class.filter-hard]="f === 'Hard'"
+            (click)="setFilter(f)">
+            {{ f }}
+            <span class="filter-count">{{ counts()[f] }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Challenge list -->
+      @if (challenges().length === 0) {
+        <div class="empty-state">
+          <p>No {{ activeFilter() === 'All' ? '' : activeFilter() + ' ' }}challenges in this topic yet.</p>
+        </div>
+      } @else {
+        <div class="challenge-list">
+          @for (challenge of challenges(); track challenge.id) {
+            <div class="challenge-row" (click)="selectChallenge(challenge.id)">
+              <div class="row-left">
+                <span [class]="'difficulty-badge ' + difficultyClass(challenge.difficulty)">
+                  {{ challenge.difficulty }}
+                </span>
+                <div class="row-info">
+                  <h3 class="row-title">{{ challenge.title }}</h3>
+                  <p class="row-framework">{{ challenge.framework }}</p>
+                  <p class="row-desc">{{ descriptionPreview(challenge.description) }}</p>
+                </div>
+              </div>
+              <svg class="row-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          }
+        </div>
+      }
+
+    </main>
+  }
+</div>

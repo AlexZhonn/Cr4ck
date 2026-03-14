@@ -4,6 +4,7 @@ import { SandboxComponent } from './sandbox/sandbox';
 import { LoginComponent } from './Login/login';
 import { RegisterComponent } from './Register/register';
 import { ProblemSetComponent } from './ProblemSet/problem-set';
+import { TopicProblemsComponent } from './TopicProblems/topic-problems';
 import { authGuard } from './guards/auth.guard';
 import { AboutComponent } from './About/about';
 import { ProfileComponent } from './Profile/profile';
@@ -12,10 +13,12 @@ import { ProblemComponent } from './Problem/problem';
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'problems', component: ProblemSetComponent },
+  // topic must come before :id so Angular doesn't treat "topic" as a problem id
+  { path: 'problems/topic/:topic', component: TopicProblemsComponent },
+  { path: 'problems/:id', component: ProblemComponent },
   { path: 'sandbox', component: SandboxComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'problems/:id', component: ProblemComponent },
   { path: 'profile', component: ProfileComponent },
 ];

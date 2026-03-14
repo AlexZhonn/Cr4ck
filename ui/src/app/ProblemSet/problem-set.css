@@ -5,34 +5,8 @@
   font-family: sans-serif;
 }
 
-.problem-set-header {
-  height: 4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  padding: 0 1.5rem;
-  background-color: #111111;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #34d399;
-  cursor: pointer;
-  font-family: monospace;
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.025em;
-  transition: opacity 0.15s;
-}
-
-.logo:hover {
-  opacity: 0.8;
-}
-
 .problem-set-main {
-  max-width: 80rem;
+  max-width: 72rem;
   margin: 0 auto;
   padding: 3rem 1.5rem;
 }
@@ -42,7 +16,7 @@
 }
 
 .problem-set-intro h1 {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 0.5rem;
@@ -51,111 +25,114 @@
 .problem-set-intro p {
   color: #9ca3af;
   margin: 0;
+  font-size: 1rem;
 }
 
-.challenge-grid {
+/* Topic grid — 2 columns on md+, 1 on mobile */
+.topic-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
 }
 
 @media (min-width: 768px) {
-  .challenge-grid {
+  .topic-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1024px) {
-  .challenge-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.challenge-card {
+/* Topic card */
+.topic-card {
   background-color: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1.75rem;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   transition: border-color 0.2s, transform 0.2s;
 }
 
-.challenge-card:hover {
-  border-color: rgba(52, 211, 153, 0.3);
-  transform: translateY(-4px);
+.topic-card:hover {
+  border-color: rgba(52, 211, 153, 0.35);
+  transform: translateY(-3px);
 }
 
-.challenge-card:hover .card-icon {
+.topic-card:hover .topic-card-icon {
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.12);
+}
+
+.topic-card:hover .topic-card-title {
   color: #34d399;
 }
 
-.challenge-card:hover .card-title {
+.topic-card:hover .topic-arrow {
   color: #34d399;
+  transform: translateX(3px);
 }
 
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.difficulty-badge {
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-family: monospace;
-  font-weight: 500;
-}
-
-.badge-easy {
-  background-color: rgba(52, 211, 153, 0.1);
-  color: #34d399;
-}
-
-.badge-medium {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #fbbf24;
-}
-
-.badge-hard {
-  background-color: rgba(244, 63, 94, 0.1);
-  color: #fb7185;
-}
-
-.card-icon {
-  padding: 0.5rem;
+/* Icon */
+.topic-card-icon {
+  width: 3rem;
+  height: 3rem;
   background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 0.5rem;
-  color: #9ca3af;
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  color: #9ca3af;
+  transition: color 0.2s, background-color 0.2s;
 }
 
-.card-title {
-  font-size: 1.25rem;
+/* Body */
+.topic-card-body {
+  flex: 1;
+}
+
+.topic-card-title {
+  font-size: 1.125rem;
   font-weight: 600;
   color: #ffffff;
   margin: 0 0 0.5rem;
   transition: color 0.2s;
 }
 
-.card-framework {
-  font-size: 0.875rem;
-  color: #9ca3af;
-  font-family: monospace;
-  margin: 0 0 1rem;
-}
-
-.card-description {
+.topic-card-desc {
   font-size: 0.875rem;
   color: #6b7280;
   line-height: 1.6;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+}
+
+/* Footer row */
+.topic-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.topic-count {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.08);
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.375rem;
+}
+
+.topic-range {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: #9ca3af;
+  flex: 1;
+}
+
+.topic-arrow {
+  color: #4b5563;
+  transition: color 0.2s, transform 0.2s;
+  flex-shrink: 0;
 }

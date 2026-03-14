@@ -50,13 +50,17 @@ Angular proxies `/api/*` → `http://localhost:8000` via `proxy.conf.json` (to b
 ui/src/app/
   LandingPage/      Hero + CTA
   Header/           Nav (logo, links, auth state)
-  ProblemSet/       Challenge grid with difficulty badges
+  ProblemSet/       Topic hub — 2-col grid of topic cards → /problems/topic/:topic
+  TopicProblems/    Topic detail page — filtered challenge list with difficulty tabs
+  Problem/          Individual problem detail (description + starter code + CTA)
   sandbox/          Main IDE: sidebar + Monaco + AI feedback pane
   Login/            JWT login form
   Register/         Registration form
-  Problem/          Individual problem view (stub)
-  services/         AuthService, EvaluateService (to be created)
-  guards/           AuthGuard (to be created)
+  Profile/          User stats: XP, level, streak, challenges completed
+  About/            Static about page
+  data/challenges   Challenge[] + Topic type + TOPICS metadata — single source of truth
+  services/         AuthService (JWT lifecycle)
+  guards/           authGuard (CanActivateFn, protects /sandbox)
 
 api/
   main.py           FastAPI entry, CORS, router mounting
@@ -65,7 +69,7 @@ api/
   auth/             tokens.py, password.py, dependencies.py
   models/user.py    Pydantic schemas + enums
   routers/auth.py   /auth/* endpoints
-  routers/evaluate.py  /api/evaluate (to be created)
+  routers/evaluate.py  POST /api/evaluate — Claude API, XP award, streak tracking
   migrations/       Raw SQL migration files
 ```
 
@@ -95,13 +99,40 @@ api/
 
 ---
 
+## Routes
+
+| Path | Component | Notes |
+|------|-----------|-------|
+| `/` | LandingPageComponent | Hero + CTA |
+| `/problems` | ProblemSetComponent | Topic hub |
+| `/problems/topic/:topic` | TopicProblemsComponent | Topic detail + difficulty filter |
+| `/problems/:id` | ProblemComponent | Problem detail |
+| `/sandbox` | SandboxComponent | Auth-guarded |
+| `/login` | LoginComponent | |
+| `/register` | RegisterComponent | |
+| `/about` | AboutComponent | |
+| `/profile` | ProfileComponent | |
+
+> **Route order matters:** `problems/topic/:topic` must appear before `problems/:id` in `app.routes.ts` or Angular will match "topic" as a problem ID.
+
+---
+
 ## What's Next (Priority Order)
 
-1. `api/requirements.txt` — pin all Python deps
-2. `ui/proxy.conf.json` — proxy Angular `/api` → FastAPI
-3. `AuthService` (Angular) — token storage + API calls
-4. Wire Login/Register forms to backend
-5. Route guards + header auth state
-6. `POST /api/evaluate` FastAPI endpoint using Claude API
-7. Wire evaluate to sandbox frontend
-8. `Problem` component with dynamic routing `/problems/:id`
+1. `ANTHROPIC_API_KEY` — add to `api/.env` to enable `/api/evaluate`
+2. Leaderboard — `/leaderboard` page + `GET /api/leaderboard` backend endpoint (top users by XP)
+3. Backend `/api/challenges` route — move challenges from static frontend data to DB
+4. Email verification flow — `is_verified` flag exists in DB but no flow to set it
+5. Prevent duplicate XP — users earn XP on every submit; should check if challenge already completed
+6. Makefile — `make dev`, `make dev-api`, `make dev-ui`, `make check` targets
+7. GitHub OAuth — buttons exist in Login/Register UI but not wired
+
+---
+
+## Known Issues / Tech Debt
+
+- **Duplicate XP**: `evaluate.py` increments `challenges_completed` and awards XP on every submission. No deduplication check. A user can farm XP by re-submitting.
+- **Challenges are frontend-only**: `data/challenges.ts` is the single source of truth. No backend `/api/challenges` route. Makes it hard to add challenges without a code deploy.
+- **No email verification**: `is_verified` column in DB is always `false`. No email sending infrastructure (SMTP/Resend).
+- **Sandbox not auth-gated for evaluate**: The evaluate button in the sandbox calls `/api/evaluate` without forcing login first (the guard only applies at route level; the button doesn't check `isLoggedIn` before calling).
+- **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct, but Angular's router doesn't support static segments before dynamic ones without ordering — test this on every route refactor.
