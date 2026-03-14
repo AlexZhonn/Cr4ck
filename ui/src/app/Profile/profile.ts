@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
-import { AuthService, UserPublic } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -12,10 +12,11 @@ import { AuthService, UserPublic } from '../services/auth.service';
   styleUrl: './profile.css',
 })
 export class ProfileComponent implements OnInit {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
   readonly user = this.auth.user;
   readonly isLoggedIn = this.auth.isLoggedIn;
-
-  constructor(private router: Router, private auth: AuthService) {}
 
   ngOnInit() {
     if (!this.isLoggedIn()) {

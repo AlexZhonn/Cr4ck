@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -11,10 +11,11 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './header.css',
 })
 export class HeaderComponent {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
   readonly user = this.auth.user;
   readonly isLoggedIn = this.auth.isLoggedIn;
-
-  constructor(private router: Router, private auth: AuthService) {}
 
   GotoLandingPage() { this.router.navigate(['/']); }
   GotoSandbox() { this.router.navigate(['/sandbox']); }

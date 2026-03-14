@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../Header/header';
 import { Challenge, CHALLENGES } from '../data/challenges';
 
-
-
 @Component({
   selector: 'app-problem-set',
   standalone: true,
