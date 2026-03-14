@@ -1,0 +1,43 @@
+<div class="problem-set-page">
+  <!-- Header -->
+  <app-header></app-header>
+  <!-- Main -->
+  <main class="problem-set-main">
+    <div class="problem-set-intro">
+      <h1>Problem Set</h1>
+      <p>Select a challenge to practice your system design and OOP skills.</p>
+    </div>
+
+    <div class="challenge-grid">
+      @for (challenge of challenges; track challenge.id) {
+        <div class="challenge-card" (click)="selectChallenge(challenge.id)">
+          <div class="card-top">
+            <span [class]="'difficulty-badge ' + difficultyClass(challenge.difficulty)">
+              {{ challenge.difficulty }}
+            </span>
+            <div class="card-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <h3 class="card-title">{{ challenge.title }}</h3>
+          <p class="card-framework">{{ challenge.framework }}</p>
+          <p class="card-description">{{ descriptionPreview(challenge.description) }}</p>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -186,3 +186,10 @@ input:focus {
   color: #34d399;
   text-decoration: none;
 }
+
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}

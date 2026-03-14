@@ -22,7 +22,7 @@ export class HeaderComponent {
     this.router.navigate(['/register']);
   }
   GotoProblems() {
-    this.router.navigate(['/sandbox']);
+    this.router.navigate(['/problems']);
   }
   GotoAbout() {
     this.router.navigate(['/about']);

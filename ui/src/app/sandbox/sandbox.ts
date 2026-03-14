@@ -1,7 +1,7 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 interface Challenge {
@@ -147,9 +147,14 @@ export class SandboxComponent implements OnInit {
 
   editorOptions = this.buildEditorOptions(CHALLENGES[0].language);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    const challengeId = this.route.snapshot.queryParamMap.get('challenge');
+    if (challengeId) {
+      this.selectChallenge(challengeId);
+    }
+  }
 
   selectChallenge(id: string) {
     const challenge = CHALLENGES.find(c => c.id === id);

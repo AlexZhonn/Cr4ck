@@ -1,0 +1,161 @@
+.problem-set-page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #d1d5db;
+  font-family: sans-serif;
+}
+
+.problem-set-header {
+  height: 4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  background-color: #111111;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #34d399;
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+  transition: opacity 0.15s;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+.problem-set-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.problem-set-intro {
+  margin-bottom: 2.5rem;
+}
+
+.problem-set-intro h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.problem-set-intro p {
+  color: #9ca3af;
+  margin: 0;
+}
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .challenge-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .challenge-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.challenge-card {
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.challenge-card:hover {
+  border-color: rgba(52, 211, 153, 0.3);
+  transform: translateY(-4px);
+}
+
+.challenge-card:hover .card-icon {
+  color: #34d399;
+}
+
+.challenge-card:hover .card-title {
+  color: #34d399;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.difficulty-badge {
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.badge-easy {
+  background-color: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+}
+
+.badge-medium {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+}
+
+.badge-hard {
+  background-color: rgba(244, 63, 94, 0.1);
+  color: #fb7185;
+}
+
+.card-icon {
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+  transition: color 0.2s;
+}
+
+.card-framework {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-family: monospace;
+  margin: 0 0 1rem;
+}
+
+.card-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
