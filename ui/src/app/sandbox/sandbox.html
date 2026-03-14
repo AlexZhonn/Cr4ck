@@ -6,7 +6,6 @@
       class="flex items-center gap-2 text-emerald-400 cursor-pointer hover:opacity-80 transition-opacity"
       (click)="goHome()"
     >
-      <!-- Terminal icon -->
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="4 17 10 11 4 5"></polyline>
@@ -25,33 +24,37 @@
       <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">
         Challenges
       </div>
-      <nav class="flex-1 px-2 space-y-1">
-        @for (challenge of challenges; track challenge.id) {
-          <button
-            (click)="selectChallenge(challenge.id)"
-            [class]="
-              'w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between group ' +
-              (activeChallengeId() === challenge.id
-                ? 'bg-white/10 text-white'
-                : 'text-gray-400 hover:bg-white/5 hover:text-gray-200')
-            "
-          >
-            <div class="flex flex-col gap-1 min-w-0">
-              <span class="font-medium truncate">{{ challenge.title }}</span>
-              <span class="text-xs opacity-60 font-mono">{{ challenge.framework }}</span>
-            </div>
-            <!-- Chevron -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"
-              [class]="'shrink-0 transition-opacity ' + (activeChallengeId() === challenge.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')"
+
+      @if (isLoadingChallenges()) {
+        <div class="px-4 py-6 text-xs font-mono text-gray-600 text-center">Loading…</div>
+      } @else {
+        <nav class="flex-1 px-2 space-y-1">
+          @for (challenge of challenges(); track challenge.id) {
+            <button
+              (click)="selectChallenge(challenge.id)"
+              [class]="
+                'w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between group ' +
+                (activeChallengeId() === challenge.id
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-400 hover:bg-white/5 hover:text-gray-200')
+              "
             >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        }
-      </nav>
+              <div class="flex flex-col gap-1 min-w-0">
+                <span class="font-medium truncate">{{ challenge.title }}</span>
+                <span class="text-xs opacity-60 font-mono">{{ challenge.framework }}</span>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                [class]="'shrink-0 transition-opacity ' + (activeChallengeId() === challenge.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          }
+        </nav>
+      }
     </aside>
 
     <!-- Workspace -->
@@ -59,17 +62,21 @@
 
       <!-- Top Half: Problem Description -->
       <div class="h-1/3 border-b border-white/10 bg-[#141414] p-6 overflow-y-auto">
-        <div class="max-w-3xl">
-          <div class="flex items-center gap-3 mb-4">
-            <h1 class="text-2xl font-semibold text-white tracking-tight">
-              {{ activeChallenge.title }}
-            </h1>
-            <span [class]="'px-2 py-0.5 rounded text-xs font-mono ' + difficultyClass">
-              {{ activeChallenge.difficulty }}
-            </span>
+        @if (activeChallenge) {
+          <div class="max-w-3xl">
+            <div class="flex items-center gap-3 mb-4">
+              <h1 class="text-2xl font-semibold text-white tracking-tight">
+                {{ activeChallenge.title }}
+              </h1>
+              <span [class]="'px-2 py-0.5 rounded text-xs font-mono ' + difficultyClass">
+                {{ activeChallenge.difficulty }}
+              </span>
+            </div>
+            <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ activeChallenge.description }}</div>
           </div>
-          <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ activeChallenge.description }}</div>
-        </div>
+        } @else if (!isLoadingChallenges()) {
+          <p class="text-gray-500 text-sm">No challenge selected.</p>
+        }
       </div>
 
       <!-- Bottom Half: Editor + Feedback -->
@@ -77,10 +84,8 @@
 
         <!-- Editor Pane -->
         <div class="flex-1 flex flex-col border-r border-white/10 bg-[#0a0a0a]">
-          <!-- Editor toolbar -->
           <div class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]">
             <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
-              <!-- Code icon -->
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="16 18 22 12 16 6"></polyline>
@@ -90,14 +95,13 @@
             </div>
             <button
               (click)="evaluateCode()"
-              [disabled]="isEvaluating()"
+              [disabled]="isEvaluating() || !activeChallenge"
               class="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               @if (isEvaluating()) {
                 <span class="w-3 h-3 border border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
                 Evaluating...
               } @else {
-                <!-- Play icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
@@ -106,7 +110,6 @@
             </button>
           </div>
 
-          <!-- Monaco Editor -->
           <div class="flex-1 overflow-hidden" style="min-height: 0;">
             <ngx-monaco-editor
               style="height: 100%; display: block;"
@@ -120,7 +123,6 @@
         <div class="w-1/3 flex flex-col bg-[#141414]">
           <div class="h-10 border-b border-white/10 flex items-center px-4 bg-[#111111]">
             <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
-              <!-- Cpu icon -->
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
@@ -155,6 +157,9 @@
                     <span class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
                       +{{ feedback()!.xp_earned }} XP
                     </span>
+                  }
+                  @if (!feedback()!.is_first_completion) {
+                    <span class="text-xs font-mono text-gray-500 ml-1">(already completed)</span>
                   }
                 </div>
                 <!-- Summary -->
@@ -194,7 +199,6 @@
               </div>
             } @else {
               <div class="flex flex-col items-center justify-center h-full text-gray-600 gap-3">
-                <!-- Layout template icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20"
                   stroke-linecap="round" stroke-linejoin="round">

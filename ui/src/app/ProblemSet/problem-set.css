@@ -28,6 +28,8 @@
   font-size: 1rem;
 }
 
+.load-error { color: #fb7185 !important; }
+
 /* Topic grid — 2 columns on md+, 1 on mobile */
 .topic-grid {
   display: grid;

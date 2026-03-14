@@ -1,8 +1,9 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
-import { CHALLENGES, TOPICS, Challenge, Topic } from '../data/challenges';
+import { TOPICS, Challenge, Topic } from '../data/challenges';
+import { ChallengesService } from '../services/challenges.service';
 
 type Difficulty = 'All' | 'Easy' | 'Medium' | 'Hard';
 
@@ -14,8 +15,14 @@ type Difficulty = 'All' | 'Easy' | 'Medium' | 'Hard';
   styleUrl: './topic-problems.css',
 })
 export class TopicProblemsComponent implements OnInit {
+  private svc = inject(ChallengesService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   topic = signal<Topic | null>(null);
   activeFilter = signal<Difficulty>('All');
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
 
   readonly filters: Difficulty[] = ['All', 'Easy', 'Medium', 'Hard'];
 
@@ -27,7 +34,7 @@ export class TopicProblemsComponent implements OnInit {
   readonly challenges = computed<Challenge[]>(() => {
     const t = this.topic();
     if (!t) return [];
-    const all = CHALLENGES.filter(c => c.topic === t);
+    const all = this.svc.byTopic(t);
     const filter = this.activeFilter();
     return filter === 'All' ? all : all.filter(c => c.difficulty === filter);
   });
@@ -35,7 +42,7 @@ export class TopicProblemsComponent implements OnInit {
   readonly counts = computed(() => {
     const t = this.topic();
     if (!t) return { All: 0, Easy: 0, Medium: 0, Hard: 0 };
-    const base = CHALLENGES.filter(c => c.topic === t);
+    const base = this.svc.byTopic(t);
     return {
       All: base.length,
       Easy: base.filter(c => c.difficulty === 'Easy').length,
@@ -44,28 +51,26 @@ export class TopicProblemsComponent implements OnInit {
     };
   });
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
-
-  ngOnInit() {
+  async ngOnInit() {
     const topicParam = this.route.snapshot.paramMap.get('topic') as Topic | null;
     if (!topicParam || !TOPICS.find(t => t.id === topicParam)) {
       this.router.navigate(['/problems']);
       return;
     }
     this.topic.set(topicParam);
+
+    try {
+      await this.svc.load();
+    } catch (err: any) {
+      this.error.set(err.message ?? 'Could not load challenges.');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
-  setFilter(f: Difficulty) {
-    this.activeFilter.set(f);
-  }
-
-  goBack() {
-    this.router.navigate(['/problems']);
-  }
-
-  selectChallenge(id: string) {
-    this.router.navigate(['/problems', id]);
-  }
+  setFilter(f: Difficulty) { this.activeFilter.set(f); }
+  goBack() { this.router.navigate(['/problems']); }
+  selectChallenge(id: string) { this.router.navigate(['/problems', id]); }
 
   difficultyClass(difficulty: string): string {
     const map: Record<string, string> = {

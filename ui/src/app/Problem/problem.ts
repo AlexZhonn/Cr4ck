@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
-import { Challenge, CHALLENGES } from '../data/challenges';
+import { Challenge } from '../data/challenges';
+import { ChallengesService } from '../services/challenges.service';
 
 @Component({
   selector: 'app-problem',
@@ -12,13 +13,16 @@ import { Challenge, CHALLENGES } from '../data/challenges';
   styleUrl: './problem.css',
 })
 export class ProblemComponent implements OnInit {
+  private svc = inject(ChallengesService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   challenge: Challenge | null = null;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
-
-  ngOnInit() {
+  async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.challenge = CHALLENGES.find(c => c.id === id) ?? null;
+    await this.svc.load();
+    this.challenge = this.svc.byId(id ?? '') ?? null;
     if (!this.challenge) {
       this.router.navigate(['/problems']);
     }
@@ -31,7 +35,12 @@ export class ProblemComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/problems']);
+    const topic = this.challenge?.topic;
+    if (topic) {
+      this.router.navigate(['/problems/topic', topic]);
+    } else {
+      this.router.navigate(['/problems']);
+    }
   }
 
   get difficultyClass(): string {

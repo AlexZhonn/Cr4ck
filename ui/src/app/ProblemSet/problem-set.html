@@ -4,60 +4,68 @@
   <main class="problem-set-main">
     <div class="problem-set-intro">
       <h1>Problem Set</h1>
-      <p>{{ totalChallenges }} challenges across {{ topics.length }} topics. Pick a topic to get started.</p>
-    </div>
-
-    <div class="topic-grid">
-      @for (topic of topics; track topic.id) {
-        <div class="topic-card" (click)="goToTopic(topic.id)">
-
-          <div class="topic-card-icon">
-            @if (topic.icon === 'oop') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2"></rect>
-                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-                <line x1="12" y1="12" x2="12" y2="16"></line>
-                <line x1="10" y1="14" x2="14" y2="14"></line>
-              </svg>
-            }
-            @if (topic.icon === 'patterns') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
-              </svg>
-            }
-            @if (topic.icon === 'system') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-            }
-          </div>
-
-          <div class="topic-card-body">
-            <h2 class="topic-card-title">{{ topic.label }}</h2>
-            <p class="topic-card-desc">{{ topic.description }}</p>
-          </div>
-
-          <div class="topic-card-footer">
-            <span class="topic-count">{{ countForTopic(topic.id) }} challenges</span>
-            <span class="topic-range">{{ difficultyRange(topic.id) }}</span>
-            <svg class="topic-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </div>
-
-        </div>
+      @if (isLoading()) {
+        <p>Loading challenges…</p>
+      } @else if (error()) {
+        <p class="load-error">{{ error() }}</p>
+      } @else {
+        <p>{{ totalChallenges() }} challenges across {{ topics.length }} topics. Pick a topic to get started.</p>
       }
     </div>
+
+    @if (!isLoading() && !error()) {
+      <div class="topic-grid">
+        @for (topic of topics; track topic.id) {
+          <div class="topic-card" (click)="goToTopic(topic.id)">
+
+            <div class="topic-card-icon">
+              @if (topic.icon === 'oop') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                  <line x1="12" y1="12" x2="12" y2="16"></line>
+                  <line x1="10" y1="14" x2="14" y2="14"></line>
+                </svg>
+              }
+              @if (topic.icon === 'patterns') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                </svg>
+              }
+              @if (topic.icon === 'system') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+              }
+            </div>
+
+            <div class="topic-card-body">
+              <h2 class="topic-card-title">{{ topic.label }}</h2>
+              <p class="topic-card-desc">{{ topic.description }}</p>
+            </div>
+
+            <div class="topic-card-footer">
+              <span class="topic-count">{{ countForTopic(topic.id) }} challenges</span>
+              <span class="topic-range">{{ difficultyRange(topic.id) }}</span>
+              <svg class="topic-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
   </main>
 </div>

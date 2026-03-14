@@ -85,6 +85,8 @@ api/
 | POST | /auth/refresh | Rotate refresh token |
 | POST | /auth/logout | Revoke refresh token |
 | GET | /auth/me | Current user profile |
+| GET | /api/challenges | All active challenges (public) |
+| GET | /api/challenges/:id | Single challenge detail (public) |
 | POST | /api/evaluate | AI code evaluation (needs ANTHROPIC_API_KEY) |
 | GET | /api/leaderboard | Top 50 users ranked by XP (public) |
 
@@ -144,7 +146,7 @@ make check      # tsc --noEmit + Python import check
 
 ## Known Issues / Tech Debt
 
-- **Challenges are frontend-only**: `data/challenges.ts` is the single source of truth. No backend `/api/challenges` route. Makes it hard to add challenges without a code deploy.
+- **Challenges in both DB and frontend**: `data/challenges.ts` still holds the type definitions and `TOPICS` metadata (icons etc.) used for UI. The actual challenge content is now served from the DB via `/api/challenges`. When adding a new challenge, update `003_challenges_seed.sql` and run it — no need to edit `challenges.ts` unless you're adding a new topic.
 - **No email verification**: `is_verified` column in DB is always `false`. No email sending infrastructure (SMTP/Resend).
 - **Sandbox not auth-gated for evaluate**: The evaluate button calls `/api/evaluate` without checking `isLoggedIn` client-side — backend will 401, but the UX could be friendlier (prompt to log in instead of showing an error).
 - **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct, but test this on every route refactor.

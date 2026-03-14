@@ -1,9 +1,10 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { Challenge, CHALLENGES } from '../data/challenges';
+import { Challenge } from '../data/challenges';
+import { ChallengesService } from '../services/challenges.service';
 
 interface EvaluationFeedback {
   score: number;
@@ -13,9 +14,8 @@ interface EvaluationFeedback {
   oop_feedback: string;
   architecture_feedback: string;
   xp_earned: number;
+  is_first_completion: boolean;
 }
-
-
 
 @Component({
   selector: 'app-sandbox',
@@ -25,30 +25,39 @@ interface EvaluationFeedback {
   styleUrl: './sandbox.css',
 })
 export class SandboxComponent implements OnInit {
-  challenges = CHALLENGES;
-  activeChallengeId = signal(CHALLENGES[0].id);
-  code = CHALLENGES[0].starterCode;
+  private svc = inject(ChallengesService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  readonly isLoadingChallenges = signal(true);
+  readonly challenges = computed(() => this.svc.challenges());
+
+  activeChallengeId = signal<string>('');
+  code = '';
   isEvaluating = signal(false);
   feedback = signal<EvaluationFeedback | null>(null);
   evalError = signal<string | null>(null);
 
-  get activeChallenge(): Challenge {
-    return CHALLENGES.find(c => c.id === this.activeChallengeId()) ?? CHALLENGES[0];
+  get activeChallenge(): Challenge | null {
+    return this.svc.byId(this.activeChallengeId()) ?? null;
   }
 
-  editorOptions = this.buildEditorOptions(CHALLENGES[0].language);
+  editorOptions = this.buildEditorOptions('java');
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  async ngOnInit() {
+    await this.svc.load();
+    this.isLoadingChallenges.set(false);
 
-  ngOnInit() {
+    const all = this.svc.challenges();
+    if (all.length === 0) return;
+
     const challengeId = this.route.snapshot.queryParamMap.get('challenge');
-    if (challengeId) {
-      this.selectChallenge(challengeId);
-    }
+    const initial = challengeId ? this.svc.byId(challengeId) : null;
+    this.selectChallenge((initial ?? all[0]).id);
   }
 
   selectChallenge(id: string) {
-    const challenge = CHALLENGES.find(c => c.id === id);
+    const challenge = this.svc.byId(id);
     if (!challenge) return;
     this.activeChallengeId.set(id);
     this.code = challenge.starterCode;
@@ -56,19 +65,18 @@ export class SandboxComponent implements OnInit {
     this.editorOptions = this.buildEditorOptions(challenge.language);
   }
 
-  goHome() {
-    this.router.navigate(['/']);
-  }
+  goHome() { this.router.navigate(['/']); }
 
   async evaluateCode() {
+    const challenge = this.activeChallenge;
+    if (!challenge) return;
+
     this.isEvaluating.set(true);
     this.feedback.set(null);
     this.evalError.set(null);
 
     try {
-      const challenge = this.activeChallenge;
       const token = localStorage.getItem('cr4ck_access');
-
       const response = await fetch('/api/evaluate', {
         method: 'POST',
         headers: {
@@ -89,8 +97,7 @@ export class SandboxComponent implements OnInit {
         throw new Error(err.detail ?? `HTTP ${response.status}`);
       }
 
-      const data: EvaluationFeedback = await response.json();
-      this.feedback.set(data);
+      this.feedback.set(await response.json());
     } catch (err: any) {
       this.evalError.set(err.message ?? 'An error occurred while evaluating your code.');
     } finally {
@@ -104,7 +111,7 @@ export class SandboxComponent implements OnInit {
       Medium: 'bg-amber-500/20 text-amber-400',
       Hard: 'bg-rose-500/20 text-rose-400',
     };
-    return map[this.activeChallenge.difficulty] ?? 'text-gray-400';
+    return map[this.activeChallenge?.difficulty ?? ''] ?? 'text-gray-400';
   }
 
   private buildEditorOptions(language: string) {
@@ -126,6 +133,6 @@ export class SandboxComponent implements OnInit {
 
   fileExtension(): string {
     const map: Record<string, string> = { python: 'py', typescript: 'ts', java: 'java', cpp: 'cpp' };
-    return map[this.activeChallenge.language] ?? this.activeChallenge.language;
+    return map[this.activeChallenge?.language ?? ''] ?? 'txt';
   }
 }
