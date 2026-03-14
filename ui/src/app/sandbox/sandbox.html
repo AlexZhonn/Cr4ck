@@ -144,13 +144,18 @@
               <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ evalError() }}</div>
             } @else if (feedback()) {
               <div class="space-y-5 text-sm">
-                <!-- Score -->
+                <!-- Score + XP -->
                 <div class="flex items-center gap-3">
                   <span class="text-3xl font-bold font-mono"
                     [class]="feedback()!.score >= 70 ? 'text-emerald-400' : feedback()!.score >= 40 ? 'text-amber-400' : 'text-rose-400'">
                     {{ feedback()!.score }}
                   </span>
                   <span class="text-gray-500 text-xs font-mono">/ 100</span>
+                  @if (feedback()!.xp_earned) {
+                    <span class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                      +{{ feedback()!.xp_earned }} XP
+                    </span>
+                  }
                 </div>
                 <!-- Summary -->
                 <p class="text-gray-300 leading-relaxed">{{ feedback()!.summary }}</p>

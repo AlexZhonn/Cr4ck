@@ -11,6 +11,7 @@ from pydantic import BaseModel
 import anthropic
 
 from auth.dependencies import get_current_user
+from core.database import get_db
 from models.user import UserInDB
 
 router = APIRouter(prefix="/api", tags=["evaluate"])
@@ -46,6 +47,7 @@ class EvaluationFeedback(BaseModel):
     improvements: list[str]
     oop_feedback: str
     architecture_feedback: str
+    xp_earned: int = 0  # populated server-side after saving
 
 
 SYSTEM_PROMPT = """You are an expert software architect and OOP educator reviewing student code submissions on the Cr4ck platform.
@@ -67,9 +69,20 @@ Respond ONLY with a valid JSON object matching this exact schema (no markdown, n
 }"""
 
 
+def _xp_for_score(score: int) -> int:
+    if score >= 80:
+        return 50
+    if score >= 60:
+        return 30
+    if score >= 40:
+        return 15
+    return 5
+
+
 @router.post("/evaluate", response_model=EvaluationFeedback)
 def evaluate(
     body: EvaluateRequest,
+    db=Depends(get_db),
     current_user: UserInDB = Depends(get_current_user),
 ):
     if not body.code.strip():
@@ -110,9 +123,26 @@ Please evaluate this submission."""
     import json
     try:
         data = json.loads(raw)
-        return EvaluationFeedback(**data)
-    except (json.JSONDecodeError, ValueError) as e:
+        feedback = EvaluationFeedback(**data)
+    except (json.JSONDecodeError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI returned malformed response — please try again",
         )
+
+    # Award XP and increment challenges_completed
+    xp_earned = _xp_for_score(feedback.score)
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE users
+            SET xp = xp + %s,
+                challenges_completed = challenges_completed + 1,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (xp_earned, str(current_user.id)),
+        )
+
+    feedback.xp_earned = xp_earned
+    return feedback

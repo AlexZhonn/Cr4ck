@@ -10,6 +10,7 @@ interface EvaluationFeedback {
   improvements: string[];
   oop_feedback: string;
   architecture_feedback: string;
+  xp_earned: number;
 }
 
 interface Challenge {
