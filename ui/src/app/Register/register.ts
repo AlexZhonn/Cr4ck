@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -20,14 +21,35 @@ export class RegisterComponent {
   };
 
   showPassword = false;
+  isLoading = false;
+  errorMessage = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   goBack() {
     this.router.navigate(['/']);
   }
 
-  onSubmit() {
-    // Placeholder for registration logic
+  async onSubmit() {
+    this.errorMessage = '';
+
+    if (this.registerData.password !== this.registerData.confirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
+      return;
+    }
+
+    this.isLoading = true;
+    try {
+      await this.auth.register(
+        this.registerData.UserName,
+        this.registerData.email,
+        this.registerData.password
+      );
+      this.router.navigate(['/problems']);
+    } catch (err: any) {
+      this.errorMessage = err.message ?? 'Registration failed. Please try again.';
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

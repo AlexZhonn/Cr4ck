@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,14 +19,25 @@ export class LoginComponent {
   };
 
   showPassword = false;
+  isLoading = false;
+  errorMessage = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   goBack() {
     this.router.navigate(['/']);
   }
 
-  onSubmit() {
-    // Logic to be added when backend is ready
+  async onSubmit() {
+    this.errorMessage = '';
+    this.isLoading = true;
+    try {
+      await this.auth.login(this.loginData.email, this.loginData.password);
+      this.router.navigate(['/problems']);
+    } catch (err: any) {
+      this.errorMessage = err.message ?? 'Login failed. Please try again.';
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

@@ -24,7 +24,12 @@
   <div class="nav-actions">
     <button class="btn-nav" (click)="GotoProblems()">Problems</button>
     <button class="btn-nav" (click)="GotoAbout()">About</button>
-    <button class="btn-signin" (click)="GotoLogin()">Sign in</button>
-    <button class="btn-register" (click)="GotoRegister()">Register</button>
+    @if (isLoggedIn()) {
+      <span class="nav-username">{{ user()?.username }}</span>
+      <button class="btn-signin" (click)="logout()">Sign out</button>
+    } @else {
+      <button class="btn-signin" (click)="GotoLogin()">Sign in</button>
+      <button class="btn-register" (click)="GotoRegister()">Register</button>
+    }
   </div>
 </header>

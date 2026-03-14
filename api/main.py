@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from core.config import setup_cors
 from routers import auth as auth_router
+from routers import evaluate as evaluate_router
 
 app = FastAPI(title="Cr4ck API")
 
 setup_cors(app)
 
 app.include_router(auth_router.router)
+app.include_router(evaluate_router.router)
 
 
 @app.get("/")

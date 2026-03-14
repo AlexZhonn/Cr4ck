@@ -140,9 +140,52 @@
                 <span class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
                 <p class="text-sm font-mono animate-pulse">Analyzing architecture...</p>
               </div>
+            } @else if (evalError()) {
+              <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ evalError() }}</div>
             } @else if (feedback()) {
-              <div class="prose-feedback text-sm text-gray-300 leading-relaxed whitespace-pre-wrap font-mono">
-                {{ feedback() }}
+              <div class="space-y-5 text-sm">
+                <!-- Score -->
+                <div class="flex items-center gap-3">
+                  <span class="text-3xl font-bold font-mono"
+                    [class]="feedback()!.score >= 70 ? 'text-emerald-400' : feedback()!.score >= 40 ? 'text-amber-400' : 'text-rose-400'">
+                    {{ feedback()!.score }}
+                  </span>
+                  <span class="text-gray-500 text-xs font-mono">/ 100</span>
+                </div>
+                <!-- Summary -->
+                <p class="text-gray-300 leading-relaxed">{{ feedback()!.summary }}</p>
+                <!-- Strengths -->
+                @if (feedback()!.strengths.length) {
+                  <div>
+                    <p class="text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2">Strengths</p>
+                    <ul class="space-y-1">
+                      @for (s of feedback()!.strengths; track s) {
+                        <li class="text-gray-300 flex gap-2"><span class="text-emerald-500">+</span>{{ s }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+                <!-- Improvements -->
+                @if (feedback()!.improvements.length) {
+                  <div>
+                    <p class="text-amber-400 font-mono text-xs uppercase tracking-wider mb-2">Improvements</p>
+                    <ul class="space-y-1">
+                      @for (item of feedback()!.improvements; track item) {
+                        <li class="text-gray-300 flex gap-2"><span class="text-amber-500">→</span>{{ item }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+                <!-- OOP Feedback -->
+                <div>
+                  <p class="text-blue-400 font-mono text-xs uppercase tracking-wider mb-2">OOP Design</p>
+                  <p class="text-gray-400 leading-relaxed">{{ feedback()!.oop_feedback }}</p>
+                </div>
+                <!-- Architecture Feedback -->
+                <div>
+                  <p class="text-purple-400 font-mono text-xs uppercase tracking-wider mb-2">Architecture</p>
+                  <p class="text-gray-400 leading-relaxed">{{ feedback()!.architecture_feedback }}</p>
+                </div>
               </div>
             } @else {
               <div class="flex flex-col items-center justify-center h-full text-gray-600 gap-3">

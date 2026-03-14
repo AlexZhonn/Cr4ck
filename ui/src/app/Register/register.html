@@ -79,8 +79,10 @@
           />
         </div>
 
-        <button type="submit" class="btn-submit">
-          Get Started
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          {{ isLoading ? 'Creating account...' : 'Get Started' }}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

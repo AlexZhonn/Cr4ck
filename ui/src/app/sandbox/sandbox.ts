@@ -3,6 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+interface EvaluationFeedback {
+  score: number;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  oop_feedback: string;
+  architecture_feedback: string;
+}
 
 interface Challenge {
   id: string;
@@ -139,7 +147,8 @@ export class SandboxComponent implements OnInit {
   activeChallengeId = signal(CHALLENGES[0].id);
   code = signal(CHALLENGES[0].starterCode);
   isEvaluating = signal(false);
-  feedback = signal<string | null>(null);
+  feedback = signal<EvaluationFeedback | null>(null);
+  evalError = signal<string | null>(null);
 
   get activeChallenge(): Challenge {
     return CHALLENGES.find(c => c.id === this.activeChallengeId()) ?? CHALLENGES[0];
@@ -172,43 +181,36 @@ export class SandboxComponent implements OnInit {
   async evaluateCode() {
     this.isEvaluating.set(true);
     this.feedback.set(null);
+    this.evalError.set(null);
 
     try {
       const challenge = this.activeChallenge;
-      const prompt = `
-You are an expert software architect evaluating a code submission for an OOP and System Design challenge.
-
-Challenge: ${challenge.title}
-Framework/Language: ${challenge.framework}
-Description:
-${challenge.description}
-
-User's Code:
-\`\`\`${challenge.language}
-${this.code()}
-\`\`\`
-
-Evaluate based on:
-1. Correctness: Does it meet requirements?
-2. OOP Principles: Encapsulation, inheritance, polymorphism?
-3. Framework Best Practices: Idiomatic usage?
-4. Security & Validation: Any issues?
-
-Respond in Markdown. Start with **Pass** or **Needs Improvement**. Be concise and educational.
-      `.trim();
+      const token = localStorage.getItem('cr4ck_access');
 
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, challenge }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          challenge_id: challenge.id,
+          challenge_title: challenge.title,
+          language: challenge.language,
+          code: this.code(),
+          problem_description: challenge.description,
+        }),
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      this.feedback.set(data.text ?? 'No feedback generated.');
-    } catch (err) {
-      console.error('Evaluation error:', err);
-      this.feedback.set('An error occurred while evaluating your code. Please try again.');
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
+        throw new Error(err.detail ?? `HTTP ${response.status}`);
+      }
+
+      const data: EvaluationFeedback = await response.json();
+      this.feedback.set(data);
+    } catch (err: any) {
+      this.evalError.set(err.message ?? 'An error occurred while evaluating your code.');
     } finally {
       this.isEvaluating.set(false);
     }

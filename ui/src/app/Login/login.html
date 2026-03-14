@@ -57,8 +57,10 @@
           />
         </div>
 
-        <button type="submit" class="btn-submit">
-          Sign In
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          {{ isLoading ? 'Signing in...' : 'Sign In' }}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
