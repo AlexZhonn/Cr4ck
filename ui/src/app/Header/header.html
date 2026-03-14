@@ -23,6 +23,7 @@
 
   <div class="nav-actions">
     <button class="btn-nav" (click)="GotoProblems()">Problems</button>
+    <button class="btn-nav" (click)="GotoLeaderboard()">Leaderboard</button>
     <button class="btn-nav" (click)="GotoAbout()">About</button>
     @if (isLoggedIn()) {
       <button class="nav-username btn-nav" (click)="GotoProfile()">{{ user()?.username }}</button>

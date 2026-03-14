@@ -22,6 +22,7 @@ export class HeaderComponent {
   GotoLogin() { this.router.navigate(['/login']); }
   GotoRegister() { this.router.navigate(['/register']); }
   GotoProblems() { this.router.navigate(['/problems']); }
+  GotoLeaderboard() { this.router.navigate(['/leaderboard']); }
   GotoAbout() { this.router.navigate(['/about']); }
   GotoProfile() { this.router.navigate(['/profile']); }
 

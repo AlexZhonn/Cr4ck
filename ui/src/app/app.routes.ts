@@ -9,6 +9,7 @@ import { authGuard } from './guards/auth.guard';
 import { AboutComponent } from './About/about';
 import { ProfileComponent } from './Profile/profile';
 import { ProblemComponent } from './Problem/problem';
+import { LeaderboardComponent } from './Leaderboard/leaderboard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'problems/topic/:topic', component: TopicProblemsComponent },
   { path: 'problems/:id', component: ProblemComponent },
   { path: 'sandbox', component: SandboxComponent, canActivate: [authGuard] },
+  { path: 'leaderboard', component: LeaderboardComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'about', component: AboutComponent },

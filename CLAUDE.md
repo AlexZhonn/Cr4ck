@@ -85,7 +85,8 @@ api/
 | POST | /auth/refresh | Rotate refresh token |
 | POST | /auth/logout | Revoke refresh token |
 | GET | /auth/me | Current user profile |
-| POST | /api/evaluate | AI code evaluation (TODO) |
+| POST | /api/evaluate | AI code evaluation (needs ANTHROPIC_API_KEY) |
+| GET | /api/leaderboard | Top 50 users ranked by XP (public) |
 
 ---
 
@@ -108,6 +109,7 @@ api/
 | `/problems/topic/:topic` | TopicProblemsComponent | Topic detail + difficulty filter |
 | `/problems/:id` | ProblemComponent | Problem detail |
 | `/sandbox` | SandboxComponent | Auth-guarded |
+| `/leaderboard` | LeaderboardComponent | Public, fetches /api/leaderboard |
 | `/login` | LoginComponent | |
 | `/register` | RegisterComponent | |
 | `/about` | AboutComponent | |
@@ -117,22 +119,32 @@ api/
 
 ---
 
+## Dev Convenience
+
+```bash
+make install    # install all frontend + backend deps
+make dev        # run API (port 8000) + UI (port 4200) in parallel
+make dev-api    # API only
+make dev-ui     # UI only
+make check      # tsc --noEmit + Python import check
+```
+
+> Run `migration 002_user_challenges.sql` against Supabase before starting the API — it creates the `user_challenges` table needed for XP deduplication.
+
+---
+
 ## What's Next (Priority Order)
 
 1. `ANTHROPIC_API_KEY` — add to `api/.env` to enable `/api/evaluate`
-2. Leaderboard — `/leaderboard` page + `GET /api/leaderboard` backend endpoint (top users by XP)
-3. Backend `/api/challenges` route — move challenges from static frontend data to DB
-4. Email verification flow — `is_verified` flag exists in DB but no flow to set it
-5. Prevent duplicate XP — users earn XP on every submit; should check if challenge already completed
-6. Makefile — `make dev`, `make dev-api`, `make dev-ui`, `make check` targets
-7. GitHub OAuth — buttons exist in Login/Register UI but not wired
+2. Backend `/api/challenges` route — move challenges from static frontend data to DB
+3. Email verification flow — `is_verified` flag exists in DB but no flow to set it
+4. GitHub OAuth — buttons exist in Login/Register UI but not wired
 
 ---
 
 ## Known Issues / Tech Debt
 
-- **Duplicate XP**: `evaluate.py` increments `challenges_completed` and awards XP on every submission. No deduplication check. A user can farm XP by re-submitting.
 - **Challenges are frontend-only**: `data/challenges.ts` is the single source of truth. No backend `/api/challenges` route. Makes it hard to add challenges without a code deploy.
 - **No email verification**: `is_verified` column in DB is always `false`. No email sending infrastructure (SMTP/Resend).
-- **Sandbox not auth-gated for evaluate**: The evaluate button in the sandbox calls `/api/evaluate` without forcing login first (the guard only applies at route level; the button doesn't check `isLoggedIn` before calling).
-- **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct, but Angular's router doesn't support static segments before dynamic ones without ordering — test this on every route refactor.
+- **Sandbox not auth-gated for evaluate**: The evaluate button calls `/api/evaluate` without checking `isLoggedIn` client-side — backend will 401, but the UX could be friendlier (prompt to log in instead of showing an error).
+- **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct, but test this on every route refactor.

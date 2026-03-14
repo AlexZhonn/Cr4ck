@@ -47,7 +47,8 @@ class EvaluationFeedback(BaseModel):
     improvements: list[str]
     oop_feedback: str
     architecture_feedback: str
-    xp_earned: int = 0  # populated server-side after saving
+    xp_earned: int = 0        # populated server-side after saving
+    is_first_completion: bool = True  # False if challenge was already completed
 
 
 SYSTEM_PROMPT = """You are an expert software architect and OOP educator reviewing student code submissions on the Cr4ck platform.
@@ -130,45 +131,76 @@ Please evaluate this submission."""
             detail="AI returned malformed response — please try again",
         )
 
-    # Award XP, increment challenges_completed, and update streak
     from datetime import date, timezone
     xp_earned = _xp_for_score(feedback.score)
+    user_id = str(current_user.id)
 
     with db.cursor() as cur:
+        # Check if this challenge was already completed by this user
+        cur.execute(
+            "SELECT best_score, attempts FROM user_challenges WHERE user_id = %s AND challenge_id = %s",
+            (user_id, body.challenge_id),
+        )
+        existing = cur.fetchone()
+        is_first_completion = existing is None
+
+        if is_first_completion:
+            # First submission — record it and award full XP
+            cur.execute(
+                """
+                INSERT INTO user_challenges (user_id, challenge_id, best_score, attempts)
+                VALUES (%s, %s, %s, 1)
+                """,
+                (user_id, body.challenge_id, feedback.score),
+            )
+        else:
+            # Subsequent submission — update best score and attempt count, no XP
+            xp_earned = 0
+            new_best = max(existing["best_score"], feedback.score)
+            cur.execute(
+                """
+                UPDATE user_challenges
+                SET best_score = %s, attempts = attempts + 1, last_attempted_at = NOW()
+                WHERE user_id = %s AND challenge_id = %s
+                """,
+                (new_best, user_id, body.challenge_id),
+            )
+
+        # Update streak and user stats
         cur.execute(
             "SELECT last_login_at, streak_days FROM users WHERE id = %s",
-            (str(current_user.id),),
+            (user_id,),
         )
         row = cur.fetchone()
         last_login = row["last_login_at"]
         current_streak = row["streak_days"] or 0
 
-    today = date.today()
-    if last_login is None:
-        new_streak = 1
-    else:
-        last_date = last_login.astimezone(timezone.utc).date()
-        delta = (today - last_date).days
-        if delta == 0:
-            new_streak = current_streak  # already active today
-        elif delta == 1:
-            new_streak = current_streak + 1  # consecutive day
+        today = date.today()
+        if last_login is None:
+            new_streak = 1
         else:
-            new_streak = 1  # gap — reset
+            last_date = last_login.astimezone(timezone.utc).date()
+            delta = (today - last_date).days
+            if delta == 0:
+                new_streak = current_streak
+            elif delta == 1:
+                new_streak = current_streak + 1
+            else:
+                new_streak = 1
 
-    with db.cursor() as cur:
         cur.execute(
             """
             UPDATE users
             SET xp = xp + %s,
-                challenges_completed = challenges_completed + 1,
+                challenges_completed = challenges_completed + %s,
                 streak_days = %s,
                 last_login_at = NOW(),
                 updated_at = NOW()
             WHERE id = %s
             """,
-            (xp_earned, new_streak, str(current_user.id)),
+            (xp_earned, 1 if is_first_completion else 0, new_streak, user_id),
         )
 
     feedback.xp_earned = xp_earned
+    feedback.is_first_completion = is_first_completion
     return feedback

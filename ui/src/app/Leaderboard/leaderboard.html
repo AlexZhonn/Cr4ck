@@ -1,0 +1,66 @@
+<div class="leaderboard-page">
+  <app-header></app-header>
+
+  <main class="leaderboard-main">
+    <div class="leaderboard-intro">
+      <h1>Leaderboard</h1>
+      <p>Top coders ranked by XP. Keep solving to climb the ranks.</p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p>Loading leaderboard…</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-box error">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (entries().length === 0) {
+      <div class="state-box">
+        <p>No entries yet — be the first to submit a challenge!</p>
+      </div>
+    } @else {
+
+      <!-- Top 3 podium -->
+      <div class="podium">
+        @for (entry of entries().slice(0, 3); track entry.rank) {
+          <div [class]="'podium-card podium-' + entry.rank">
+            <div class="podium-avatar">{{ entry.username[0].toUpperCase() }}</div>
+            <div class="podium-medal">{{ rankIcon(entry.rank) }}</div>
+            <div class="podium-username">{{ entry.username }}</div>
+            <div class="podium-xp">{{ entry.xp }} XP</div>
+            <div class="podium-level">Lv {{ entry.level }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Full table -->
+      <div class="leaderboard-table">
+        <div class="table-header">
+          <span class="col-rank">Rank</span>
+          <span class="col-user">User</span>
+          <span class="col-level">Level</span>
+          <span class="col-xp">XP</span>
+          <span class="col-solved">Solved</span>
+          <span class="col-streak">Streak</span>
+        </div>
+
+        @for (entry of entries(); track entry.rank) {
+          <div [class]="'table-row ' + rankClass(entry.rank)">
+            <span class="col-rank rank-num">{{ rankIcon(entry.rank) }}</span>
+            <span class="col-user">
+              <span class="avatar-sm">{{ entry.username[0].toUpperCase() }}</span>
+              {{ entry.username }}
+            </span>
+            <span class="col-level">{{ entry.level }}</span>
+            <span class="col-xp xp-val">{{ entry.xp }}</span>
+            <span class="col-solved">{{ entry.challenges_completed }}</span>
+            <span class="col-streak">{{ entry.streak_days }}d</span>
+          </div>
+        }
+      </div>
+
+    }
+  </main>
+</div>

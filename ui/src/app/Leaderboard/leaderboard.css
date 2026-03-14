@@ -1,0 +1,214 @@
+.leaderboard-page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #d1d5db;
+  font-family: sans-serif;
+}
+
+.leaderboard-main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.leaderboard-intro {
+  margin-bottom: 2.5rem;
+}
+
+.leaderboard-intro h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.leaderboard-intro p {
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Loading / error state */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 0;
+  color: #6b7280;
+}
+
+.state-box.error { color: #fb7185; }
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: #34d399;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Podium ─────────────────────────────────────────────────── */
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.podium-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  background: #111111;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  min-width: 9rem;
+  transition: border-color 0.2s;
+}
+
+.podium-1 {
+  order: 2;
+  border-color: rgba(251, 191, 36, 0.3);
+  padding-top: 2rem;
+}
+.podium-2 { order: 1; }
+.podium-3 { order: 3; }
+
+.podium-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.podium-medal {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.podium-username {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9375rem;
+}
+
+.podium-xp {
+  font-size: 0.875rem;
+  color: #34d399;
+  font-family: monospace;
+}
+
+.podium-level {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: monospace;
+}
+
+/* ── Table ──────────────────────────────────────────────────── */
+.leaderboard-table {
+  background: #111111;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 4rem 1fr 5rem 6rem 5rem 5rem;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  gap: 0.5rem;
+}
+
+.table-header {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.table-row {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background-color 0.15s;
+}
+
+.table-row:last-child { border-bottom: none; }
+
+.table-row:hover {
+  background-color: rgba(255,255,255,0.02);
+}
+
+.rank-gold   { border-left: 3px solid #fbbf24; }
+.rank-silver { border-left: 3px solid #9ca3af; }
+.rank-bronze { border-left: 3px solid #c2793b; }
+.rank-default { border-left: 3px solid transparent; }
+
+.rank-num {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.avatar-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.col-user {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #e5e7eb;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-level, .col-solved, .col-streak {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.xp-val {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #34d399;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 3rem 1fr 4rem 4rem;
+  }
+  .col-level, .col-streak { display: none; }
+  .podium { gap: 0.5rem; }
+  .podium-card { min-width: 7rem; padding: 1rem; }
+}
