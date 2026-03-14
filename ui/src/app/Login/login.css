@@ -141,6 +141,15 @@ input:focus {
   cursor: not-allowed;
 }
 
+.error-message {
+  font-size: 0.8125rem;
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+
 .auth-divider {
   display: flex;
   align-items: center;

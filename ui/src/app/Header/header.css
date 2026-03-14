@@ -66,3 +66,10 @@
 .btn-register:hover {
   background-color: #6ee7b7;
 }
+
+.nav-username {
+  font-size: 0.8125rem;
+  font-family: monospace;
+  color: #34d399;
+  padding: 0 0.25rem;
+}
