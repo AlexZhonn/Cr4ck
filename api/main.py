@@ -4,6 +4,7 @@ from routers import auth as auth_router
 from routers import challenges as challenges_router
 from routers import evaluate as evaluate_router
 from routers import leaderboard as leaderboard_router
+from routers import run as run_router
 
 app = FastAPI(title="Cr4ck API")
 
@@ -13,6 +14,7 @@ app.include_router(auth_router.router)
 app.include_router(challenges_router.router)
 app.include_router(evaluate_router.router)
 app.include_router(leaderboard_router.router)
+app.include_router(run_router.router)
 
 
 @app.get("/")

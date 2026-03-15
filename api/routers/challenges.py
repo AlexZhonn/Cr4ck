@@ -11,6 +11,12 @@ from core.database import get_db
 router = APIRouter(prefix="/api", tags=["challenges"])
 
 
+class TestCase(BaseModel):
+    input: str
+    expected_output: str
+    description: str
+
+
 class ChallengeOut(BaseModel):
     id: str
     title: str
@@ -20,9 +26,12 @@ class ChallengeOut(BaseModel):
     framework: str
     description: str
     starter_code: str
+    test_cases: list[TestCase] = []
 
 
 def _row_to_challenge(row: dict) -> ChallengeOut:
+    raw_test_cases = row.get("test_cases") or []
+    test_cases = [TestCase(**tc) for tc in raw_test_cases]
     return ChallengeOut(
         id=row["id"],
         title=row["title"],
@@ -32,6 +41,7 @@ def _row_to_challenge(row: dict) -> ChallengeOut:
         framework=row["framework"],
         description=row["description"],
         starter_code=row["starter_code"],
+        test_cases=test_cases,
     )
 
 
@@ -40,7 +50,7 @@ def list_challenges(db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             """
-            SELECT id, title, topic, difficulty, language, framework, description, starter_code
+            SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
             FROM challenges
             WHERE is_active = TRUE
             ORDER BY topic, difficulty, id
@@ -55,7 +65,7 @@ def get_challenge(challenge_id: str, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             """
-            SELECT id, title, topic, difficulty, language, framework, description, starter_code
+            SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
             FROM challenges
             WHERE id = %s AND is_active = TRUE
             """,

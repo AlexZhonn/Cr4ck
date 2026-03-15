@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Challenge, Topic } from '../data/challenges';
+import { Challenge, TestCase, Topic } from '../data/challenges';
 
 // API response shape matches ChallengeOut from backend
 interface ChallengeApiRow {
@@ -11,6 +11,7 @@ interface ChallengeApiRow {
   framework: string;
   description: string;
   starter_code: string;
+  test_cases: TestCase[];
 }
 
 function toChallenge(row: ChallengeApiRow): Challenge {
@@ -23,6 +24,7 @@ function toChallenge(row: ChallengeApiRow): Challenge {
     framework: row.framework,
     description: row.description,
     starterCode: row.starter_code,
+    testCases: row.test_cases ?? [],
   };
 }
 

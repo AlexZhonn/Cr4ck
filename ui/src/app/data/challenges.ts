@@ -1,5 +1,11 @@
 export type Topic = 'OOP' | 'Design Patterns' | 'System Design';
 
+export interface TestCase {
+  input: string;
+  expected_output: string;
+  description: string;
+}
+
 export interface Challenge {
   id: string;
   title: string;
@@ -9,6 +15,7 @@ export interface Challenge {
   topic: Topic;
   description: string;
   starterCode: string;
+  testCases: TestCase[];
 }
 
 export const TOPICS: { id: Topic; label: string; description: string; icon: string }[] = [

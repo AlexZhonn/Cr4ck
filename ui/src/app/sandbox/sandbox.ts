@@ -18,6 +18,21 @@ interface EvaluationFeedback {
   is_first_completion: boolean;
 }
 
+interface TestResult {
+  description: string;
+  input: string;
+  expected_output: string;
+  actual_output: string;
+  passed: boolean;
+  error: string | null;
+}
+
+interface RunResponse {
+  results: TestResult[];
+  passed: number;
+  total: number;
+}
+
 @Component({
   selector: 'app-sandbox',
   standalone: true,
@@ -40,8 +55,18 @@ export class SandboxComponent implements OnInit {
   feedback = signal<EvaluationFeedback | null>(null);
   evalError = signal<string | null>(null);
 
+  // Tests panel
+  activeTab = signal<'feedback' | 'tests'>('feedback');
+  isRunning = signal(false);
+  runResults = signal<RunResponse | null>(null);
+  runError = signal<string | null>(null);
+
   get activeChallenge(): Challenge | null {
     return this.svc.byId(this.activeChallengeId()) ?? null;
+  }
+
+  get hasTestCases(): boolean {
+    return (this.activeChallenge?.testCases?.length ?? 0) > 0;
   }
 
   editorOptions = this.buildEditorOptions('java');
@@ -64,6 +89,8 @@ export class SandboxComponent implements OnInit {
     this.activeChallengeId.set(id);
     this.code = challenge.starterCode;
     this.feedback.set(null);
+    this.runResults.set(null);
+    this.runError.set(null);
     this.editorOptions = this.buildEditorOptions(challenge.language);
   }
 
@@ -78,6 +105,7 @@ export class SandboxComponent implements OnInit {
       return;
     }
 
+    this.activeTab.set('feedback');
     this.isEvaluating.set(true);
     this.feedback.set(null);
     this.evalError.set(null);
@@ -100,7 +128,6 @@ export class SandboxComponent implements OnInit {
       });
 
       if (response.status === 401) {
-        // Token expired mid-session — clear state and redirect to login
         await this.auth.logout();
         this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
         return;
@@ -116,6 +143,54 @@ export class SandboxComponent implements OnInit {
       this.evalError.set(err.message ?? 'An error occurred while evaluating your code.');
     } finally {
       this.isEvaluating.set(false);
+    }
+  }
+
+  async runTests() {
+    const challenge = this.activeChallenge;
+    if (!challenge) return;
+
+    if (!this.auth.isLoggedIn()) {
+      this.runError.set('You must be logged in to run tests. Please log in and try again.');
+      return;
+    }
+
+    this.activeTab.set('tests');
+    this.isRunning.set(true);
+    this.runResults.set(null);
+    this.runError.set(null);
+
+    try {
+      const token = localStorage.getItem('cr4ck_access');
+      const response = await fetch('/api/run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          challenge_id: challenge.id,
+          language: challenge.language,
+          code: this.code,
+        }),
+      });
+
+      if (response.status === 401) {
+        await this.auth.logout();
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+        return;
+      }
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
+        throw new Error(err.detail ?? `HTTP ${response.status}`);
+      }
+
+      this.runResults.set(await response.json());
+    } catch (err: any) {
+      this.runError.set(err.message ?? 'An error occurred while running tests.');
+    } finally {
+      this.isRunning.set(false);
     }
   }
 
