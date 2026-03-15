@@ -4,6 +4,42 @@
   background-color: #0a0a0a;
 }
 
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: calc(100vh - 60px);
+}
+
+.state-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-family: monospace;
+  margin: 0;
+}
+
+.error-text {
+  color: #f87171;
+  font-size: 0.9rem;
+  font-family: monospace;
+  margin: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: #34d399;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
 .problem-root {
   display: flex;
   flex-direction: column;

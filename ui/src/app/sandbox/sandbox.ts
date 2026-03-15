@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Challenge } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
+import { AuthService } from '../services/auth.service';
 
 interface EvaluationFeedback {
   score: number;
@@ -26,6 +27,7 @@ interface EvaluationFeedback {
 })
 export class SandboxComponent implements OnInit {
   private svc = inject(ChallengesService);
+  private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -71,6 +73,11 @@ export class SandboxComponent implements OnInit {
     const challenge = this.activeChallenge;
     if (!challenge) return;
 
+    if (!this.auth.isLoggedIn()) {
+      this.evalError.set('You must be logged in to evaluate code. Please log in and try again.');
+      return;
+    }
+
     this.isEvaluating.set(true);
     this.feedback.set(null);
     this.evalError.set(null);
@@ -91,6 +98,13 @@ export class SandboxComponent implements OnInit {
           problem_description: challenge.description,
         }),
       });
+
+      if (response.status === 401) {
+        // Token expired mid-session — clear state and redirect to login
+        await this.auth.logout();
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+        return;
+      }
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));

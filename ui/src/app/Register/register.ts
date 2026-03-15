@@ -30,6 +30,13 @@ export class RegisterComponent {
     this.router.navigate(['/']);
   }
 
+  githubComingSoon = false;
+
+  signUpWithGitHub() {
+    this.githubComingSoon = true;
+    setTimeout(() => { this.githubComingSoon = false; }, 3000);
+  }
+
   async onSubmit() {
     this.errorMessage = '';
 

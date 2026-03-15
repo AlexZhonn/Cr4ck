@@ -66,7 +66,10 @@ export class AuthService {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Login failed' }));
-      throw new Error(err.detail ?? 'Login failed');
+      const msg = Array.isArray(err.detail)
+        ? err.detail.map((e: any) => e.msg).join(', ')
+        : (err.detail ?? 'Login failed');
+      throw new Error(msg);
     }
 
     const tokens: TokenResponse = await res.json();
@@ -83,7 +86,10 @@ export class AuthService {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Registration failed' }));
-      throw new Error(err.detail ?? 'Registration failed');
+      const msg = Array.isArray(err.detail)
+        ? err.detail.map((e: any) => e.msg).join(', ')
+        : (err.detail ?? 'Registration failed');
+      throw new Error(msg);
     }
     // Auto-login after registration
     await this.login(email, password);

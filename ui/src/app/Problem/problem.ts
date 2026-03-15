@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
@@ -18,13 +18,21 @@ export class ProblemComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   challenge: Challenge | null = null;
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    await this.svc.load();
-    this.challenge = this.svc.byId(id ?? '') ?? null;
-    if (!this.challenge) {
-      this.router.navigate(['/problems']);
+    try {
+      await this.svc.load();
+      this.challenge = this.svc.byId(id ?? '') ?? null;
+      if (!this.challenge) {
+        this.error.set(`Challenge "${id}" not found.`);
+      }
+    } catch (err: any) {
+      this.error.set(err.message ?? 'Could not load challenges.');
+    } finally {
+      this.isLoading.set(false);
     }
   }
 

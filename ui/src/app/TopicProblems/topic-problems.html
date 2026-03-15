@@ -38,7 +38,16 @@
       </div>
 
       <!-- Challenge list -->
-      @if (challenges().length === 0) {
+      @if (isLoading()) {
+        <div class="empty-state">
+          <div class="loading-spinner"></div>
+          <p>Loading challenges…</p>
+        </div>
+      } @else if (error()) {
+        <div class="empty-state error-state">
+          <p>{{ error() }}</p>
+        </div>
+      } @else if (challenges().length === 0) {
         <div class="empty-state">
           <p>No {{ activeFilter() === 'All' ? '' : activeFilter() + ' ' }}challenges in this topic yet.</p>
         </div>

@@ -205,3 +205,10 @@ input:focus {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.github-notice {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0.5rem 0 0;
+}

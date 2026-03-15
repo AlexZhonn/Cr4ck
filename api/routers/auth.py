@@ -63,8 +63,8 @@ def register(body: RegisterRequest, db=Depends(get_db)):
 def login(body: LoginRequest, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
-            "SELECT id, password_hash, salt, role, is_active FROM users WHERE email = %s",
-            (body.email,),
+            "SELECT id, password_hash, salt, role, is_active FROM users WHERE email = %s OR username = %s",
+            (body.email, body.email),
         )
         user = cur.fetchone()
 

@@ -28,6 +28,13 @@ export class LoginComponent {
     this.router.navigate(['/']);
   }
 
+  githubComingSoon = false;
+
+  loginWithGitHub() {
+    this.githubComingSoon = true;
+    setTimeout(() => { this.githubComingSoon = false; }, 3000);
+  }
+
   async onSubmit() {
     this.errorMessage = '';
     this.isLoading = true;
