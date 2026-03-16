@@ -80,7 +80,7 @@ api/
   routers/leaderboard.py GET /api/leaderboard (Redis-cached, cache-busted on XP award)
   routers/run.py         POST /api/run — Docker-sandboxed code execution
   routers/ws.py          WS /ws — ConnectionManager, solve_event + leaderboard_update broadcasts
-  migrations/       Raw SQL migration files (001–006; 006 backfills test cases for 12 challenges)
+  migrations/       Raw SQL migration files (001–008; 007 backfills test cases for 288 challenges, 008 adds posts/post_votes)
 ```
 
 ---
@@ -100,6 +100,11 @@ api/
 | POST | /api/evaluate | AI code evaluation (auth required) |
 | GET | /api/leaderboard | Top 50 users ranked by XP (public) |
 | WS | /ws | WebSocket — real-time solve events + leaderboard updates |
+| GET | /api/challenges/:id/posts | Paginated post list for a challenge (public, viewer's vote included if authed) |
+| POST | /api/challenges/:id/posts | Create top-level post or reply (auth required) |
+| PUT | /api/posts/:id | Edit own post (auth required) |
+| DELETE | /api/posts/:id | Soft-delete own post (auth required) |
+| POST | /api/posts/:id/vote | Upvote (+1) / downvote (-1) / remove (0) a post (auth required) |
 
 ---
 
@@ -162,25 +167,13 @@ Add a third pane to the sandbox IDE (alongside the editor and AI feedback) that 
 
 **DB migration needed:** `ALTER TABLE challenges ADD COLUMN test_cases JSONB DEFAULT '[]'`
 
-### 2. Community Discussion per Challenge
-Each challenge gets a threaded discussion board — users share approaches, ask questions, make friends. This is the social layer that makes Cr4ck sticky beyond just solving problems.
+### 2. ~~Community Discussion per Challenge~~ ✅ DONE
+Migration 008 (posts + post_votes), FastAPI router `routers/posts.py`, Angular Community tab in sandbox with voting + replies. Markdown rendering NOT yet added — post bodies are plain text for now.
 
-**Design:**
-- New `posts` table: `id, challenge_id (FK), user_id (FK), parent_id (nullable FK → posts for threading), body TEXT, created_at, updated_at, is_deleted`
-- New `post_votes` table: `user_id, post_id, value (+1/-1)` — simple upvote/downvote
-- Endpoints:
-  - `GET /api/challenges/:id/posts` — paginated, sorted by votes or recency
-  - `POST /api/challenges/:id/posts` — create post/reply (auth required)
-  - `PUT /api/posts/:id` — edit own post (auth required)
-  - `DELETE /api/posts/:id` — soft delete own post (auth required)
-  - `POST /api/posts/:id/vote` — upvote/downvote (auth required)
-- UI: Community tab in the sandbox panel (next to Tests and AI Feedback), or a dedicated `/problems/:id/discuss` route
-- Show username, XP level badge, and timestamp per post
-- Threading: top-level posts + one level of replies (Reddit-style is enough to start)
-- Markdown rendering for post bodies (use a lightweight lib like `marked`)
+**Known gap:** Post body markdown rendering (use `marked` or `ngx-markdown`). Edit/delete only hides on the UI — no owner check in the frontend (relies on backend 403).
 
-### 3. Sandbox Sidebar Filtering
-300 challenges is too many to scroll. Add topic + difficulty filter controls above the sidebar challenge list. Already have the data — just needs UI.
+### 3. ~~Sandbox Sidebar Filtering~~ ✅ DONE
+Topic dropdown + Easy/Medium/Hard difficulty buttons above sidebar challenge list. Filters are reactive computed signals.
 
 ### 4. Email Verification
 `is_verified` column exists in DB but is always `false`. Need SMTP or Resend integration to send a verification link on register.
@@ -196,4 +189,7 @@ Backend flow not wired. Frontend already shows "coming soon" notice on click. Ca
 - **No email verification**: `is_verified` column in DB is always `false`. No email sending infrastructure (SMTP/Resend).
 - **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct — test this on every route refactor.
 - **Monaco assets**: `angular.json` copies the monaco-editor `min/vs` folder to `assets/monaco/min/vs`. Dev server must be restarted after any `angular.json` change for this to take effect.
-- **Code execution not sandboxed yet**: `/api/run` does not exist yet. Until it does, test cases cannot be run server-side. Do not attempt to exec user code without proper sandboxing (Docker or Judge0).
+- **Code execution not sandboxed yet**: `/api/run` router file exists but is a stub. Until Docker/Judge0 is wired, test cases cannot run. Do not attempt to exec user code without proper sandboxing.
+- **Community post ownership UI**: Edit/Delete buttons are shown for all logged-in users on all posts — the backend will return 403 correctly, but the UI should hide them for posts not owned by the current user. Needs `auth.currentUser()` plumbing into the sandbox template.
+- **Community markdown**: Post bodies are plain text. Add `marked` or `ngx-markdown` to render markdown in post bodies.
+- **Sidebar filter state not preserved**: Filters reset when navigating away from sandbox. Could persist in URL query params or localStorage if needed.

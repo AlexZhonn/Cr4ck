@@ -7,6 +7,7 @@ import { Challenge } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
 import { AuthService } from '../services/auth.service';
 import { WebSocketService } from '../services/websocket.service';
+import { PostsService, Post } from '../services/posts.service';
 
 interface EvaluationFeedback {
   score: number;
@@ -49,7 +50,25 @@ export class SandboxComponent implements OnInit, OnDestroy {
   readonly ws = inject(WebSocketService);
 
   readonly isLoadingChallenges = signal(true);
-  readonly challenges = computed(() => this.svc.challenges());
+
+  // Sidebar filters
+  filterTopic = signal<string>('');
+  filterDifficulty = signal<string>('');
+
+  readonly allTopics = computed(() => {
+    const seen = new Set<string>();
+    this.svc.challenges().forEach(c => seen.add(c.topic));
+    return Array.from(seen).sort();
+  });
+
+  readonly challenges = computed(() => {
+    let list = this.svc.challenges();
+    const topic = this.filterTopic();
+    const diff = this.filterDifficulty();
+    if (topic) list = list.filter(c => c.topic === topic);
+    if (diff) list = list.filter(c => c.difficulty === diff);
+    return list;
+  });
 
   activeChallengeId = signal<string>('');
   code = '';
@@ -58,10 +77,22 @@ export class SandboxComponent implements OnInit, OnDestroy {
   evalError = signal<string | null>(null);
 
   // Tests panel
-  activeTab = signal<'feedback' | 'tests'>('feedback');
+  activeTab = signal<'feedback' | 'tests' | 'community'>('feedback');
   isRunning = signal(false);
   runResults = signal<RunResponse | null>(null);
   runError = signal<string | null>(null);
+
+  // Community panel
+  readonly postsSvc = inject(PostsService);
+  posts = signal<Post[]>([]);
+  postsLoading = signal(false);
+  postsError = signal<string | null>(null);
+  newPostBody = signal('');
+  postSubmitting = signal(false);
+  replyingTo = signal<string | null>(null);   // post id being replied to
+  replyBody = signal('');
+  editingPostId = signal<string | null>(null);
+  editBody = signal('');
 
   get activeChallenge(): Challenge | null {
     return this.svc.byId(this.activeChallengeId()) ?? null;
@@ -98,7 +129,104 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.feedback.set(null);
     this.runResults.set(null);
     this.runError.set(null);
+    this.posts.set([]);
+    this.postsError.set(null);
+    this.replyingTo.set(null);
+    this.editingPostId.set(null);
     this.editorOptions = this.buildEditorOptions(challenge.language);
+  }
+
+  async loadPosts() {
+    const id = this.activeChallengeId();
+    if (!id) return;
+    this.postsLoading.set(true);
+    this.postsError.set(null);
+    try {
+      this.posts.set(await this.postsSvc.listPosts(id));
+    } catch (e: any) {
+      this.postsError.set(e.message ?? 'Failed to load posts');
+    } finally {
+      this.postsLoading.set(false);
+    }
+  }
+
+  async switchTab(tab: 'feedback' | 'tests' | 'community') {
+    this.activeTab.set(tab);
+    if (tab === 'community' && this.posts().length === 0) {
+      await this.loadPosts();
+    }
+  }
+
+  async submitPost() {
+    const id = this.activeChallengeId();
+    const body = this.newPostBody().trim();
+    if (!id || !body) return;
+    this.postSubmitting.set(true);
+    try {
+      const post = await this.postsSvc.createPost(id, body);
+      this.posts.update(p => [post, ...p]);
+      this.newPostBody.set('');
+    } catch (e: any) {
+      this.postsError.set(e.message ?? 'Failed to post');
+    } finally {
+      this.postSubmitting.set(false);
+    }
+  }
+
+  async submitReply(parentId: string) {
+    const id = this.activeChallengeId();
+    const body = this.replyBody().trim();
+    if (!id || !body) return;
+    this.postSubmitting.set(true);
+    try {
+      const reply = await this.postsSvc.createPost(id, body, parentId);
+      this.posts.update(posts =>
+        posts.map(p => p.id === parentId ? { ...p, replies: [...(p.replies ?? []), reply], reply_count: p.reply_count + 1 } : p)
+      );
+      this.replyingTo.set(null);
+      this.replyBody.set('');
+    } catch (e: any) {
+      this.postsError.set(e.message ?? 'Failed to post reply');
+    } finally {
+      this.postSubmitting.set(false);
+    }
+  }
+
+  startEdit(post: Post) {
+    this.editingPostId.set(post.id);
+    this.editBody.set(post.body);
+  }
+
+  async saveEdit(postId: string) {
+    const body = this.editBody().trim();
+    if (!body) return;
+    try {
+      const updated = await this.postsSvc.editPost(postId, body);
+      this.posts.update(posts =>
+        posts.map(p => p.id === postId ? { ...p, body: updated.body, updated_at: updated.updated_at } : p)
+      );
+      this.editingPostId.set(null);
+    } catch (e: any) {
+      this.postsError.set(e.message ?? 'Failed to edit post');
+    }
+  }
+
+  async deletePost(postId: string) {
+    try {
+      await this.postsSvc.deletePost(postId);
+      this.posts.update(posts => posts.map(p => p.id === postId ? { ...p, is_deleted: true, body: '[deleted]' } : p));
+    } catch (e: any) {
+      this.postsError.set(e.message ?? 'Failed to delete post');
+    }
+  }
+
+  async votePost(postId: string, value: 1 | -1 | 0) {
+    try {
+      const updated = await this.postsSvc.vote(postId, value);
+      this.posts.update(posts =>
+        posts.map(p => p.id === postId ? { ...p, vote_score: updated.vote_score, user_vote: updated.user_vote } : p)
+      );
+    } catch { /* ignore vote errors */ }
   }
 
   goHome() { this.router.navigate(['/']); }

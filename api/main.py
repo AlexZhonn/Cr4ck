@@ -7,6 +7,7 @@ from routers import evaluate as evaluate_router
 from routers import leaderboard as leaderboard_router
 from routers import run as run_router
 from routers import ws as ws_router
+from routers import posts as posts_router
 
 app = FastAPI(title="Cr4ck API")
 
@@ -18,6 +19,7 @@ app.include_router(evaluate_router.router)
 app.include_router(leaderboard_router.router)
 app.include_router(run_router.router)
 app.include_router(ws_router.router)
+app.include_router(posts_router.router)
 
 
 @app.on_event("startup")
