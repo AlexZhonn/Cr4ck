@@ -193,3 +193,5 @@ Backend flow not wired. Frontend already shows "coming soon" notice on click. Ca
 - **Community post ownership UI**: Edit/Delete buttons are shown for all logged-in users on all posts — the backend will return 403 correctly, but the UI should hide them for posts not owned by the current user. Needs `auth.currentUser()` plumbing into the sandbox template.
 - **Community markdown**: Post bodies are plain text. Add `marked` or `ngx-markdown` to render markdown in post bodies.
 - **Sidebar filter state not preserved**: Filters reset when navigating away from sandbox. Could persist in URL query params or localStorage if needed.
+- **Challenge type `testCases` is optional**: The static `Challenge` interface in `data/challenges.ts` has `testCases?` optional because static objects there don't include it — actual test cases come from the DB via `/api/challenges`. Don't make it required again.
+- **Sandbox template visibility**: Any service injected in `SandboxComponent` that is referenced in the template must be `readonly` (not `private`). Angular templates cannot access private class members.
