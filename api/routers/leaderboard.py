@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from core.database import get_db
+from core.redis import cache_get, cache_set, LEADERBOARD_KEY, LEADERBOARD_TTL
 
 router = APIRouter(prefix="/api", tags=["leaderboard"])
 
@@ -25,6 +26,10 @@ class LeaderboardEntry(BaseModel):
 
 @router.get("/leaderboard", response_model=list[LeaderboardEntry])
 def get_leaderboard(db=Depends(get_db)):
+    cached = cache_get(LEADERBOARD_KEY)
+    if cached is not None:
+        return [LeaderboardEntry(**e) for e in cached]
+
     with db.cursor() as cur:
         cur.execute(
             """
@@ -38,7 +43,7 @@ def get_leaderboard(db=Depends(get_db)):
         )
         rows = cur.fetchall()
 
-    return [
+    entries = [
         LeaderboardEntry(
             rank=i + 1,
             username=row["username"],
@@ -49,3 +54,5 @@ def get_leaderboard(db=Depends(get_db)):
         )
         for i, row in enumerate(rows)
     ]
+    cache_set(LEADERBOARD_KEY, [e.model_dump() for e in entries], LEADERBOARD_TTL)
+    return entries

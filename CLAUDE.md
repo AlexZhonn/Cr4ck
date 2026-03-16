@@ -9,6 +9,8 @@
 - Backend: FastAPI + PostgreSQL (Supabase) (port 8000 dev)
 - Auth: JWT (access 15min / refresh 30d) + Argon2id password hashing
 - AI: Claude API for code evaluation via `/api/evaluate` (ANTHROPIC_API_KEY in `api/.env`)
+- Cache: Redis (optional) — challenges cached 5 min, leaderboard 60 s; silently disabled if Redis unavailable
+- Realtime: WebSocket at `ws://host/ws` — broadcasts `solve_event` + `leaderboard_update` on XP award
 
 ---
 
@@ -30,6 +32,7 @@ DATABASE_URL=postgresql://...
 SECRET_KEY=...
 ALLOWED_ORIGINS=http://localhost:4200
 ANTHROPIC_API_KEY=...
+REDIS_URL=redis://localhost:6379/0   # optional
 ```
 
 ### Frontend
@@ -40,7 +43,7 @@ npm install
 ng serve   # runs on http://localhost:4200
 ```
 
-Angular proxies `/auth/*` and `/api/*` → `http://localhost:8000` via `proxy.conf.json`.
+Angular proxies `/auth/*`, `/api/*`, and `/ws` → `http://localhost:8000` via `proxy.conf.json` (WebSocket proxy uses `"ws": true`).
 
 > **Monaco Editor**: `angular.json` copies `node_modules/monaco-editor/min/vs` → `assets/monaco/min/vs` at build time. `ngx-monaco-editor-v2` loads from that path by default. If the editor is read-only/non-interactive, check that the dev server was restarted after `angular.json` changes.
 
@@ -61,20 +64,23 @@ ui/src/app/
   Profile/          User stats: XP, level, streak, challenges completed
   About/            Static about page
   data/challenges   Challenge[] + Topic type + TOPICS metadata (icons, labels, descriptions)
-  services/         AuthService (JWT lifecycle), ChallengesService (fetch + cache)
+  services/         AuthService (JWT lifecycle), ChallengesService (fetch + cache), WebSocketService (live events)
   guards/           authGuard (CanActivateFn, protects /sandbox)
 
 api/
-  main.py           FastAPI entry, CORS, router mounting
+  main.py           FastAPI entry, CORS, router mounting, Redis startup probe
   core/config.py    Env vars, JWT config, CORS origins
   core/database.py  psycopg2 connection pool
+  core/redis.py     Redis client + cache_get/cache_set/cache_delete helpers (REDIS_URL)
   auth/             tokens.py, password.py, dependencies.py
   models/user.py    Pydantic schemas + enums
   routers/auth.py   /auth/* endpoints
-  routers/challenges.py  GET /api/challenges, GET /api/challenges/:id
-  routers/evaluate.py    POST /api/evaluate — Claude API, XP award, streak tracking
-  routers/leaderboard.py GET /api/leaderboard
-  migrations/       Raw SQL migration files (001–004b all applied to Supabase)
+  routers/challenges.py  GET /api/challenges, GET /api/challenges/:id (Redis-cached)
+  routers/evaluate.py    POST /api/evaluate — Claude API, XP award, streak, WS broadcast
+  routers/leaderboard.py GET /api/leaderboard (Redis-cached, cache-busted on XP award)
+  routers/run.py         POST /api/run — Docker-sandboxed code execution
+  routers/ws.py          WS /ws — ConnectionManager, solve_event + leaderboard_update broadcasts
+  migrations/       Raw SQL migration files (001–006; 006 backfills test cases for 12 challenges)
 ```
 
 ---
@@ -93,6 +99,7 @@ api/
 | GET | /api/challenges/:id | Single challenge detail (public) |
 | POST | /api/evaluate | AI code evaluation (auth required) |
 | GET | /api/leaderboard | Top 50 users ranked by XP (public) |
+| WS | /ws | WebSocket — real-time solve events + leaderboard updates |
 
 ---
 

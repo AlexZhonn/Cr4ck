@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -6,6 +6,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Challenge } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
 import { AuthService } from '../services/auth.service';
+import { WebSocketService } from '../services/websocket.service';
 
 interface EvaluationFeedback {
   score: number;
@@ -40,11 +41,12 @@ interface RunResponse {
   templateUrl: './sandbox.html',
   styleUrl: './sandbox.css',
 })
-export class SandboxComponent implements OnInit {
+export class SandboxComponent implements OnInit, OnDestroy {
   private svc = inject(ChallengesService);
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  readonly ws = inject(WebSocketService);
 
   readonly isLoadingChallenges = signal(true);
   readonly challenges = computed(() => this.svc.challenges());
@@ -72,6 +74,7 @@ export class SandboxComponent implements OnInit {
   editorOptions = this.buildEditorOptions('java');
 
   async ngOnInit() {
+    this.ws.connect();
     await this.svc.load();
     this.isLoadingChallenges.set(false);
 
@@ -81,6 +84,10 @@ export class SandboxComponent implements OnInit {
     const challengeId = this.route.snapshot.queryParamMap.get('challenge');
     const initial = challengeId ? this.svc.byId(challengeId) : null;
     this.selectChallenge((initial ?? all[0]).id);
+  }
+
+  ngOnDestroy() {
+    this.ws.disconnect();
   }
 
   selectChallenge(id: string) {

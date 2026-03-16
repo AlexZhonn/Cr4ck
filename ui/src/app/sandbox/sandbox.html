@@ -13,8 +13,33 @@
       </svg>
       <span class="font-mono font-bold text-lg tracking-tight">Cr4ck</span>
     </div>
-    <div class="ml-auto text-sm font-mono text-gray-500">OOP &amp; System Design Practice</div>
+    <div class="ml-auto flex items-center gap-4">
+      <!-- Online indicator -->
+      <div class="flex items-center gap-1.5 text-xs font-mono text-gray-500">
+        <span [class]="'w-1.5 h-1.5 rounded-full ' + (ws.connected() ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600')"></span>
+        @if (ws.connected()) {
+          <span>{{ ws.onlineCount() }} online</span>
+        } @else {
+          <span>connecting…</span>
+        }
+      </div>
+      <span class="text-sm font-mono text-gray-500">OOP &amp; System Design Practice</span>
+    </div>
   </header>
+
+  <!-- Live activity feed -->
+  @if (ws.activity().length > 0) {
+    <div class="border-b border-white/10 bg-[#0d0d0d] px-6 py-1.5 flex items-center gap-3 overflow-x-auto shrink-0">
+      <span class="text-xs font-mono text-gray-600 shrink-0">Live</span>
+      <div class="flex items-center gap-4">
+        @for (event of ws.activity(); track event.ts) {
+          <span class="text-xs font-mono text-emerald-400/80 whitespace-nowrap animate-fade-in">
+            ⚡ {{ event.text }}
+          </span>
+        }
+      </div>
+    </div>
+  }
 
   <!-- Main Content -->
   <div class="flex-1 flex overflow-hidden">

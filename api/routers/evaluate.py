@@ -5,6 +5,7 @@ Accepts a code submission + challenge context and returns AI architectural feedb
 using the Anthropic Claude API.
 """
 
+import asyncio
 import os
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
@@ -12,6 +13,7 @@ import anthropic
 
 from auth.dependencies import get_current_user
 from core.database import get_db
+from core.redis import cache_delete, LEADERBOARD_KEY
 from models.user import UserInDB
 
 router = APIRouter(prefix="/api", tags=["evaluate"])
@@ -203,4 +205,21 @@ Please evaluate this submission."""
 
     feedback.xp_earned = xp_earned
     feedback.is_first_completion = is_first_completion
+
+    # Bust leaderboard cache and broadcast real-time events
+    if xp_earned > 0:
+        cache_delete(LEADERBOARD_KEY)
+        try:
+            from routers.ws import manager
+            asyncio.create_task(manager.broadcast({
+                "type": "solve_event",
+                "username": current_user.username,
+                "challenge_title": body.challenge_title,
+                "xp_earned": xp_earned,
+                "score": feedback.score,
+            }))
+            asyncio.create_task(manager.broadcast({"type": "leaderboard_update"}))
+        except Exception:
+            pass  # WS broadcast failure must never break the evaluate response
+
     return feedback

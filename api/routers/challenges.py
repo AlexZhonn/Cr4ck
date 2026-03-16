@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
 
 from core.database import get_db
+from core.redis import cache_get, cache_set, CHALLENGES_KEY, CHALLENGES_TTL
 
 router = APIRouter(prefix="/api", tags=["challenges"])
 
@@ -47,6 +48,10 @@ def _row_to_challenge(row: dict) -> ChallengeOut:
 
 @router.get("/challenges", response_model=list[ChallengeOut])
 def list_challenges(db=Depends(get_db)):
+    cached = cache_get(CHALLENGES_KEY)
+    if cached is not None:
+        return [ChallengeOut(**c) for c in cached]
+
     with db.cursor() as cur:
         cur.execute(
             """
@@ -57,7 +62,9 @@ def list_challenges(db=Depends(get_db)):
             """
         )
         rows = cur.fetchall()
-    return [_row_to_challenge(r) for r in rows]
+    challenges = [_row_to_challenge(r) for r in rows]
+    cache_set(CHALLENGES_KEY, [c.model_dump() for c in challenges], CHALLENGES_TTL)
+    return challenges
 
 
 @router.get("/challenges/{challenge_id}", response_model=ChallengeOut)

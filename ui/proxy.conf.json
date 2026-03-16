@@ -8,5 +8,10 @@
     "target": "http://localhost:8000",
     "secure": false,
     "changeOrigin": true
+  },
+  "/ws": {
+    "target": "ws://localhost:8000",
+    "secure": false,
+    "ws": true
   }
 }
