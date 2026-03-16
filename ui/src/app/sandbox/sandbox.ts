@@ -94,6 +94,80 @@ export class SandboxComponent implements OnInit, OnDestroy {
   editingPostId = signal<string | null>(null);
   editBody = signal('');
 
+  // -----------------------------------------------------------------------
+  // Draggable panel sizes (px), persisted in localStorage
+  // -----------------------------------------------------------------------
+  private readonly LS = {
+    sidebar: 'cr4ck_sidebar_w',
+    desc:    'cr4ck_desc_h',
+    right:   'cr4ck_right_w',
+  };
+
+  sidebarWidth  = signal(this._load(this.LS.sidebar, 256));
+  descHeight    = signal(this._load(this.LS.desc,    240));
+  rightWidth    = signal(this._load(this.LS.right,   380));
+
+  private _activeHandle: 'sidebar' | 'desc' | 'right' | null = null;
+  private _dragStart = { x: 0, y: 0, init: 0 };
+
+  private _load(key: string, fallback: number): number {
+    const v = localStorage.getItem(key);
+    return v ? +v : fallback;
+  }
+
+  private _save(key: string, value: number) {
+    localStorage.setItem(key, String(value));
+  }
+
+  startDrag(handle: 'sidebar' | 'desc' | 'right', event: MouseEvent) {
+    event.preventDefault();
+    this._activeHandle = handle;
+    this._dragStart = {
+      x: event.clientX,
+      y: event.clientY,
+      init: handle === 'sidebar' ? this.sidebarWidth()
+          : handle === 'desc'    ? this.descHeight()
+          :                        this.rightWidth(),
+    };
+    document.addEventListener('mousemove', this._onDrag);
+    document.addEventListener('mouseup',   this._onDragEnd);
+    document.body.style.cursor = handle === 'desc' ? 'row-resize' : 'col-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  private _onDrag = (e: MouseEvent) => {
+    const { x, y, init } = this._dragStart;
+    switch (this._activeHandle) {
+      case 'sidebar': {
+        const w = Math.min(Math.max(init + (e.clientX - x), 160), 480);
+        this.sidebarWidth.set(w);
+        this._save(this.LS.sidebar, w);
+        break;
+      }
+      case 'desc': {
+        const h = Math.min(Math.max(init + (e.clientY - y), 80), 500);
+        this.descHeight.set(h);
+        this._save(this.LS.desc, h);
+        break;
+      }
+      case 'right': {
+        // handle sits left of right panel: drag left → bigger, drag right → smaller
+        const w = Math.min(Math.max(init + (x - e.clientX), 200), 700);
+        this.rightWidth.set(w);
+        this._save(this.LS.right, w);
+        break;
+      }
+    }
+  };
+
+  private _onDragEnd = () => {
+    this._activeHandle = null;
+    document.removeEventListener('mousemove', this._onDrag);
+    document.removeEventListener('mouseup',   this._onDragEnd);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  };
+
   get activeChallenge(): Challenge | null {
     return this.svc.byId(this.activeChallengeId()) ?? null;
   }
@@ -119,6 +193,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.ws.disconnect();
+    this._onDragEnd();
   }
 
   selectChallenge(id: string) {

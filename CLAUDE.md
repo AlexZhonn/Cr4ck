@@ -175,7 +175,22 @@ Migration 008 (posts + post_votes), FastAPI router `routers/posts.py`, Angular C
 ### 3. ~~Sandbox Sidebar Filtering~~ ✅ DONE
 Topic dropdown + Easy/Medium/Hard difficulty buttons above sidebar challenge list. Filters are reactive computed signals.
 
-### 4. Email Verification
+### 4. Draggable Panel Resizing in Sandbox
+The sandbox has 3 fixed split points that should be user-resizable via drag handles.
+
+**Split points:**
+- Sidebar ↔ Workspace (horizontal)
+- Problem description ↔ Editor+Panel (vertical)
+- Editor ↔ Right panel (horizontal)
+
+**Design:**
+- Add a thin drag handle `div` between each pane
+- On `mousedown` on the handle, track `mousemove` to update the pane sizes (use `flex-basis` or explicit `width`/`height` in px via signals)
+- Clamp sizes to reasonable min/max (e.g. sidebar 160px–400px, description 15%–60%, right panel 20%–60%)
+- Store sizes in `localStorage` so they persist across sessions
+- No external library needed — pure mouse event handling in the component
+
+### 5. Email Verification
 `is_verified` column exists in DB but is always `false`. Need SMTP or Resend integration to send a verification link on register.
 
 ### 5. GitHub OAuth

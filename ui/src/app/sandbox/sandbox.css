@@ -9,6 +9,139 @@ ngx-monaco-editor {
   height: 100% !important;
 }
 
+/* Drag handles */
+.drag-handle {
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  transition: background 0.15s;
+}
+
+.drag-handle--col {
+  width: 4px;
+  cursor: col-resize;
+}
+
+.drag-handle--row {
+  height: 4px;
+  cursor: row-resize;
+}
+
+/* Expand the clickable hit area without changing layout */
+.drag-handle--col::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -4px; right: -4px;
+}
+
+.drag-handle--row::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: -4px; bottom: -4px;
+}
+
+.drag-handle:hover,
+.drag-handle:active {
+  background: rgba(52, 211, 153, 0.25); /* emerald tint to match theme */
+}
+
+/* Center grip dots on hover */
+.drag-handle::after {
+  content: '';
+  position: absolute;
+  background: rgba(52, 211, 153, 0.6);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.drag-handle:hover::after {
+  opacity: 1;
+}
+
+.drag-handle--col::after {
+  width: 2px;
+  height: 20px;
+  top: 50%;
+  left: 1px;
+  transform: translateY(-50%);
+}
+
+.drag-handle--row::after {
+  height: 2px;
+  width: 20px;
+  left: 50%;
+  top: 1px;
+  transform: translateX(-50%);
+}
+
+/* Editor toolbar buttons — icon + collapsible label */
+.editor-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.editor-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.editor-btn--blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+}
+.editor-btn--blue:not(:disabled):hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.editor-btn--emerald {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+.editor-btn--emerald:not(:disabled):hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+/* Hide the text label when the editor pane is narrow */
+.btn-label {
+  display: inline;
+}
+
+@container editor-toolbar (max-width: 300px) {
+  .btn-label { display: none; }
+  .editor-btn { padding: 3px 6px; }
+}
+
+/* Dark themed scrollbar for sidebar */
+aside::-webkit-scrollbar {
+  width: 4px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }

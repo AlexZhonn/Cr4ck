@@ -42,10 +42,14 @@
   }
 
   <!-- Main Content -->
-  <div class="flex-1 flex overflow-hidden">
+  <div class="flex-1 flex overflow-hidden min-h-0">
 
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-white/10 bg-[#0f0f0f] flex flex-col overflow-y-auto">
+    <aside
+      [style.flex-basis.px]="sidebarWidth()"
+      style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto; overflow-x: hidden;"
+      class="border-r border-white/10 bg-[#0f0f0f] flex flex-col"
+    >
       <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">
         Challenges
       </div>
@@ -118,11 +122,21 @@
       }
     </aside>
 
+    <!-- Sidebar drag handle -->
+    <div
+      class="drag-handle drag-handle--col"
+      (mousedown)="startDrag('sidebar', $event)"
+      title="Drag to resize"
+    ></div>
+
     <!-- Workspace -->
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
 
       <!-- Top Half: Problem Description -->
-      <div class="h-1/3 border-b border-white/10 bg-[#141414] p-6 overflow-y-auto">
+      <div
+        [style.height.px]="descHeight()"
+        class="shrink-0 border-b border-white/10 bg-[#141414] p-6 overflow-y-auto"
+      >
         @if (activeChallenge) {
           <div class="max-w-3xl">
             <div class="flex items-center gap-3 mb-4">
@@ -140,12 +154,19 @@
         }
       </div>
 
+      <!-- Description drag handle -->
+      <div
+        class="drag-handle drag-handle--row"
+        (mousedown)="startDrag('desc', $event)"
+        title="Drag to resize"
+      ></div>
+
       <!-- Bottom Half: Editor + Right Panel -->
-      <div class="flex-1 flex min-h-0">
+      <div class="flex-1 flex min-h-0 overflow-hidden">
 
         <!-- Editor Pane -->
-        <div class="flex-1 flex flex-col border-r border-white/10 bg-[#0a0a0a]">
-          <div class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]">
+        <div class="flex-1 min-w-0 flex flex-col border-r border-white/10 bg-[#0a0a0a] overflow-hidden">
+          <div class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]" style="container-type: inline-size; container-name: editor-toolbar;">
             <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -154,42 +175,43 @@
               </svg>
               <span>solution.{{ fileExtension() }}</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 overflow-hidden">
               <!-- Run Tests button -->
               @if (hasTestCases) {
                 <button
                   (click)="runTests()"
                   [disabled]="isRunning() || isEvaluating() || !activeChallenge"
-                  class="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Run Tests"
+                  class="editor-btn editor-btn--blue"
                 >
                   @if (isRunning()) {
-                    <span class="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></span>
-                    Running...
+                    <span class="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
                   } @else {
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="shrink-0">
                       <polyline points="9 11 12 14 22 4"></polyline>
                       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
-                    Run Tests
                   }
+                  <span class="btn-label">{{ isRunning() ? 'Running…' : 'Run Tests' }}</span>
                 </button>
               }
               <!-- Submit & Evaluate button -->
               <button
                 (click)="evaluateCode()"
                 [disabled]="isEvaluating() || isRunning() || !activeChallenge"
-                class="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Submit & Evaluate"
+                class="editor-btn editor-btn--emerald"
               >
                 @if (isEvaluating()) {
-                  <span class="w-3 h-3 border border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
-                  Evaluating...
+                  <span class="w-3 h-3 border border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
                 } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="shrink-0">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
-                  Submit &amp; Evaluate
                 }
+                <span class="btn-label">{{ isEvaluating() ? 'Evaluating…' : 'Submit' }}</span>
               </button>
             </div>
           </div>
@@ -203,8 +225,19 @@
           </div>
         </div>
 
+        <!-- Editor / Right panel drag handle -->
+        <div
+          class="drag-handle drag-handle--col"
+          (mousedown)="startDrag('right', $event)"
+          title="Drag to resize"
+        ></div>
+
         <!-- Right Panel: Tabbed (Tests + AI Feedback) -->
-        <div class="w-1/3 flex flex-col bg-[#141414]">
+        <div
+          [style.flex-basis.px]="rightWidth()"
+          style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow: hidden;"
+          class="flex flex-col bg-[#141414]"
+        >
 
           <!-- Tab Header -->
           <div class="h-10 border-b border-white/10 flex items-center bg-[#111111]">
