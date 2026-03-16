@@ -44,7 +44,7 @@ interface RunResponse {
 })
 export class SandboxComponent implements OnInit, OnDestroy {
   private svc = inject(ChallengesService);
-  private auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   readonly ws = inject(WebSocketService);

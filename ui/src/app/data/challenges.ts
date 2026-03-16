@@ -15,7 +15,7 @@ export interface Challenge {
   topic: Topic;
   description: string;
   starterCode: string;
-  testCases: TestCase[];
+  testCases?: TestCase[];
 }
 
 export const TOPICS: { id: Topic; label: string; description: string; icon: string }[] = [
