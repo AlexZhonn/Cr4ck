@@ -1,5 +1,7 @@
 # Cr4ck — CLAUDE.md
 
+> **Always update this file when completing work items, discovering bugs, or making architectural decisions.**
+
 ## Project Overview
 
 **Cr4ck** is an AI-powered coding challenge platform focused on Object-Oriented Programming (OOP) and System Design. Users write code in a browser-based Monaco Editor and receive instant AI architectural feedback.
@@ -157,6 +159,16 @@ make check      # tsc --noEmit + Python import check
 ---
 
 ## What's Next (Priority Order)
+
+### ~~Completed~~ ✅
+- Test cases panel in sandbox (migrations 005–007, Tests tab in right panel)
+- Community discussion per challenge (migration 008, posts/votes, Community tab)
+- Sandbox sidebar filtering (topic + difficulty + language)
+- Draggable panel resizing in sandbox (all 3 split points, localStorage persist)
+- TopicProblems enhanced filtering (difficulty + language, colored dots)
+- Challenge history in Profile (GET /api/profile/completed, history list with scores)
+- Completed challenge badges in TopicProblems rows (checkmark + best score)
+- BYOK AI provider keys (Anthropic/OpenAI/Google, AES-256-GCM, Profile settings card)
 
 ### 1. Wire `/api/run` — Real Code Execution
 `routers/run.py` is a stub. Need Docker-sandboxed execution per language (Python, TypeScript via ts-node, Java compile+run, C++ g++ compile+run). Hard 5s timeout. Capture stdout, compare to `expected_output`. On full pass: bonus XP + bust leaderboard cache.
