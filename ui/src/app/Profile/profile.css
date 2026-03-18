@@ -151,6 +151,152 @@
   text-align: center;
 }
 
+/* Challenge history */
+.history-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.history-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: #34d399;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.history-error {
+  color: #f87171;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  gap: 0.75rem;
+}
+
+.history-row:hover {
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.history-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.diff-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.7rem;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-easy   { background: rgba(52,211,153,0.1);  color: #34d399; }
+.badge-medium { background: rgba(245,158,11,0.1);  color: #fbbf24; }
+.badge-hard   { background: rgba(244,63,94,0.1);   color: #fb7185; }
+
+.history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.history-title-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-meta {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #4b5563;
+}
+
+.history-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.history-score {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.score-high { color: #34d399; }
+.score-mid  { color: #fbbf24; }
+.score-low  { color: #fb7185; }
+
+.score-denom {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.row-arrow {
+  color: #374151;
+}
+
 /* CTA */
 .btn-problems {
   display: inline-flex;

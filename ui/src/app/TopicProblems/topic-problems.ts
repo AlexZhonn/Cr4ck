@@ -4,8 +4,10 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
 import { TOPICS, Challenge, Topic } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
+import { ProfileService } from '../services/profile.service';
 
 type Difficulty = 'All' | 'Easy' | 'Medium' | 'Hard';
+type Language = 'All' | 'TypeScript' | 'Java' | 'Python' | 'C++';
 
 @Component({
   selector: 'app-topic-problems',
@@ -16,39 +18,61 @@ type Difficulty = 'All' | 'Easy' | 'Medium' | 'Hard';
 })
 export class TopicProblemsComponent implements OnInit {
   private svc = inject(ChallengesService);
+  readonly profileSvc = inject(ProfileService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   topic = signal<Topic | null>(null);
   activeFilter = signal<Difficulty>('All');
+  activeLang = signal<Language>('All');
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
 
   readonly filters: Difficulty[] = ['All', 'Easy', 'Medium', 'Hard'];
+  readonly languages: Language[] = ['All', 'TypeScript', 'Java', 'Python', 'C++'];
 
   readonly topicMeta = computed(() => {
     const t = this.topic();
     return t ? TOPICS.find(x => x.id === t) ?? null : null;
   });
 
-  readonly challenges = computed<Challenge[]>(() => {
+  private readonly topicChallenges = computed<Challenge[]>(() => {
     const t = this.topic();
-    if (!t) return [];
-    const all = this.svc.byTopic(t);
-    const filter = this.activeFilter();
-    return filter === 'All' ? all : all.filter(c => c.difficulty === filter);
+    return t ? this.svc.byTopic(t) : [];
+  });
+
+  readonly challenges = computed<Challenge[]>(() => {
+    let list = this.topicChallenges();
+    const diff = this.activeFilter();
+    const lang = this.activeLang();
+    if (diff !== 'All') list = list.filter(c => c.difficulty === diff);
+    if (lang !== 'All') list = list.filter(c => c.language.toLowerCase().includes(lang.toLowerCase()));
+    return list;
   });
 
   readonly counts = computed(() => {
-    const t = this.topic();
-    if (!t) return { All: 0, Easy: 0, Medium: 0, Hard: 0 };
-    const base = this.svc.byTopic(t);
+    const base = this.topicChallenges();
+    const lang = this.activeLang();
+    const filtered = lang === 'All' ? base : base.filter(c => c.language.toLowerCase().includes(lang.toLowerCase()));
     return {
-      All: base.length,
-      Easy: base.filter(c => c.difficulty === 'Easy').length,
-      Medium: base.filter(c => c.difficulty === 'Medium').length,
-      Hard: base.filter(c => c.difficulty === 'Hard').length,
+      All: filtered.length,
+      Easy: filtered.filter(c => c.difficulty === 'Easy').length,
+      Medium: filtered.filter(c => c.difficulty === 'Medium').length,
+      Hard: filtered.filter(c => c.difficulty === 'Hard').length,
     };
+  });
+
+  readonly langCounts = computed(() => {
+    const base = this.topicChallenges();
+    const diff = this.activeFilter();
+    const filtered = diff === 'All' ? base : base.filter(c => c.difficulty === diff);
+    const result: Record<Language, number> = { All: filtered.length, TypeScript: 0, Java: 0, Python: 0, 'C++': 0 };
+    for (const c of filtered) {
+      for (const lang of this.languages.slice(1) as Language[]) {
+        if (c.language.toLowerCase().includes(lang.toLowerCase())) result[lang]++;
+      }
+    }
+    return result;
   });
 
   async ngOnInit() {
@@ -60,7 +84,7 @@ export class TopicProblemsComponent implements OnInit {
     this.topic.set(topicParam);
 
     try {
-      await this.svc.load();
+      await Promise.all([this.svc.load(), this.profileSvc.load()]);
     } catch (err: any) {
       this.error.set(err.message ?? 'Could not load challenges.');
     } finally {
@@ -69,6 +93,7 @@ export class TopicProblemsComponent implements OnInit {
   }
 
   setFilter(f: Difficulty) { this.activeFilter.set(f); }
+  setLang(l: Language) { this.activeLang.set(l); }
   goBack() { this.router.navigate(['/problems']); }
   selectChallenge(id: string) { this.router.navigate(['/problems', id]); }
 

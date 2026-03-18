@@ -99,6 +99,7 @@ api/
 | GET | /api/challenges/:id | Single challenge detail (public) |
 | POST | /api/evaluate | AI code evaluation (auth required) |
 | GET | /api/leaderboard | Top 50 users ranked by XP (public) |
+| GET | /api/profile/completed | Challenges the current user has attempted (auth required) |
 | WS | /ws | WebSocket — real-time solve events + leaderboard updates |
 | GET | /api/challenges/:id/posts | Paginated post list for a challenge (public, viewer's vote included if authed) |
 | POST | /api/challenges/:id/posts | Create top-level post or reply (auth required) |
@@ -154,59 +155,27 @@ make check      # tsc --noEmit + Python import check
 
 ## What's Next (Priority Order)
 
-### 1. Test Cases Panel in Sandbox
-Add a third pane to the sandbox IDE (alongside the editor and AI feedback) that runs deterministic test cases against the user's code. AI feedback is a qualitative layer on top — test cases are the ground truth pass/fail signal.
+### 1. Wire `/api/run` — Real Code Execution
+`routers/run.py` is a stub. Need Docker-sandboxed execution per language (Python, TypeScript via ts-node, Java compile+run, C++ g++ compile+run). Hard 5s timeout. Capture stdout, compare to `expected_output`. On full pass: bonus XP + bust leaderboard cache.
 
-**Design:**
-- Each challenge in the DB gets a `test_cases` JSONB column: array of `{ input, expected_output, description }` objects
-- New endpoint `POST /api/run` — executes user code in a sandboxed subprocess (Docker or e2 subprocess with timeout), captures stdout, compares against expected
-- Sandbox UI: tabbed panel — "Tests" tab next to "AI Feedback", shows each test case with pass/fail status and actual vs expected output
-- Languages need a runner per language: Java (compile + run), Python (run), TypeScript (ts-node), C++ (compile + run)
-- Code execution must be sandboxed — no network, limited CPU/memory, hard timeout (5s). Use Docker with `--network none --memory 128m --cpus 0.5` or a cloud sandbox (e.g. Judge0 API)
-- XP logic: test pass rate feeds into score alongside AI feedback; full pass = bonus XP
+### 2. Community Post Markdown Rendering
+Post bodies are plain text. Add `marked` or `ngx-markdown` to render markdown in post bodies. Edit/Delete buttons currently shown to all logged-in users — hide for non-owners (backend returns 403 correctly, UI needs `auth.currentUser()` check).
 
-**DB migration needed:** `ALTER TABLE challenges ADD COLUMN test_cases JSONB DEFAULT '[]'`
+### 3. Email Verification
+`is_verified` column in DB always `false`. Integrate Resend or SMTP to send verification link on register.
 
-### 2. ~~Community Discussion per Challenge~~ ✅ DONE
-Migration 008 (posts + post_votes), FastAPI router `routers/posts.py`, Angular Community tab in sandbox with voting + replies. Markdown rendering NOT yet added — post bodies are plain text for now.
-
-**Known gap:** Post body markdown rendering (use `marked` or `ngx-markdown`). Edit/delete only hides on the UI — no owner check in the frontend (relies on backend 403).
-
-### 3. ~~Sandbox Sidebar Filtering~~ ✅ DONE
-Topic dropdown + Easy/Medium/Hard difficulty buttons above sidebar challenge list. Filters are reactive computed signals.
-
-### 4. Draggable Panel Resizing in Sandbox
-The sandbox has 3 fixed split points that should be user-resizable via drag handles.
-
-**Split points:**
-- Sidebar ↔ Workspace (horizontal)
-- Problem description ↔ Editor+Panel (vertical)
-- Editor ↔ Right panel (horizontal)
-
-**Design:**
-- Add a thin drag handle `div` between each pane
-- On `mousedown` on the handle, track `mousemove` to update the pane sizes (use `flex-basis` or explicit `width`/`height` in px via signals)
-- Clamp sizes to reasonable min/max (e.g. sidebar 160px–400px, description 15%–60%, right panel 20%–60%)
-- Store sizes in `localStorage` so they persist across sessions
-- No external library needed — pure mouse event handling in the component
-
-### 5. Email Verification
-`is_verified` column exists in DB but is always `false`. Need SMTP or Resend integration to send a verification link on register.
-
-### 5. GitHub OAuth
-Backend flow not wired. Frontend already shows "coming soon" notice on click. Can use Supabase Auth or a custom OAuth flow with GitHub App credentials.
+### 4. GitHub OAuth
+Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custom OAuth flow.
 
 ---
 
 ## Known Issues / Tech Debt
 
-- **Challenges in both DB and frontend**: `data/challenges.ts` holds type definitions and `TOPICS` metadata (icons etc.) for UI. Actual challenge content is served from DB via `/api/challenges`. To add a new challenge, write a new migration SQL — no need to edit `challenges.ts` unless adding a new topic.
-- **No email verification**: `is_verified` column in DB is always `false`. No email sending infrastructure (SMTP/Resend).
-- **Angular route matching**: `problems/topic/:topic` before `problems/:id` in routes is correct — test this on every route refactor.
-- **Monaco assets**: `angular.json` copies the monaco-editor `min/vs` folder to `assets/monaco/min/vs`. Dev server must be restarted after any `angular.json` change for this to take effect.
-- **Code execution not sandboxed yet**: `/api/run` router file exists but is a stub. Until Docker/Judge0 is wired, test cases cannot run. Do not attempt to exec user code without proper sandboxing.
-- **Community post ownership UI**: Edit/Delete buttons are shown for all logged-in users on all posts — the backend will return 403 correctly, but the UI should hide them for posts not owned by the current user. Needs `auth.currentUser()` plumbing into the sandbox template.
-- **Community markdown**: Post bodies are plain text. Add `marked` or `ngx-markdown` to render markdown in post bodies.
-- **Sidebar filter state not preserved**: Filters reset when navigating away from sandbox. Could persist in URL query params or localStorage if needed.
-- **Challenge type `testCases` is optional**: The static `Challenge` interface in `data/challenges.ts` has `testCases?` optional because static objects there don't include it — actual test cases come from the DB via `/api/challenges`. Don't make it required again.
-- **Sandbox template visibility**: Any service injected in `SandboxComponent` that is referenced in the template must be `readonly` (not `private`). Angular templates cannot access private class members.
+- **Challenges served from DB only**: `data/challenges.ts` holds type definitions and `TOPICS` metadata only. To add a challenge, write a migration SQL.
+- **Challenge type `testCases` is optional**: `Challenge` interface has `testCases?` optional — actual test cases come from DB. Don't make it required.
+- **Sandbox template visibility**: Services injected in `SandboxComponent` referenced in template must be `readonly` (not `private`). Angular templates cannot access private members.
+- **Angular route matching**: `problems/topic/:topic` must appear before `problems/:id` in `app.routes.ts`.
+- **Monaco assets**: `angular.json` copies `node_modules/monaco-editor/min/vs` → `assets/monaco/min/vs`. Restart dev server after any `angular.json` change.
+- **Code execution not sandboxed**: `/api/run` is a stub. Do not exec user code without Docker sandboxing.
+- **Community post ownership UI**: Edit/Delete shown to all logged-in users. Backend returns 403 correctly; UI needs `auth.currentUser()` check to hide buttons for non-owners.
+- **Sidebar filter state not preserved**: Filters reset on navigation. Could persist in URL params or localStorage.

@@ -21,20 +21,44 @@
         <p class="topic-desc">{{ topicMeta()!.description }}</p>
       </div>
 
-      <!-- Difficulty filter -->
-      <div class="filter-bar">
-        @for (f of filters; track f) {
-          <button
-            class="filter-btn"
-            [class.active]="activeFilter() === f"
-            [class.filter-easy]="f === 'Easy'"
-            [class.filter-medium]="f === 'Medium'"
-            [class.filter-hard]="f === 'Hard'"
-            (click)="setFilter(f)">
-            {{ f }}
-            <span class="filter-count">{{ counts()[f] }}</span>
-          </button>
-        }
+      <!-- Filters -->
+      <div class="filter-section">
+        <!-- Difficulty -->
+        <div class="filter-row">
+          <span class="filter-label">Difficulty</span>
+          <div class="filter-bar">
+            @for (f of filters; track f) {
+              <button
+                class="filter-btn"
+                [class.active]="activeFilter() === f"
+                [class.filter-easy]="f === 'Easy'"
+                [class.filter-medium]="f === 'Medium'"
+                [class.filter-hard]="f === 'Hard'"
+                (click)="setFilter(f)">
+                {{ f }}
+                <span class="filter-count">{{ counts()[f] }}</span>
+              </button>
+            }
+          </div>
+        </div>
+        <!-- Language -->
+        <div class="filter-row">
+          <span class="filter-label">Language</span>
+          <div class="filter-bar">
+            @for (l of languages; track l) {
+              <button
+                class="filter-btn lang-btn"
+                [class.active]="activeLang() === l"
+                (click)="setLang(l)">
+                @if (l !== 'All') {
+                  <span class="lang-dot" [attr.data-lang]="l"></span>
+                }
+                {{ l }}
+                <span class="filter-count">{{ langCounts()[l] }}</span>
+              </button>
+            }
+          </div>
+        </div>
       </div>
 
       <!-- Challenge list -->
@@ -54,13 +78,25 @@
       } @else {
         <div class="challenge-list">
           @for (challenge of challenges(); track challenge.id) {
-            <div class="challenge-row" (click)="selectChallenge(challenge.id)">
+            <div class="challenge-row" [class.completed-row]="profileSvc.isCompleted(challenge.id)" (click)="selectChallenge(challenge.id)">
               <div class="row-left">
                 <span [class]="'difficulty-badge ' + difficultyClass(challenge.difficulty)">
                   {{ challenge.difficulty }}
                 </span>
                 <div class="row-info">
-                  <h3 class="row-title">{{ challenge.title }}</h3>
+                  <div class="row-title-line">
+                    <h3 class="row-title">{{ challenge.title }}</h3>
+                    @if (profileSvc.isCompleted(challenge.id)) {
+                      <span class="done-badge" title="Best score: {{ profileSvc.bestScore(challenge.id) }}/100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="3"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        {{ profileSvc.bestScore(challenge.id) }}
+                      </span>
+                    }
+                  </div>
                   <p class="row-framework">{{ challenge.framework }}</p>
                   <p class="row-desc">{{ descriptionPreview(challenge.description) }}</p>
                 </div>
