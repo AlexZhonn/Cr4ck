@@ -576,7 +576,8 @@
                                 </div>
                               </div>
                             } @else {
-                              <p class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ post.body }}</p>
+                              <div class="text-sm text-gray-300 leading-relaxed prose-post"
+                                [innerHTML]="renderMarkdown(post.body)"></div>
                             }
                           </div>
 
@@ -602,8 +603,8 @@
                                 (click)="replyingTo.set(replyingTo() === post.id ? null : post.id); replyBody.set('')"
                                 class="text-xs text-gray-600 hover:text-gray-300 font-mono"
                               >Reply</button>
-                              <!-- Edit / Delete (own posts) -->
-                              @if (auth.isLoggedIn()) {
+                              <!-- Edit / Delete (own posts only) -->
+                              @if (isOwnPost(post)) {
                                 <button (click)="startEdit(post)" class="text-xs text-gray-600 hover:text-gray-300 font-mono">Edit</button>
                                 <button (click)="deletePost(post.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
                               }
@@ -643,14 +644,18 @@
                                     <span class="text-xs font-mono px-1 py-0.5 rounded bg-violet-500/8 text-violet-400/70">{{ postsSvc.levelLabel(reply.author.xp) }}</span>
                                     <span class="text-xs text-gray-600 ml-auto">{{ postsSvc.timeAgo(reply.created_at) }}</span>
                                   </div>
-                                  <p class="text-xs text-gray-400 leading-relaxed whitespace-pre-wrap">{{ reply.body }}</p>
-                                  <!-- Reply votes -->
-                                  <div class="flex items-center gap-1 mt-1.5">
+                                  <div class="text-xs text-gray-400 leading-relaxed prose-post"
+                                    [innerHTML]="renderMarkdown(reply.body)"></div>
+                                  <!-- Reply votes + own-post actions -->
+                                  <div class="flex items-center gap-2 mt-1.5">
                                     <button (click)="votePost(reply.id, reply.user_vote === 1 ? 0 : 1)"
                                       [class]="'text-xs ' + (reply.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')">▲</button>
                                     <span class="text-xs font-mono text-gray-500 w-4 text-center">{{ reply.vote_score }}</span>
                                     <button (click)="votePost(reply.id, reply.user_vote === -1 ? 0 : -1)"
                                       [class]="'text-xs ' + (reply.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')">▼</button>
+                                    @if (isOwnPost(reply)) {
+                                      <button (click)="deletePost(reply.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
+                                    }
                                   </div>
                                 </div>
                               }

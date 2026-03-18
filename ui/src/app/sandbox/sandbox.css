@@ -150,3 +150,15 @@ aside::-webkit-scrollbar-thumb:hover {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Markdown rendering in community posts */
+.prose-post p        { margin: 0 0 0.4em; }
+.prose-post p:last-child { margin-bottom: 0; }
+.prose-post code     { background: rgba(255,255,255,0.08); border-radius: 3px; padding: 0.1em 0.35em; font-size: 0.85em; font-family: monospace; }
+.prose-post pre      { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.6em 0.75em; overflow-x: auto; margin: 0.4em 0; }
+.prose-post pre code { background: none; padding: 0; }
+.prose-post ul, .prose-post ol { padding-left: 1.2em; margin: 0.25em 0; }
+.prose-post li       { margin: 0.1em 0; }
+.prose-post strong   { color: #e5e7eb; }
+.prose-post a        { color: #818cf8; text-decoration: underline; }
+.prose-post blockquote { border-left: 2px solid rgba(255,255,255,0.15); padding-left: 0.75em; color: #6b7280; margin: 0.4em 0; }

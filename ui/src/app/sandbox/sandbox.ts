@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { marked } from 'marked';
 import { Challenge } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
 import { AuthService } from '../services/auth.service';
@@ -305,6 +306,14 @@ export class SandboxComponent implements OnInit, OnDestroy {
   }
 
   goHome() { this.router.navigate(['/']); }
+
+  renderMarkdown(text: string): string {
+    return marked.parse(text, { async: false }) as string;
+  }
+
+  isOwnPost(post: Post): boolean {
+    return !!this.auth.user() && post.author.username === this.auth.user()!.username;
+  }
 
   async evaluateCode() {
     const challenge = this.activeChallenge;

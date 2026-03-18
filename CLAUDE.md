@@ -161,6 +161,9 @@ make check      # tsc --noEmit + Python import check
 ## What's Next (Priority Order)
 
 ### ~~Completed~~ ✅
+- Wire `/api/run` — Docker-sandboxed code execution (Python/Java/TypeScript/C++); stdin via file, local Python fallback
+- Community post markdown rendering (`marked`); Edit/Delete buttons now owner-only via `isOwnPost()` username check
+- Fix: `PostAuthor.id` changed from `number` to `string` (UUID) to match DB
 - Test cases panel in sandbox (migrations 005–007, Tests tab in right panel)
 - Community discussion per challenge (migration 008, posts/votes, Community tab)
 - Sandbox sidebar filtering (topic + difficulty + language)
@@ -170,16 +173,11 @@ make check      # tsc --noEmit + Python import check
 - Completed challenge badges in TopicProblems rows (checkmark + best score)
 - BYOK AI provider keys (Anthropic/OpenAI/Google, AES-256-GCM, Profile settings card)
 
-### 1. Wire `/api/run` — Real Code Execution
-`routers/run.py` is a stub. Need Docker-sandboxed execution per language (Python, TypeScript via ts-node, Java compile+run, C++ g++ compile+run). Hard 5s timeout. Capture stdout, compare to `expected_output`. On full pass: bonus XP + bust leaderboard cache.
 
-### 2. Community Post Markdown Rendering
-Post bodies are plain text. Add `marked` or `ngx-markdown` to render markdown in post bodies. Edit/Delete buttons currently shown to all logged-in users — hide for non-owners (backend returns 403 correctly, UI needs `auth.currentUser()` check).
-
-### 3. Email Verification
+### 1. Email Verification
 `is_verified` column in DB always `false`. Integrate Resend or SMTP to send verification link on register.
 
-### 4. GitHub OAuth
+### 2. GitHub OAuth
 Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custom OAuth flow.
 
 ---

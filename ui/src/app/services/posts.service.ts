@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface PostAuthor {
-  id: number;
+  id: string;  // UUID
   username: string;
   xp: number;
 }
