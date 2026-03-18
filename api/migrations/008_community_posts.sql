@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS posts (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     challenge_id VARCHAR(32) NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
-    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     parent_id   UUID REFERENCES posts(id) ON DELETE CASCADE,  -- NULL = top-level post
     body        TEXT NOT NULL CHECK (char_length(body) BETWEEN 1 AND 10000),
     is_deleted  BOOLEAN NOT NULL DEFAULT FALSE,
@@ -16,7 +16,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_parent    ON posts(parent_id) WHERE parent_
 CREATE INDEX IF NOT EXISTS idx_posts_user      ON posts(user_id);
 
 CREATE TABLE IF NOT EXISTS post_votes (
-    user_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id  UUID    NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     post_id  UUID    NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     value    SMALLINT NOT NULL CHECK (value IN (1, -1)),
     PRIMARY KEY (user_id, post_id)

@@ -151,6 +151,105 @@
   text-align: center;
 }
 
+/* AI key settings */
+.settings-section {
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.section-desc {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.key-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #34d399;
+  font-family: monospace;
+}
+
+.btn-remove-key {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  color: #fb7185;
+  font-size: 0.75rem;
+  border-radius: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-remove-key:hover { background: rgba(251, 113, 133, 0.08); }
+.btn-remove-key:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.key-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.provider-select {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;
+  color: #d1d5db;
+  font-size: 0.8125rem;
+  padding: 0.4rem 0.625rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.key-input {
+  flex: 1;
+  min-width: 0;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;
+  color: #d1d5db;
+  font-size: 0.8125rem;
+  font-family: monospace;
+  padding: 0.4rem 0.625rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.key-input:focus { border-color: rgba(52, 211, 153, 0.4); }
+.key-input::placeholder { color: #4b5563; }
+
+.btn-save-key {
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  font-size: 0.8125rem;
+  border-radius: 0.375rem;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-save-key:hover { background: rgba(52, 211, 153, 0.18); }
+.btn-save-key:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.key-error   { font-size: 0.8125rem; color: #fb7185; margin: 0; }
+.key-success { font-size: 0.8125rem; color: #34d399;  margin: 0; font-family: monospace; }
+
 /* Challenge history */
 .history-section {
   display: flex;

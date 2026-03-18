@@ -100,6 +100,9 @@ api/
 | POST | /api/evaluate | AI code evaluation (auth required) |
 | GET | /api/leaderboard | Top 50 users ranked by XP (public) |
 | GET | /api/profile/completed | Challenges the current user has attempted (auth required) |
+| PUT | /auth/api-key | Save/update user's AI provider + encrypted API key (auth required) |
+| DELETE | /auth/api-key | Remove stored API key (auth required) |
+| GET | /auth/api-key/status | Returns `{ has_key, provider, provider_label }` — never the key (auth required) |
 | WS | /ws | WebSocket — real-time solve events + leaderboard updates |
 | GET | /api/challenges/:id/posts | Paginated post list for a challenge (public, viewer's vote included if authed) |
 | POST | /api/challenges/:id/posts | Create top-level post or reply (auth required) |
@@ -177,5 +180,8 @@ Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custo
 - **Angular route matching**: `problems/topic/:topic` must appear before `problems/:id` in `app.routes.ts`.
 - **Monaco assets**: `angular.json` copies `node_modules/monaco-editor/min/vs` → `assets/monaco/min/vs`. Restart dev server after any `angular.json` change.
 - **Code execution not sandboxed**: `/api/run` is a stub. Do not exec user code without Docker sandboxing.
+- **API_KEY_SECRET required**: `auth/apikey.py` will raise `RuntimeError` on startup if `API_KEY_SECRET` is not a 64-char hex string. Add to `.env`.
+- **ALLOW_SERVER_KEY=true by default**: Dev fallback uses server's `ANTHROPIC_API_KEY`. Set `ALLOW_SERVER_KEY=false` in prod to force BYOK.
+- **OpenAI + Google providers**: `openai` and `google-generativeai` packages are not in requirements.txt yet — add them before enabling those providers in prod.
 - **Community post ownership UI**: Edit/Delete shown to all logged-in users. Backend returns 403 correctly; UI needs `auth.currentUser()` check to hide buttons for non-owners.
 - **Sidebar filter state not preserved**: Filters reset on navigation. Could persist in URL params or localStorage.

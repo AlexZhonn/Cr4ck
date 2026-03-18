@@ -9,6 +9,7 @@ from routers import run as run_router
 from routers import ws as ws_router
 from routers import posts as posts_router
 from routers import profile as profile_router
+from routers import apikey as apikey_router
 
 app = FastAPI(title="Cr4ck API")
 
@@ -22,6 +23,7 @@ app.include_router(run_router.router)
 app.include_router(ws_router.router)
 app.include_router(posts_router.router)
 app.include_router(profile_router.router)
+app.include_router(apikey_router.router)
 
 
 @app.on_event("startup")

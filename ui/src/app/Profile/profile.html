@@ -43,6 +43,44 @@
         </div>
       </div>
 
+      <!-- AI API Key settings -->
+      <div class="settings-section">
+        <h2 class="section-title">AI Provider</h2>
+        <p class="section-desc">Add your own API key to use for code evaluation. Supported: Anthropic (Claude), OpenAI (GPT-4), Google (Gemini).</p>
+
+        @if (keyStatus()?.has_key) {
+          <div class="key-status">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>{{ keyStatus()!.provider_label }} key saved</span>
+            <button class="btn-remove-key" (click)="removeKey()" [disabled]="keyLoading()">Remove</button>
+          </div>
+        }
+
+        <div class="key-form">
+          <select class="provider-select" [(ngModel)]="selectedProvider">
+            @for (p of providers; track p.value) {
+              <option [value]="p.value">{{ p.label }}</option>
+            }
+          </select>
+          <input
+            class="key-input"
+            type="password"
+            [(ngModel)]="apiKeyInput"
+            placeholder="Paste API key…"
+            autocomplete="off"
+          />
+          <button class="btn-save-key" (click)="saveKey()" [disabled]="keySaving() || !apiKeyInput">
+            {{ keySaving() ? 'Saving…' : (keyStatus()?.has_key ? 'Update' : 'Save') }}
+          </button>
+        </div>
+
+        @if (keyError()) { <p class="key-error">{{ keyError() }}</p> }
+        @if (keySuccess()) { <p class="key-success">{{ keySuccess() }}</p> }
+      </div>
+
       <!-- Challenge history -->
       <div class="history-section">
         <h2 class="history-title">Challenge History</h2>
