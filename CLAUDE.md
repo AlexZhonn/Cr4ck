@@ -172,27 +172,10 @@ make check      # tsc --noEmit + Python import check
 - Challenge history in Profile (GET /api/profile/completed, history list with scores)
 - Completed challenge badges in TopicProblems rows (checkmark + best score)
 - BYOK AI provider keys (Anthropic/OpenAI/Google, AES-256-GCM, Profile settings card)
+- Judge0 CE integration: `routers/run.py` now POSTs to `JUDGE0_URL` when set; Docker fallback retained for dev; `httpx` added to requirements.txt; `JUDGE0_URL` documented in `.env.example`
 
 
-### 1. Judge0 Self-Hosted Code Execution Sandbox
-Replace the current `docker run` approach in `routers/run.py` with Judge0 — a battle-tested, self-hosted code execution API. The FastAPI server should never touch the Docker socket directly (privilege escalation risk).
-
-**Plan:**
-- Deploy Judge0 CE via Docker Compose on a separate VPS or isolated sidecar (see judge0.com/ce)
-- Add `JUDGE0_URL=http://judge0:2358` to `.env`
-- Rewrite `routers/run.py` to POST to `{JUDGE0_URL}/submissions?base64_encoded=false&wait=true` with `{ source_code, language_id, stdin }` and read `{ stdout, stderr, status }` back
-- Language ID map: Python 3 = 71, Java = 62, TypeScript = 74, C++ = 54
-- Remove direct `subprocess`/`docker` calls from the FastAPI process entirely
-- Timeout and memory limits configured in Judge0's `judge0.conf` (not in FastAPI)
-- Keep local Python fallback only for dev when `JUDGE0_URL` is unset
-
-**Why Judge0 over raw Docker:**
-- FastAPI process never needs Docker socket access
-- Judge0 uses its own sandboxing (isolate + cgroups) — proven safe
-- Supports 60+ languages out of the box
-- Self-hosted = data stays on your infra, no per-request cost
-
-### 2. Email Verification
+### 1. Email Verification
 `is_verified` column in DB always `false`. Integrate Resend or SMTP to send verification link on register.
 
 ### 2. GitHub OAuth

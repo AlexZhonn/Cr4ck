@@ -8,3 +8,4 @@ python-dotenv==1.0.1
 anthropic==0.45.0
 redis[hiredis]==5.2.1
 websockets==14.1
+httpx==0.28.1
