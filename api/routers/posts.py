@@ -64,7 +64,7 @@ class PostOut(BaseModel):
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _fetch_posts(db, challenge_id: str, parent_id, limit: int, offset: int, viewer_id: int | None) -> list[PostOut]:
+def _fetch_posts(db, challenge_id: str, parent_id, limit: int, offset: int, viewer_id: str | None) -> list[PostOut]:
     with db.cursor() as cur:
         cur.execute(
             """
@@ -134,12 +134,13 @@ def list_posts(
     db=Depends(get_db),
     viewer: Optional[UserInDB] = Depends(_get_optional_user),
 ):
-    top_level = _fetch_posts(db, challenge_id, None, limit, offset, viewer.id if viewer else None)
+    viewer_id = str(viewer.id) if viewer else None
+    top_level = _fetch_posts(db, challenge_id, None, limit, offset, viewer_id)
 
     # Attach one level of replies (up to 50 per post)
     for post in top_level:
         if post.reply_count > 0:
-            post.replies = _fetch_posts(db, challenge_id, post.id, 50, 0, viewer.id if viewer else None)
+            post.replies = _fetch_posts(db, challenge_id, post.id, 50, 0, viewer_id)
 
     return top_level
 
@@ -173,7 +174,7 @@ def create_post(
             VALUES (%s, %s, %s, %s)
             RETURNING id, challenge_id, parent_id, body, is_deleted, created_at, updated_at
             """,
-            (challenge_id, current_user.id, str(payload.parent_id) if payload.parent_id else None, payload.body),
+            (challenge_id, str(current_user.id), str(payload.parent_id) if payload.parent_id else None, payload.body),
         )
         row = cur.fetchone()
         db.commit()
@@ -211,7 +212,7 @@ def edit_post(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     if row["is_deleted"]:
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Post has been deleted")
-    if row["user_id"] != current_user.id:
+    if str(row["user_id"]) != str(current_user.id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot edit another user's post")
 
     with db.cursor() as cur:
@@ -226,7 +227,7 @@ def edit_post(
         db.commit()
 
     # Re-fetch full post with vote data
-    posts = _fetch_posts_by_id(db, str(post_id), current_user.id)
+    posts = _fetch_posts_by_id(db, str(post_id), str(current_user.id))
     return posts
 
 
@@ -244,7 +245,7 @@ def delete_post(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     if row["is_deleted"]:
         return  # idempotent
-    if row["user_id"] != current_user.id:
+    if str(row["user_id"]) != str(current_user.id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot delete another user's post")
 
     with db.cursor() as cur:
@@ -270,7 +271,7 @@ def vote_post(
         if payload.value == 0:
             cur.execute(
                 "DELETE FROM post_votes WHERE user_id = %s AND post_id = %s",
-                (current_user.id, str(post_id)),
+                (str(current_user.id), str(post_id)),
             )
         else:
             cur.execute(
@@ -279,18 +280,18 @@ def vote_post(
                 VALUES (%s, %s, %s)
                 ON CONFLICT (user_id, post_id) DO UPDATE SET value = EXCLUDED.value
                 """,
-                (current_user.id, str(post_id), payload.value),
+                (str(current_user.id), str(post_id), payload.value),
             )
         db.commit()
 
-    return _fetch_posts_by_id(db, str(post_id), current_user.id)
+    return _fetch_posts_by_id(db, str(post_id), str(current_user.id))
 
 
 # ---------------------------------------------------------------------------
 # Internal helper — fetch a single post by id with vote aggregation
 # ---------------------------------------------------------------------------
 
-def _fetch_posts_by_id(db, post_id: str, viewer_id: int | None) -> PostOut:
+def _fetch_posts_by_id(db, post_id: str, viewer_id: str | None) -> PostOut:
     with db.cursor() as cur:
         cur.execute(
             """
