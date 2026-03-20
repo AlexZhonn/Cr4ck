@@ -7,12 +7,15 @@ Auth endpoints:
   GET  /auth/me        — get current user profile
 """
 
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from auth.dependencies import get_current_user
 from auth.password import generate_salt, hash_password, verify_password, needs_rehash
 from auth.tokens import create_access_token, create_refresh_token, decode_token
 from core.database import get_db
+from email_service import send_verification_email
 from models.user import (
     LoginRequest,
     RefreshRequest,
@@ -55,6 +58,21 @@ def register(body: RegisterRequest, db=Depends(get_db)):
             (body.username, body.email, password_hash, salt),
         )
         row = cur.fetchone()
+        user_id = str(row["id"])
+        username = row["username"]
+
+        verification_token = secrets.token_urlsafe(32)
+        cur.execute(
+            """
+            UPDATE users
+            SET verification_token = %s,
+                verification_token_expires_at = NOW() + INTERVAL '24 hours'
+            WHERE id = %s
+            """,
+            (verification_token, user_id),
+        )
+
+    send_verification_email(body.email, username, verification_token)
 
     return UserPublic(**row)
 
@@ -172,6 +190,43 @@ def logout(body: RefreshRequest, db=Depends(get_db)):
             )
     except Exception:
         pass  # Idempotent — silently succeed even if token is already gone
+
+
+@router.get("/verify")
+def verify_email(token: str, db=Depends(get_db)):
+    """Verify a user's email address via the token sent on registration."""
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id FROM users
+            WHERE verification_token = %s
+              AND verification_token_expires_at > NOW()
+              AND is_verified = FALSE
+            """,
+            (token,),
+        )
+        row = cur.fetchone()
+
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token",
+        )
+
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE users
+            SET is_verified = TRUE,
+                verification_token = NULL,
+                verification_token_expires_at = NULL,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (str(row["id"]),),
+        )
+
+    return {"message": "Email verified successfully"}
 
 
 @router.get("/me", response_model=UserPublic)

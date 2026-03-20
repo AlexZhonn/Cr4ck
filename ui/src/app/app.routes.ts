@@ -10,6 +10,7 @@ import { AboutComponent } from './About/about';
 import { ProfileComponent } from './Profile/profile';
 import { ProblemComponent } from './Problem/problem';
 import { LeaderboardComponent } from './Leaderboard/leaderboard';
+import { VerifyEmailComponent } from './VerifyEmail/verify-email';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -23,4 +24,5 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'about', component: AboutComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'verify-email', component: VerifyEmailComponent },
 ];

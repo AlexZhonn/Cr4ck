@@ -173,12 +173,10 @@ make check      # tsc --noEmit + Python import check
 - Completed challenge badges in TopicProblems rows (checkmark + best score)
 - BYOK AI provider keys (Anthropic/OpenAI/Google, AES-256-GCM, Profile settings card)
 - Judge0 CE integration: `routers/run.py` now POSTs to `JUDGE0_URL` when set; Docker fallback retained for dev; `httpx` added to requirements.txt; `JUDGE0_URL` documented in `.env.example`
+- Email verification via Postmark: migration 010 adds `verification_token` columns; `email_service.py` sends HTML email on register; `GET /auth/verify?token=` marks `is_verified=TRUE`; Angular `/verify-email` component handles the link click (loading/success/error states)
 
+### 1. GitHub OAuth
 
-### 1. Email Verification
-`is_verified` column in DB always `false`. Integrate Resend or SMTP to send verification link on register.
-
-### 2. GitHub OAuth
 Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custom OAuth flow.
 
 ---
