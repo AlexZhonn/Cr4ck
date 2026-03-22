@@ -14,9 +14,6 @@ Usage in a route:
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
 from auth.tokens import decode_token
 from core.database import get_db
 from models.user import UserInDB, UserRole

@@ -65,9 +65,12 @@ Respond ONLY with a valid JSON object matching this exact schema (no markdown, n
 
 
 def _xp_for_score(score: int) -> int:
-    if score >= 80: return 50
-    if score >= 60: return 30
-    if score >= 40: return 15
+    if score >= 80:
+        return 50
+    if score >= 60:
+        return 30
+    if score >= 40:
+        return 15
     return 5
 
 

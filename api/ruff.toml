@@ -1,0 +1,5 @@
+[lint]
+# E402: module-level import not at top of file.
+# Routers initialize `limiter = Limiter(key_func=get_remote_address)` before
+# local imports — this is required by slowapi and is intentional.
+ignore = ["E402"]

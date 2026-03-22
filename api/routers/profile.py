@@ -6,8 +6,6 @@ GET /api/profile/completed  — list of challenges the current user has submitte
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
-
 from auth.dependencies import get_current_user
 from core.database import get_db
 from models.user import UserInDB
