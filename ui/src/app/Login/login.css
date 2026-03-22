@@ -99,6 +99,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.forgot-link {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-decoration: none;
+  margin-left: auto;
+}
+.forgot-link:hover {
+  color: #9ca3af;
 }
 .view-toggle {
   font-size: 0.75rem;
@@ -208,4 +219,26 @@ input:focus {
   font-size: 0.8125rem;
   color: #6b7280;
   margin: 0.5rem 0 0;
+}
+
+.btn-resend {
+  display: block;
+  margin-top: 0.5rem;
+  background: none;
+  border: 1px solid #f87171;
+  color: #f87171;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-resend:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.btn-resend:disabled {
+  opacity: 0.6;
+  cursor: default;
 }

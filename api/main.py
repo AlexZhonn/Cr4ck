@@ -1,4 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from core.config import setup_cors
 from core.redis import get_redis
 from routers import auth as auth_router
@@ -11,7 +15,11 @@ from routers import posts as posts_router
 from routers import profile as profile_router
 from routers import apikey as apikey_router
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="Cr4ck API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 setup_cors(app)
 

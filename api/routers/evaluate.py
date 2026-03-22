@@ -10,8 +10,12 @@ Falls back to the server's ANTHROPIC_API_KEY if the user has no key configured
 import asyncio
 import os
 import json
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 
 from auth.dependencies import get_current_user
 from auth.apikey import decrypt_key
@@ -136,7 +140,9 @@ def _run_evaluation(provider: str, api_key: str, user_message: str) -> dict:
 
 
 @router.post("/evaluate", response_model=EvaluationFeedback)
+@limiter.limit("30/hour")
 def evaluate(
+    request: Request,
     body: EvaluateRequest,
     db=Depends(get_db),
     current_user: UserInDB = Depends(get_current_user),

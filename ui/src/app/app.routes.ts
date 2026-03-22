@@ -11,6 +11,8 @@ import { ProfileComponent } from './Profile/profile';
 import { ProblemComponent } from './Problem/problem';
 import { LeaderboardComponent } from './Leaderboard/leaderboard';
 import { VerifyEmailComponent } from './VerifyEmail/verify-email';
+import { ForgotPasswordComponent } from './ForgotPassword/forgot-password';
+import { ResetPasswordComponent } from './ResetPassword/reset-password';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -25,4 +27,6 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
 ];

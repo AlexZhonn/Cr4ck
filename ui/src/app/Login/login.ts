@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from '../Header/header';
 import { AuthService } from '../services/auth.service';
@@ -13,16 +14,17 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './login.css',
 })
 export class LoginComponent {
-  loginData = {
-    email: '',
-    password: '',
-  };
+  loginData = { email: '', password: '' };
 
   showPassword = false;
   isLoading = false;
   errorMessage = '';
 
-  constructor(private router: Router, private auth: AuthService) {}
+  showResend = false;
+  resendLoading = false;
+  resendSent = false;
+
+  constructor(private router: Router, private auth: AuthService, private http: HttpClient) {}
 
   goBack() {
     this.router.navigate(['/']);
@@ -37,14 +39,30 @@ export class LoginComponent {
 
   async onSubmit() {
     this.errorMessage = '';
+    this.showResend = false;
+    this.resendSent = false;
     this.isLoading = true;
     try {
       await this.auth.login(this.loginData.email, this.loginData.password);
       this.router.navigate(['/problems']);
     } catch (err: any) {
       this.errorMessage = err.message ?? 'Login failed. Please try again.';
+      if (this.errorMessage.toLowerCase().includes('email not verified')) {
+        this.showResend = true;
+      }
     } finally {
       this.isLoading = false;
     }
+  }
+
+  resendVerification() {
+    this.resendLoading = true;
+    this.http.post('/auth/resend-verification', {
+      email: this.loginData.email,
+      password: this.loginData.password,
+    }).subscribe({
+      next: () => { this.resendSent = true; this.resendLoading = false; },
+      error: () => { this.resendSent = true; this.resendLoading = false; }, // always silent
+    });
   }
 }

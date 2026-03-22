@@ -18,8 +18,12 @@ import re
 import subprocess
 import tempfile
 import httpx
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 
 from auth.dependencies import get_current_user
 from core.database import get_db
@@ -246,7 +250,9 @@ def _execute(language: str, code: str, stdin: str, tmpdir: str) -> tuple[str, st
 # ---------------------------------------------------------------------------
 
 @router.post("/run", response_model=RunResponse)
+@limiter.limit("60/hour")
 def run_code(
+    request: Request,
     body: RunRequest,
     db=Depends(get_db),
     current_user: UserInDB = Depends(get_current_user),

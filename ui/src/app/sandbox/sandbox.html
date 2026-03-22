@@ -56,9 +56,16 @@
 
       <!-- Filters -->
       <div class="px-3 pb-3 space-y-2">
+        <input
+          type="text"
+          [value]="filterSearch()"
+          (input)="setFilterSearch($any($event.target).value)"
+          placeholder="Search challenges…"
+          class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 placeholder-gray-600 focus:outline-none focus:border-emerald-500/40"
+        />
         <select
           [value]="filterTopic()"
-          (change)="filterTopic.set($any($event.target).value)"
+          (change)="setFilterTopic($any($event.target).value)"
           class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 focus:outline-none focus:border-emerald-500/40 appearance-none"
         >
           <option value="">All Topics</option>
@@ -69,7 +76,7 @@
         <div class="flex gap-1.5">
           @for (d of ['', 'Easy', 'Medium', 'Hard']; track d) {
             <button
-              (click)="filterDifficulty.set(d)"
+              (click)="setFilterDifficulty(d)"
               [class]="
                 'flex-1 py-1 rounded text-xs font-mono transition-colors ' +
                 (filterDifficulty() === d
@@ -82,10 +89,10 @@
             >{{ d || 'All' }}</button>
           }
         </div>
-        @if (filterTopic() || filterDifficulty()) {
+        @if (filterTopic() || filterDifficulty() || filterSearch()) {
           <div class="flex items-center justify-between text-xs font-mono text-gray-600">
             <span>{{ challenges().length }} shown</span>
-            <button (click)="filterTopic.set(''); filterDifficulty.set('')" class="text-gray-600 hover:text-gray-400">Clear</button>
+            <button (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')" class="text-gray-600 hover:text-gray-400">Clear</button>
           </div>
         }
       </div>

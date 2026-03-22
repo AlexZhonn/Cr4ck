@@ -1,9 +1,10 @@
 """
-GET /api/challenges          — list all active challenges
+GET /api/challenges          — list all active challenges (paginated)
 GET /api/challenges/:id      — single challenge detail
 """
 
-from fastapi import APIRouter, HTTPException, status, Depends
+import math
+from fastapi import APIRouter, HTTPException, Query, status, Depends
 from pydantic import BaseModel
 
 from core.database import get_db
@@ -46,25 +47,42 @@ def _row_to_challenge(row: dict) -> ChallengeOut:
     )
 
 
-@router.get("/challenges", response_model=list[ChallengeOut])
-def list_challenges(db=Depends(get_db)):
+class ChallengesPage(BaseModel):
+    items: list[ChallengeOut]
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+
+@router.get("/challenges", response_model=ChallengesPage)
+def list_challenges(
+    page: int = Query(1, ge=1),
+    limit: int = Query(50, ge=1, le=200),
+    db=Depends(get_db),
+):
+    # Full list is cached; slice in Python to avoid per-page cache complexity
     cached = cache_get(CHALLENGES_KEY)
     if cached is not None:
-        return [ChallengeOut(**c) for c in cached]
+        all_challenges = [ChallengeOut(**c) for c in cached]
+    else:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
+                FROM challenges
+                WHERE is_active = TRUE
+                ORDER BY topic, difficulty, id
+                """
+            )
+            rows = cur.fetchall()
+        all_challenges = [_row_to_challenge(r) for r in rows]
+        cache_set(CHALLENGES_KEY, [c.model_dump() for c in all_challenges], CHALLENGES_TTL)
 
-    with db.cursor() as cur:
-        cur.execute(
-            """
-            SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
-            FROM challenges
-            WHERE is_active = TRUE
-            ORDER BY topic, difficulty, id
-            """
-        )
-        rows = cur.fetchall()
-    challenges = [_row_to_challenge(r) for r in rows]
-    cache_set(CHALLENGES_KEY, [c.model_dump() for c in challenges], CHALLENGES_TTL)
-    return challenges
+    total = len(all_challenges)
+    start = (page - 1) * limit
+    items = all_challenges[start: start + limit]
+    return ChallengesPage(items=items, total=total, page=page, limit=limit, pages=math.ceil(total / limit))
 
 
 @router.get("/challenges/{challenge_id}", response_model=ChallengeOut)

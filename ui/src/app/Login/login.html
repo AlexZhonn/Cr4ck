@@ -43,6 +43,7 @@
         <div class="form-group">
           <div class="label-row">
             <label for="password">Password</label>
+            <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
             <span class="view-toggle" (click)="showPassword = !showPassword">
               {{ showPassword ? 'Hide' : 'Show' }}
             </span>
@@ -58,7 +59,14 @@
         </div>
 
         @if (errorMessage) {
-          <div class="error-message">{{ errorMessage }}</div>
+          <div class="error-message">
+            {{ errorMessage }}
+            @if (showResend) {
+              <button class="btn-resend" type="button" [disabled]="resendLoading" (click)="resendVerification()">
+                {{ resendLoading ? 'Sending...' : resendSent ? 'Sent!' : 'Resend verification email' }}
+              </button>
+            }
+          </div>
         }
 
         <button type="submit" class="btn-submit" [disabled]="isLoading">

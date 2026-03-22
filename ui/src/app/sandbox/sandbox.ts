@@ -52,9 +52,38 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   readonly isLoadingChallenges = signal(true);
 
-  // Sidebar filters
+  // Sidebar filters — initialised from URL params, written back on change
   filterTopic = signal<string>('');
   filterDifficulty = signal<string>('');
+  filterSearch = signal<string>('');
+
+  private _syncParams(overrides: Record<string, string | null> = {}) {
+    this.router.navigate([], {
+      queryParams: {
+        topic: this.filterTopic() || null,
+        difficulty: this.filterDifficulty() || null,
+        q: this.filterSearch() || null,
+        challenge: this.activeChallengeId() || null,
+        ...overrides,
+      },
+      replaceUrl: true,
+    });
+  }
+
+  setFilterTopic(value: string) {
+    this.filterTopic.set(value);
+    this._syncParams({ topic: value || null });
+  }
+
+  setFilterDifficulty(value: string) {
+    this.filterDifficulty.set(value);
+    this._syncParams({ difficulty: value || null });
+  }
+
+  setFilterSearch(value: string) {
+    this.filterSearch.set(value);
+    this._syncParams({ q: value || null });
+  }
 
   readonly allTopics = computed(() => {
     const seen = new Set<string>();
@@ -66,8 +95,10 @@ export class SandboxComponent implements OnInit, OnDestroy {
     let list = this.svc.challenges();
     const topic = this.filterTopic();
     const diff = this.filterDifficulty();
+    const q = this.filterSearch().toLowerCase().trim();
     if (topic) list = list.filter(c => c.topic === topic);
-    if (diff) list = list.filter(c => c.difficulty === diff);
+    if (diff)  list = list.filter(c => c.difficulty === diff);
+    if (q)     list = list.filter(c => c.title.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q));
     return list;
   });
 
@@ -187,7 +218,15 @@ export class SandboxComponent implements OnInit, OnDestroy {
     const all = this.svc.challenges();
     if (all.length === 0) return;
 
-    const challengeId = this.route.snapshot.queryParamMap.get('challenge');
+    const params = this.route.snapshot.queryParamMap;
+    const topicParam  = params.get('topic');
+    const diffParam   = params.get('difficulty');
+    const searchParam = params.get('q');
+    if (topicParam)  this.filterTopic.set(topicParam);
+    if (diffParam)   this.filterDifficulty.set(diffParam);
+    if (searchParam) this.filterSearch.set(searchParam);
+
+    const challengeId = params.get('challenge');
     const initial = challengeId ? this.svc.byId(challengeId) : null;
     this.selectChallenge((initial ?? all[0]).id);
   }

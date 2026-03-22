@@ -1,25 +1,33 @@
 """
 Auth endpoints:
-  POST /auth/register  — create account
-  POST /auth/login     — get access + refresh tokens
-  POST /auth/refresh   — exchange refresh token for new access token
-  POST /auth/logout    — revoke refresh token
-  GET  /auth/me        — get current user profile
+  POST /auth/register             — create account
+  POST /auth/login                — get access + refresh tokens
+  POST /auth/refresh              — exchange refresh token for new access token
+  POST /auth/logout               — revoke refresh token
+  GET  /auth/verify               — verify email via token
+  POST /auth/resend-verification  — resend verification email
+  GET  /auth/me                   — get current user profile
 """
 
 import secrets
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 
 from auth.dependencies import get_current_user
 from auth.password import generate_salt, hash_password, verify_password, needs_rehash
 from auth.tokens import create_access_token, create_refresh_token, decode_token
 from core.database import get_db
-from email_service import send_verification_email
+from email_service import send_verification_email, send_password_reset_email
 from models.user import (
+    ForgotPasswordRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     TokenResponse,
     UserInDB,
     UserPublic,
@@ -29,7 +37,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
-def register(body: RegisterRequest, db=Depends(get_db)):
+@limiter.limit("10/hour")
+def register(request: Request, body: RegisterRequest, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             "SELECT id FROM users WHERE email = %s OR username = %s",
@@ -78,10 +87,11 @@ def register(body: RegisterRequest, db=Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, db=Depends(get_db)):
+@limiter.limit("20/hour")
+def login(request: Request, body: LoginRequest, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
-            "SELECT id, password_hash, salt, role, is_active FROM users WHERE email = %s OR username = %s",
+            "SELECT id, password_hash, salt, role, is_active, is_verified FROM users WHERE email = %s OR username = %s",
             (body.email, body.email),
         )
         user = cur.fetchone()
@@ -106,6 +116,12 @@ def login(body: LoginRequest, db=Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is disabled",
+        )
+
+    if not user["is_verified"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified. Check your inbox or request a new verification link.",
         )
 
     user_id = str(user["id"])
@@ -227,6 +243,118 @@ def verify_email(token: str, db=Depends(get_db)):
         )
 
     return {"message": "Email verified successfully"}
+
+
+@router.post("/resend-verification", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("5/hour")
+def resend_verification(request: Request, body: LoginRequest, db=Depends(get_db)):
+    """
+    Resend a verification email. Accepts email (or username) + password so we
+    can confirm the requester owns the account without issuing tokens.
+    Always returns 204 to avoid leaking whether an email exists.
+    """
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT id, email, username, password_hash, salt, is_verified FROM users WHERE email = %s OR username = %s",
+            (body.email, body.email),
+        )
+        user = cur.fetchone()
+
+    _DUMMY_SALT = "0" * 64
+    _DUMMY_HASH = "$argon2id$v=19$m=65536,t=3,p=2$deadbeefdeadbeef$deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    stored_hash = user["password_hash"] if user else _DUMMY_HASH
+    stored_salt = user["salt"] if user else _DUMMY_SALT
+    password_ok = verify_password(body.password, stored_salt, stored_hash)
+
+    # Silently do nothing if user not found, wrong password, or already verified
+    if not user or not password_ok or user["is_verified"]:
+        return
+
+    user_id = str(user["id"])
+    verification_token = secrets.token_urlsafe(32)
+
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE users
+            SET verification_token = %s,
+                verification_token_expires_at = NOW() + INTERVAL '24 hours',
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (verification_token, user_id),
+        )
+
+    send_verification_email(user["email"], user["username"], verification_token)
+
+
+@router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("5/hour")
+def forgot_password(request: Request, body: ForgotPasswordRequest, db=Depends(get_db)):
+    """
+    Send a password reset link. Always returns 204 regardless of whether the
+    email exists — prevents user enumeration.
+    """
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT id, email, username FROM users WHERE email = %s AND is_active = TRUE",
+            (body.email,),
+        )
+        user = cur.fetchone()
+
+    if not user:
+        return
+
+    reset_token = secrets.token_urlsafe(32)
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE users
+            SET reset_token = %s,
+                reset_token_expires_at = NOW() + INTERVAL '1 hour',
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (reset_token, str(user["id"])),
+        )
+
+    send_password_reset_email(user["email"], user["username"], reset_token)
+
+
+@router.post("/reset-password", status_code=status.HTTP_204_NO_CONTENT)
+def reset_password(body: ResetPasswordRequest, db=Depends(get_db)):
+    """Verify reset token and update the user's password."""
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, salt FROM users
+            WHERE reset_token = %s
+              AND reset_token_expires_at > NOW()
+              AND is_active = TRUE
+            """,
+            (body.token,),
+        )
+        user = cur.fetchone()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+
+    new_hash = hash_password(body.password, user["salt"])
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE users
+            SET password_hash = %s,
+                reset_token = NULL,
+                reset_token_expires_at = NULL,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (new_hash, str(user["id"])),
+        )
 
 
 @router.get("/me", response_model=UserPublic)

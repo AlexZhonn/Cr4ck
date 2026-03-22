@@ -41,13 +41,13 @@ export class ChallengesService {
     if (this._loaded) return;
     if (this._loading) return this._loading;
 
-    this._loading = fetch('/api/challenges')
+    this._loading = fetch('/api/challenges?limit=200')
       .then(res => {
         if (!res.ok) throw new Error(`Failed to load challenges (${res.status})`);
         return res.json();
       })
-      .then((rows: ChallengeApiRow[]) => {
-        this._challenges.set(rows.map(toChallenge));
+      .then((page: { items: ChallengeApiRow[] }) => {
+        this._challenges.set(page.items.map(toChallenge));
         this._loaded = true;
       })
       .finally(() => {
