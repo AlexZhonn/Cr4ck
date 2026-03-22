@@ -1,0 +1,57 @@
+name: Daily challenge generation
+
+on:
+  schedule:
+    # Midnight UTC — new challenge ready before most timezones wake up
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      date_override:
+        description: "Generate for a specific date (YYYY-MM-DD). Leave blank for today."
+        required: false
+
+jobs:
+  generate:
+    name: Generate today's challenge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger generation endpoint
+        # date_override is passed via env var (not inline interpolation) to prevent
+        # script injection — never interpolate github.event.inputs.* directly into run: scripts.
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          DATE_OVERRIDE: ${{ github.event.inputs.date_override }}
+        run: |
+          # Validate date_override format (YYYY-MM-DD) before using it
+          if [ -n "$DATE_OVERRIDE" ]; then
+            if ! echo "$DATE_OVERRIDE" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+              echo "::error::Invalid date_override format. Expected YYYY-MM-DD."
+              exit 1
+            fi
+            PAYLOAD="{\"date\": \"$DATE_OVERRIDE\"}"
+          else
+            PAYLOAD="{}"
+          fi
+
+          HTTP_STATUS=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "$API_URL/api/admin/generate-daily" \
+            -H "X-Admin-Secret: $ADMIN_SECRET" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            --max-time 120)
+
+          echo "HTTP status: $HTTP_STATUS"
+          cat /tmp/response.json
+
+          # Fail the workflow if the API returns a non-2xx code
+          if [[ "$HTTP_STATUS" -lt 200 || "$HTTP_STATUS" -ge 300 ]]; then
+            echo "::error::Daily challenge generation failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+
+# Required secrets (add in repo Settings → Secrets → Actions):
+#   API_URL       — e.g. https://api.cr4ck.dev
+#   ADMIN_SECRET  — value of ADMIN_SECRET env var in production

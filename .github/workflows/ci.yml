@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Frontend ──────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — type-check & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+
+      - name: Build (production)
+        run: npm run build -- --configuration production
+
+  # ── Backend ───────────────────────────────────────────────────────────────
+  backend:
+    name: Backend — lint & import check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ruff lint
+        run: |
+          pip install ruff
+          ruff check .
+
+      - name: Import check (catch missing deps)
+        # Mimics `make check` — if any top-level import explodes, CI fails
+        run: python -c "import main"
+        env:
+          # Stub env vars so config.py doesn't raise on import
+          DATABASE_URL: postgresql://stub:stub@localhost/stub
+          SECRET_KEY: stubstubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          ANTHROPIC_API_KEY: sk-stub
+          API_KEY_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
