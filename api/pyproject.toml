@@ -1,0 +1,33 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Rule sets: E/W=pycodestyle, F=pyflakes, I=isort, S=bandit-security, UP=pyupgrade
+select = ["E", "F", "I", "UP"]
+ignore = [
+    # E402: module-level import not at top of file.
+    # Routers must declare `limiter = Limiter(...)` before local imports — required by slowapi.
+    "E402",
+]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_return_any = false
+# Start permissive; tighten incrementally as type coverage improves
+strict = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--tb=short"
+
+[tool.coverage.run]
+source = ["routers", "auth", "core", "models"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 50
