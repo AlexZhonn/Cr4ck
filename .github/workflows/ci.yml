@@ -7,9 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  # ── Frontend ──────────────────────────────────────────────────────────────
+  # ── Frontend: type-check, lint, format, test, build ───────────────────────
   frontend:
-    name: Frontend — type-check & build
+    name: Frontend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,19 +28,49 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # AUDIT-C2: type-check
       - name: TypeScript type-check
         run: npx tsc --noEmit
 
+      # AUDIT-Q1: Prettier format check
+      - name: Prettier format check
+        run: npm run format:check
+
+      # AUDIT-Q2: ESLint
+      - name: ESLint
+        run: npm run lint
+
+      # AUDIT-T2: unit tests
+      - name: Unit tests
+        run: npm run test:ci
+
+      # AUDIT-C2: production build (validates bundle budget)
       - name: Build (production)
         run: npm run build -- --configuration production
 
-  # ── Backend ───────────────────────────────────────────────────────────────
+  # ── Backend: lint, type-check, SAST, test ─────────────────────────────────
   backend:
-    name: Backend — lint & import check
+    name: Backend
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: api
+
+    # AUDIT-T1: Postgres service for integration tests
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cr4ck
+          POSTGRES_PASSWORD: cr4ck
+          POSTGRES_DB: cr4ck_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -52,19 +82,50 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Ruff lint
         run: |
-          pip install ruff
-          ruff check .
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # AUDIT-C3: Ruff lint (now with explicit config from pyproject.toml)
+      - name: Ruff lint
+        run: ruff check .
+
+      # AUDIT-C3: mypy static type checking
+      - name: mypy type check
+        run: mypy . --ignore-missing-imports
+        continue-on-error: true  # non-blocking until type coverage improves
+
+      # AUDIT-C4: Bandit SAST for first-party code
+      - name: Bandit SAST
+        run: |
+          pip install bandit
+          bandit -r . -ll --exclude ./venv,./tests -q
+        continue-on-error: true  # non-blocking until findings are triaged
 
       - name: Import check (catch missing deps)
-        # Mimics `make check` — if any top-level import explodes, CI fails
         run: python -c "import main"
         env:
-          # Stub env vars so config.py doesn't raise on import
-          DATABASE_URL: postgresql://stub:stub@localhost/stub
-          SECRET_KEY: stubstubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_test
+          SECRET_KEY: stubstubstubstubstubstubstubstubstubstubstubstubstubstub12345678
+          ANTHROPIC_API_KEY: sk-stub
+          API_KEY_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
+
+      # AUDIT-T1: Run migrations then test suite
+      - name: Run database migrations
+        run: |
+          for f in migrations/0*.sql; do
+            psql "$TEST_DATABASE_URL" -f "$f" || true
+          done
+        env:
+          TEST_DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_test
+
+      # AUDIT-C1: Run backend test suite with coverage
+      - name: pytest with coverage
+        run: |
+          pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=50 -v
+        env:
+          TEST_DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_test
+          SECRET_KEY: stubstubstubstubstubstubstubstubstubstubstubstubstubstub12345678
+          DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_test
           ANTHROPIC_API_KEY: sk-stub
           API_KEY_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"

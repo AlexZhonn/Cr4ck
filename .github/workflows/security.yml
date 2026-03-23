@@ -28,6 +28,13 @@ jobs:
       - name: Audit Python dependencies
         run: pip-audit -r api/requirements.txt
 
+      # AUDIT-C4: Bandit SAST — scans first-party code for security anti-patterns
+      # (hardcoded secrets, SQL string formatting, insecure deserialization, etc.)
+      - name: Bandit SAST
+        run: |
+          pip install bandit
+          bandit -r api/ -ll --exclude api/venv,api/tests -q
+
   node-audit:
     name: Node — npm audit
     runs-on: ubuntu-latest

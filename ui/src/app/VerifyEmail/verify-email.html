@@ -4,39 +4,42 @@
   <main class="verify-container">
     <div class="verify-card">
 
-      <!-- Loading -->
-      <div *ngIf="state === 'loading'" class="state-loading">
-        <div class="spinner"></div>
-        <p>Verifying your email…</p>
-      </div>
-
-      <!-- Success -->
-      <div *ngIf="state === 'success'" class="state-success">
-        <div class="icon-circle success">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
+      @if (state === 'loading') {
+        <div class="state-loading">
+          <div class="spinner"></div>
+          <p>Verifying your email…</p>
         </div>
-        <h1>Email verified</h1>
-        <p>Your account is now active. You're ready to crack some challenges.</p>
-        <button class="btn-primary" (click)="goLogin()">Go to login</button>
-      </div>
+      }
 
-      <!-- Error -->
-      <div *ngIf="state === 'error'" class="state-error">
-        <div class="icon-circle error">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+      @if (state === 'success') {
+        <div class="state-success">
+          <div class="icon-circle success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h1>Email verified</h1>
+          <p>Your account is now active. You're ready to crack some challenges.</p>
+          <button type="button" class="btn-primary" (click)="goLogin()">Go to login</button>
         </div>
-        <h1>Verification failed</h1>
-        <p>{{ errorMessage }}</p>
-        <p class="hint">The link may have expired (24 hours). Try registering again.</p>
-        <button class="btn-primary" (click)="goLogin()">Back to login</button>
-      </div>
+      }
+
+      @if (state === 'error') {
+        <div class="state-error">
+          <div class="icon-circle error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </div>
+          <h1>Verification failed</h1>
+          <p>{{ errorMessage }}</p>
+          <p class="hint">The link may have expired (24 hours). Try registering again.</p>
+          <button type="button" class="btn-primary" (click)="goLogin()">Back to login</button>
+        </div>
+      }
 
     </div>
   </main>
