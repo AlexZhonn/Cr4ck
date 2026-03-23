@@ -14,7 +14,7 @@ from routers import posts as posts_router
 from routers import profile as profile_router
 from routers import apikey as apikey_router
 
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_remote_address, headers_enabled=True)
 
 app = FastAPI(title="Cr4ck API")
 app.state.limiter = limiter

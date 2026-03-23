@@ -1,4 +1,5 @@
-import { Injectable, signal, OnDestroy } from '@angular/core';
+import { Injectable, signal, OnDestroy, inject } from '@angular/core';
+import { AuthService } from './auth.service';
 
 export type WsEvent =
   | { type: 'connected'; online: number }
@@ -9,6 +10,7 @@ export type WsEvent =
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
+  private readonly auth = inject(AuthService);
   private ws: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private pingTimer: ReturnType<typeof setInterval> | null = null;
@@ -26,7 +28,10 @@ export class WebSocketService implements OnDestroy {
   connect(): void {
     if (this.ws || this.destroyed) return;
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    const url = `${proto}://${location.host}/ws`;
+    const token = this.auth.getAccessToken();
+    const url = token
+      ? `${proto}://${location.host}/ws?token=${encodeURIComponent(token)}`
+      : `${proto}://${location.host}/ws`;
     this._open(url);
   }
 

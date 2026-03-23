@@ -214,16 +214,22 @@ def verify_email(token: str, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             """
-            SELECT id FROM users
-            WHERE verification_token = %s
-              AND verification_token_expires_at > NOW()
+            SELECT id, verification_token FROM users
+            WHERE verification_token_expires_at > NOW()
               AND is_verified = FALSE
+              AND verification_token = %s
             """,
             (token,),
         )
         row = cur.fetchone()
 
-    if not row:
+    # Use compare_digest as a defence-in-depth measure against timing-based
+    # brute-force attacks.  The stored token is compared against the received
+    # token using a constant-time algorithm; a dummy value is used when no row
+    # was found so the comparison always executes.
+    _DUMMY = "x" * 43  # same length as secrets.token_urlsafe(32)
+    stored = row["verification_token"] if row else _DUMMY
+    if not secrets.compare_digest(token, stored) or not row:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification token",
@@ -327,16 +333,19 @@ def reset_password(body: ResetPasswordRequest, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             """
-            SELECT id, salt FROM users
-            WHERE reset_token = %s
-              AND reset_token_expires_at > NOW()
+            SELECT id, salt, reset_token FROM users
+            WHERE reset_token_expires_at > NOW()
               AND is_active = TRUE
+              AND reset_token = %s
             """,
             (body.token,),
         )
         user = cur.fetchone()
 
-    if not user:
+    # Constant-time comparison prevents timing-based token brute-force.
+    _DUMMY = "x" * 43
+    stored = user["reset_token"] if user else _DUMMY
+    if not secrets.compare_digest(body.token, stored) or not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token",

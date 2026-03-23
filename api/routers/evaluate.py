@@ -248,13 +248,15 @@ def evaluate(
         cache_delete(LEADERBOARD_KEY)
         try:
             from routers.ws import manager
-            asyncio.create_task(manager.broadcast({
+            # solve_event contains PII (username) — only send to authenticated WS clients
+            asyncio.create_task(manager.broadcast_authenticated({
                 "type": "solve_event",
                 "username": current_user.username,
                 "challenge_title": body.challenge_title,
                 "xp_earned": xp_earned,
                 "score": feedback.score,
             }))
+            # leaderboard_update is PII-free — broadcast to all connections
             asyncio.create_task(manager.broadcast({"type": "leaderboard_update"}))
         except Exception:
             pass
