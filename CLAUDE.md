@@ -7,6 +7,7 @@
 **Cr4ck** is an AI-powered coding challenge platform focused on Object-Oriented Programming (OOP) and System Design. Users write code in a browser-based Monaco Editor and receive instant AI architectural feedback.
 
 **Stack:**
+
 - Frontend: Angular 21 + Tailwind CSS 4 + Monaco Editor (port 4200 dev)
 - Backend: FastAPI + PostgreSQL (Supabase) (port 8000 dev)
 - Auth: JWT (access 15min / refresh 30d) + Argon2id password hashing
@@ -29,6 +30,7 @@ uvicorn main:app --reload --port 8000
 ```
 
 Requires `.env` in `api/`:
+
 ```
 DATABASE_URL=postgresql://...
 SECRET_KEY=...
@@ -89,28 +91,28 @@ api/
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | / | Health check |
-| POST | /auth/register | Create account |
-| POST | /auth/login | Get tokens (accepts email or username) |
-| POST | /auth/refresh | Rotate refresh token |
-| POST | /auth/logout | Revoke refresh token |
-| GET | /auth/me | Current user profile |
-| GET | /api/challenges | All active challenges (public) |
-| GET | /api/challenges/:id | Single challenge detail (public) |
-| POST | /api/evaluate | AI code evaluation (auth required) |
-| GET | /api/leaderboard | Top 50 users ranked by XP (public) |
-| GET | /api/profile/completed | Challenges the current user has attempted (auth required) |
-| PUT | /auth/api-key | Save/update user's AI provider + encrypted API key (auth required) |
-| DELETE | /auth/api-key | Remove stored API key (auth required) |
-| GET | /auth/api-key/status | Returns `{ has_key, provider, provider_label }` — never the key (auth required) |
-| WS | /ws | WebSocket — real-time solve events + leaderboard updates |
-| GET | /api/challenges/:id/posts | Paginated post list for a challenge (public, viewer's vote included if authed) |
-| POST | /api/challenges/:id/posts | Create top-level post or reply (auth required) |
-| PUT | /api/posts/:id | Edit own post (auth required) |
-| DELETE | /api/posts/:id | Soft-delete own post (auth required) |
-| POST | /api/posts/:id/vote | Upvote (+1) / downvote (-1) / remove (0) a post (auth required) |
+| Method | Path                      | Description                                                                     |
+| ------ | ------------------------- | ------------------------------------------------------------------------------- |
+| GET    | /                         | Health check                                                                    |
+| POST   | /auth/register            | Create account                                                                  |
+| POST   | /auth/login               | Get tokens (accepts email or username)                                          |
+| POST   | /auth/refresh             | Rotate refresh token                                                            |
+| POST   | /auth/logout              | Revoke refresh token                                                            |
+| GET    | /auth/me                  | Current user profile                                                            |
+| GET    | /api/challenges           | All active challenges (public)                                                  |
+| GET    | /api/challenges/:id       | Single challenge detail (public)                                                |
+| POST   | /api/evaluate             | AI code evaluation (auth required)                                              |
+| GET    | /api/leaderboard          | Top 50 users ranked by XP (public)                                              |
+| GET    | /api/profile/completed    | Challenges the current user has attempted (auth required)                       |
+| PUT    | /auth/api-key             | Save/update user's AI provider + encrypted API key (auth required)              |
+| DELETE | /auth/api-key             | Remove stored API key (auth required)                                           |
+| GET    | /auth/api-key/status      | Returns `{ has_key, provider, provider_label }` — never the key (auth required) |
+| WS     | /ws                       | WebSocket — real-time solve events + leaderboard updates                        |
+| GET    | /api/challenges/:id/posts | Paginated post list for a challenge (public, viewer's vote included if authed)  |
+| POST   | /api/challenges/:id/posts | Create top-level post or reply (auth required)                                  |
+| PUT    | /api/posts/:id            | Edit own post (auth required)                                                   |
+| DELETE | /api/posts/:id            | Soft-delete own post (auth required)                                            |
+| POST   | /api/posts/:id/vote       | Upvote (+1) / downvote (-1) / remove (0) a post (auth required)                 |
 
 ---
 
@@ -129,18 +131,18 @@ api/
 
 ## Routes
 
-| Path | Component | Notes |
-|------|-----------|-------|
-| `/` | LandingPageComponent | Hero + CTA |
-| `/problems` | ProblemSetComponent | Topic hub |
-| `/problems/topic/:topic` | TopicProblemsComponent | Topic detail + difficulty filter |
-| `/problems/:id` | ProblemComponent | Problem detail, shows loading/error states |
-| `/sandbox` | SandboxComponent | Auth-guarded; 401 mid-session redirects to /login |
-| `/leaderboard` | LeaderboardComponent | Public, fetches /api/leaderboard |
-| `/login` | LoginComponent | GitHub OAuth button shows "coming soon" notice |
-| `/register` | RegisterComponent | GitHub OAuth button shows "coming soon" notice |
-| `/about` | AboutComponent | |
-| `/profile` | ProfileComponent | |
+| Path                     | Component              | Notes                                             |
+| ------------------------ | ---------------------- | ------------------------------------------------- |
+| `/`                      | LandingPageComponent   | Hero + CTA                                        |
+| `/problems`              | ProblemSetComponent    | Topic hub                                         |
+| `/problems/topic/:topic` | TopicProblemsComponent | Topic detail + difficulty filter                  |
+| `/problems/:id`          | ProblemComponent       | Problem detail, shows loading/error states        |
+| `/sandbox`               | SandboxComponent       | Auth-guarded; 401 mid-session redirects to /login |
+| `/leaderboard`           | LeaderboardComponent   | Public, fetches /api/leaderboard                  |
+| `/login`                 | LoginComponent         | GitHub OAuth button shows "coming soon" notice    |
+| `/register`              | RegisterComponent      | GitHub OAuth button shows "coming soon" notice    |
+| `/about`                 | AboutComponent         |                                                   |
+| `/profile`               | ProfileComponent       |                                                   |
 
 > **Route order matters:** `problems/topic/:topic` must appear before `problems/:id` in `app.routes.ts` or Angular will match "topic" as a problem ID.
 
@@ -269,8 +271,8 @@ CREATE TABLE daily_challenges (
 ```yaml
 on:
   schedule:
-    - cron: '0 0 * * *'   # midnight UTC daily
-  workflow_dispatch:        # allow manual trigger
+    - cron: "0 0 * * *" # midnight UTC daily
+  workflow_dispatch: # allow manual trigger
 
 jobs:
   generate:
@@ -343,70 +345,55 @@ Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custo
 
 Ratings below are from the 2026 annual check. All items scored below 10/10. Ordered by severity within each category.
 
+**Progress: 14 / 24 completed** (last updated 2026-03-23)
+
 ---
 
 ### Security (8/10)
 
-#### AUDIT-S1: Authenticate WebSocket connections — gate `solve_event` to verified clients
+#### ✅ AUDIT-S1: Authenticate WebSocket connections — gate `solve_event` to verified clients
 
-`/ws` accepts every connection with no JWT validation. Any anonymous browser tab that opens `ws://host/ws` receives all `solve_event` messages, which contain real usernames and challenge titles. This is a privacy leak in production.
+**Done.** `ConnectionManager` now tracks authenticated vs. anonymous connections separately. WS endpoint accepts optional `?token=<access_jwt>`; validates JWT on connect. `solve_event` (contains PII) only goes to authenticated connections; `leaderboard_update` stays public. `WebSocketService` appends `?token=` when the user is logged in.
 
-- Add an optional `?token=<access_jwt>` query param to the WebSocket handshake in `routers/ws.py`
-- Validate and decode the JWT on connect; store the user identity on the connection object
-- `leaderboard_update` may stay public (no PII); `solve_event` must only broadcast to authenticated connections
-- In `WebSocketService` (Angular), append `?token=` when `AuthService.isLoggedIn()` is true
+#### ✅ AUDIT-S2: Fix timing-attack exposure on verification and password-reset token lookups
 
-#### AUDIT-S2: Fix timing-attack exposure on verification and password-reset token lookups
+**Done.** `verify_email` and `reset_password` now fetch the stored token column alongside the user row and compare using `secrets.compare_digest()`. A dummy token value is used when no row is found so the comparison always executes, preventing branch-timing leaks.
 
-`routers/auth.py` compares tokens by passing them directly into a `WHERE verification_token = %s` SQL clause. The time taken by the DB query differs between "token exists" and "token not found", allowing an attacker to measure response times and brute-force valid tokens. The same pattern exists in the reset-password flow.
+#### ✅ AUDIT-S3: Add rate-limit response headers so clients can back off gracefully
 
-- Wrap the token lookup so all branches complete in constant time, or use `secrets.compare_digest()` on the token string before or after the DB lookup
-- Applies to: `GET /auth/verify`, `POST /auth/reset-password`
+**Done.** `Limiter(headers_enabled=True)` in `main.py` — all rate-limited endpoints now return `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers.
 
-#### AUDIT-S3: Add rate-limit response headers so clients can back off gracefully
+#### ✅ AUDIT-S4: Enforce HTTPS-only cookies / add `Secure` flag guidance for production
 
-`slowapi` enforces limits but never tells the caller how many requests remain or when the window resets. Frontend code has no way to show the user a meaningful "try again in X seconds" message.
-
-- Enable `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers on all rate-limited endpoints via the slowapi `headers_enabled` option in `main.py`
-
-#### AUDIT-S4: Enforce HTTPS-only cookies / add `Secure` flag guidance for production
-
-The app uses Bearer tokens in `localStorage`, not cookies, so this is a documentation gap rather than a code bug — but the production deployment guide (when it exists) must mandate HTTPS termination at Nginx so tokens are never sent over plaintext HTTP.
-
-- Add a note in `.env.prod.example` and the Docker Compose section that `ALLOWED_ORIGINS` must use `https://` and that Nginx must redirect `http://` → `https://`
+**Done.** `api/.env.prod.example` created with explicit guidance: `ALLOWED_ORIGINS` must use `https://`, `FRONTEND_URL` must use `https://`, and `ALLOW_SERVER_KEY=false` is set. Nginx HTTPS redirect requirement documented inline.
 
 ---
 
 ### Testing (3/10)
 
-#### AUDIT-T1: Add a backend test suite — zero tests currently exist
+#### ✅ AUDIT-T1: Add a backend test suite — zero tests currently exist
 
-The entire `api/` directory has no test files, no pytest in `requirements.txt`, and no test configuration. This means every auth path, every SQL query, every XP calculation, and every Claude API integration is untested. A regression in any of these is invisible until a user reports it.
+**Done.** `api/requirements-dev.txt` with pytest, pytest-asyncio, httpx, pytest-cov, anyio. `api/tests/` contains:
+- `test_password.py` — 10 pure unit tests for Argon2id helpers (no DB)
+- `test_auth.py` — 16 integration tests: register, login (email + username), wrong password, unverified, refresh, logout token revocation, `/me`
+- `test_challenges.py` — 7 integration tests: paginated list, single fetch, 404
+- `test_evaluate.py` — 2 integration tests: unauthenticated guard, authenticated path with mocked AI
+- `conftest.py` — `db_required` skip marker, `verified_user` / `unverified_user` fixtures with DB teardown; avoids `pytest.skip()` inside FastAPI dependencies (raises `BaseException`, crashes ASGI middleware)
 
-- Add `pytest`, `pytest-asyncio`, `httpx` (for ASGI test client), and `pytest-cov` to `requirements.txt` under a `[test]` extra or a `requirements-dev.txt`
-- Create `api/tests/` with at minimum:
-  - `test_auth.py` — register, login (email + username), logout, refresh, duplicate email → 409, wrong password → 401, unverified → 403
-  - `test_evaluate.py` — authenticated submit, unauthenticated submit → 401, XP increment, streak update
-  - `test_challenges.py` — list pagination, single challenge fetch, 404 on unknown ID
-  - `test_password.py` — hash round-trip, wrong password returns False, rehash on param change
-- Target ≥ 70% line coverage on `auth/`, `routers/auth.py`, and `routers/evaluate.py` before anything else
+#### ✅ AUDIT-T2: Wire frontend tests — Vitest is installed but never executed
 
-#### AUDIT-T2: Wire frontend tests — Vitest is installed but never executed
+**Done.** 27 tests across 5 spec files, all passing:
+- `auth.service.spec.ts` — 10 tests: isLoggedIn, login success/failure, logout, authHeaders, restore
+- `challenges.service.spec.ts` — 6 tests: load, cache idempotency, byId, byTopic, error handling
+- `auth.guard.spec.ts` — 2 tests: authenticated returns true, unauthenticated redirects to /login
+- `login.spec.ts` — 8 tests: form state, submit, error display, showResend, isLoading lifecycle
+- `app.spec.ts` — 1 smoke test (broken "should render title" test removed)
 
-`vitest` is in `devDependencies` and `tsconfig.spec.json` references it, but only a trivial smoke test (`app.spec.ts`) exists. `npm run test` is not in any CI workflow, so the test runner never runs.
-
-- Add meaningful tests for:
-  - `AuthService` — token storage, `isLoggedIn()`, `logout()` clears state
-  - `ChallengesService` — fetch, cache hit, pagination params
-  - `authGuard` — redirects unauthenticated users to `/login`
-  - `LoginComponent` — form validation, error display on 401/403
-- Target ≥ 50% line coverage on `services/` and `guards/`
-
-#### AUDIT-T3: Add end-to-end tests for the critical user journey
+#### ⬜ AUDIT-T3: Add end-to-end tests for the critical user journey
 
 No e2e tests exist. The flow `register → verify email → login → open challenge → submit code → see score` has never been automatically validated.
 
-- Use Playwright (already a common choice with Angular) — add `@playwright/test` to `devDependencies`
+- Use Playwright — add `@playwright/test` to `devDependencies`
 - Cover at minimum: login, navigate to a challenge, submit code, confirm score appears, leaderboard updates
 - Run e2e against a local backend + seeded test DB in CI on pull requests to `main`
 
@@ -414,117 +401,78 @@ No e2e tests exist. The flow `register → verify email → login → open chall
 
 ### CI/CD (7/10)
 
-#### AUDIT-C1: Run tests in CI — neither frontend nor backend tests execute on PR
+#### ✅ AUDIT-C1: Run tests in CI — neither frontend nor backend tests execute on PR
 
-`ci.yml` runs `tsc --noEmit` and `ruff check` but never invokes a test runner. This means the test suite (once it exists from AUDIT-T1/T2) will never catch regressions automatically.
+**Done.** `ci.yml` backend job now: installs `requirements-dev.txt`, runs DB migrations against a Postgres service container, then `pytest tests/ --cov --cov-fail-under=50`. Frontend job runs `npm run test:ci`. Both run on every PR and push to `main`.
 
-- Add a `test-backend` job: install `requirements-dev.txt`, run `pytest api/tests/ --cov=api --cov-fail-under=70`
-- Add a `test-frontend` job: run `npm run test -- --coverage --watchAll=false`
-- Both jobs should run on every PR and every push to `main`
+#### ✅ AUDIT-C2: Build and validate the production Angular bundle in CI
 
-#### AUDIT-C2: Build and validate the production Angular bundle in CI
+**Done.** `npm run build -- --configuration production` runs in the CI frontend job. Angular's budget enforcement (500 kB warn / 1 MB error) automatically fails the build on bundle regressions.
 
-There is no step that runs `ng build --configuration production`. A broken import or missing environment variable would only be caught at deploy time, not on the PR.
+#### ✅ AUDIT-C3: Add mypy static type checking for the backend
 
-- Add a `build-frontend` job that runs `ng build --configuration production`
-- Fail the build if the output exceeds the 1 MB initial bundle budget already configured in `angular.json`
+**Done.** `mypy==1.13.0` added to `requirements-dev.txt`. `mypy . --ignore-missing-imports` step added to CI backend job (`continue-on-error: true` while type coverage grows incrementally). `[tool.mypy]` config in `api/pyproject.toml`.
 
-#### AUDIT-C3: Add mypy static type checking for the backend
+#### ✅ AUDIT-C4: Add SAST scanning (Semgrep or Bandit) to the security workflow
 
-Ruff catches style and obvious errors, but it does not verify type correctness. A mismatched Pydantic field or wrong return type in a router passes ruff without complaint.
-
-- Add `mypy` to `requirements-dev.txt`
-- Add a `mypy api/ --ignore-missing-imports` step to `ci.yml`
-- Fix any existing type errors before enabling strict mode
-
-#### AUDIT-C4: Add SAST scanning (Semgrep or Bandit) to the security workflow
-
-`security.yml` audits third-party dependency CVEs (`pip-audit`, `npm audit`) but never scans first-party code for security anti-patterns (hardcoded secrets, SQL string formatting, insecure deserialization).
-
-- Add `bandit -r api/ -ll` (medium+ severity) to `security.yml` alongside `pip-audit`
-- Or use Semgrep with the `p/python` + `p/jwt` rulesets for broader coverage
+**Done.** `bandit -r . -ll --exclude ./venv,./tests` added to both CI backend job and `security.yml` weekly scan. Medium+ severity findings are reported; `continue-on-error: true` while existing findings are triaged.
 
 ---
 
 ### Observability (4/10)
 
-#### AUDIT-O1: Add structured JSON request logging middleware to FastAPI
+#### ✅ AUDIT-O1: Add structured JSON request logging middleware to FastAPI
 
-Currently there is no per-request log line. When something goes wrong in production, there is no record of which endpoint was called, with what status code, or how long it took.
+**Done.** `@app.middleware("http")` in `main.py` logs `request_id`, `method`, `path`, `status_code`, `duration_ms`, `user_id` (extracted from Bearer token) as a JSON line per request. `python-json-logger==2.0.7` added to `requirements.txt`; falls back to plain-text if package absent.
 
-- Add a `@app.middleware("http")` in `main.py` that logs: `request_id` (UUID), `method`, `path`, `status_code`, `duration_ms`, `user_id` (if JWT present) as a JSON line
-- Use Python's `logging` module with a JSON formatter (e.g. `python-json-logger`) rather than `print()`
-- All existing ad-hoc `logger.info()` calls should adopt the same structured format
+#### ⬜ AUDIT-O2: Integrate Sentry for backend and frontend crash tracking
 
-#### AUDIT-O2: Integrate Sentry for backend and frontend crash tracking
+No crash reporting exists. Exceptions in production are invisible unless a user reports them.
 
-No crash reporting exists. Exceptions in production are invisible unless a user reports them. Sentry's free tier covers this project's scale with zero infrastructure cost.
-
-- Backend: `pip install sentry-sdk[fastapi]`; add `sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.1)` in `main.py`; add `SENTRY_DSN` to `.env.example`
+- Backend: `pip install sentry-sdk[fastapi]`; `sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.1)` in `main.py`; add `SENTRY_DSN` to `.env.example` and `.env.prod.example`
 - Frontend: `npm install @sentry/angular`; configure in `app.config.ts`; attach to Angular's `ErrorHandler`
 - Filter out 401/404 errors to reduce noise; capture 500s and unhandled promise rejections
 
-#### AUDIT-O3: Add a proper health check endpoint that reports dependency status
+#### ✅ AUDIT-O3: Add a proper health check endpoint that reports dependency status
 
-`GET /` currently returns a static string. This gives a load balancer no signal about whether the database or Redis is actually reachable.
+**Done.** `GET /health` returns `{ "status": "ok"|"degraded", "db": "ok"|"error", "redis": "ok"|"disabled" }`. DB checked via `SELECT 1`; Redis checked via `PING`. Returns HTTP 200 when healthy, 503 when degraded.
 
-- Change `GET /health` (or update `GET /`) to return `{ "status": "ok"|"degraded", "db": "ok"|"error", "redis": "ok"|"disabled" }`
-- DB check: run `SELECT 1` via the connection pool
-- Redis check: call `redis_client.ping()` (already used at startup in `main.py`)
-- Return `200` when all critical deps are healthy; `503` otherwise
+#### ⬜ AUDIT-O4: Track key business metrics (submissions, XP events, error rates)
 
-#### AUDIT-O4: Track key business metrics (submissions, XP events, error rates)
+There is no instrumentation for understanding how the product is being used.
 
-There is no instrumentation for understanding how the product is being used. Without it, it is impossible to know if a change improved or degraded user engagement.
-
-- At minimum, emit counters to a logging-based metrics sink (or Prometheus if self-hosted):
+- At minimum, emit structured log events (Datadog / Loki / CloudWatch queryable):
   - `evaluate.submitted` (per language, per topic)
   - `evaluate.passed` / `evaluate.failed` (with score distribution)
   - `auth.login.success` / `auth.login.failure`
   - `ws.connections.active` (gauge)
-- Can start by logging structured events in `routers/evaluate.py` and `routers/auth.py` that a log aggregator (Datadog, Loki, CloudWatch) can query
+- Add structured `logger.info("metric", extra={...})` calls in `routers/evaluate.py` and `routers/auth.py`
 
 ---
 
 ### Code Quality (8/10)
 
-#### AUDIT-Q1: Enforce Prettier formatting in CI
+#### ✅ AUDIT-Q1: Enforce Prettier formatting in CI
 
-`prettier` is in `devDependencies` but there is no `.prettierrc`, no `format` script in `package.json`, and no CI step that fails on unformatted code. Formatting is entirely voluntary.
+**Done.** `.prettierrc` already existed (100-char width, single quotes, Angular HTML parser). `"format:check": "prettier --check \"src/**/*.{ts,html,css}\""` added to `package.json`. Runs in CI frontend job on every PR.
 
-- Add `.prettierrc` with project-agreed settings (single quotes, 2-space indent, trailing commas)
-- Add `"format:check": "prettier --check \"src/**/*.{ts,html,css}\""` to `package.json`
-- Add a `format-check` step to `ci.yml` that runs this script
+#### ✅ AUDIT-Q2: Add ESLint with Angular-recommended rules
 
-#### AUDIT-Q2: Add ESLint with Angular-recommended rules
+**Done.** `ng add @angular-eslint/schematics` auto-generated `eslint.config.js`. Stylistic rules (`prefer-inject`, `no-explicit-any`) set to warn; accessibility violations set to warn (tracked under AUDIT-F2). Zero errors, 97 warnings. `npm run lint` added to CI. `VerifyEmail` migrated from `*ngIf` to Angular 17+ `@if` control flow as part of fixing lint errors.
 
-There is no ESLint configuration. `tsc --noEmit` catches type errors but not code quality issues (unused variables, `console.log` left in, unsafe optional chaining, etc.).
+#### ✅ AUDIT-Q3: Add a `pyproject.toml` with explicit Ruff configuration
 
-- `ng add @angular-eslint/schematics` — this configures `eslint.config.js` and adds a lint script
-- Add `npm run lint` to `ci.yml`
-- Fix any existing lint errors; set `"max-warnings": 0` to prevent gradual degradation
-
-#### AUDIT-Q3: Add a `pyproject.toml` with explicit Ruff configuration
-
-Ruff is run in CI but with no config file — it uses its defaults, which means the rule set could silently change on a Ruff version bump. Lock the rules down explicitly.
-
-- Create `api/pyproject.toml` with `[tool.ruff]` specifying `line-length`, `target-version`, and the exact rule sets to enable (e.g. `select = ["E", "F", "I", "S", "UP"]`)
-- Add `[tool.mypy]` to the same file once AUDIT-C3 is done
+**Done.** `api/pyproject.toml` created with `[tool.ruff]` (line-length=100, select E/F/I/UP, target-version py311), `[tool.mypy]`, `[tool.pytest.ini_options]` (asyncio_mode=auto), and `[tool.coverage]` sections. Replaces the minimal `ruff.toml`.
 
 ---
 
 ### Infrastructure (5/10)
 
-#### AUDIT-I1: Replace per-request DB connections with a connection pool
+#### ✅ AUDIT-I1: Replace per-request DB connections with a connection pool
 
-`core/database.py` calls `psycopg2.connect()` on every request and closes it in the `finally` block. Under any real concurrent load, this exhausts Postgres's `max_connections` and causes requests to queue or fail.
+**Done.** `core/database.py` now uses `psycopg2.pool.ThreadedConnectionPool`. Pool initialized lazily on first request (min=2, max=20, env-configurable via `DB_POOL_MIN`/`DB_POOL_MAX`). `get_db()` acquires/releases from pool instead of open/close. `get_db_context()` updated identically.
 
-- Replace with `psycopg2.pool.ThreadedConnectionPool(minconn=2, maxconn=20)` initialized at startup
-- The `get_db()` dependency should acquire from the pool and release (not close) in `finally`
-- Or migrate to `asyncpg` + `databases` for a fully async connection pool compatible with FastAPI's async model
-- Add `pool_size` and `max_overflow` as env vars so they can be tuned per environment
-
-#### AUDIT-I2: Add automated database backup
+#### ⬜ AUDIT-I2: Add automated database backup
 
 There is no backup strategy documented or automated. A misconfigured migration or accidental `DELETE` without a `WHERE` clause would cause permanent data loss.
 
@@ -532,34 +480,31 @@ There is no backup strategy documented or automated. A misconfigured migration o
 - If self-hosted: add a daily `pg_dump` cron job (GitHub Actions or system cron) that uploads to S3 / R2 with a 30-day retention policy
 - Document the restore procedure in this file
 
-#### AUDIT-I3: Write the production Docker Compose (already on roadmap as item 10)
+#### ⬜ AUDIT-I3: Write the production Docker Compose (already on roadmap as item 10)
 
 Deploying currently requires manually coordinating FastAPI, Postgres, Redis, and Judge0. There is no `Dockerfile` for the API and no `docker-compose.prod.yml`.
 
 - See roadmap item 10 for the full spec
-- Priority: Dockerfile for `api/` + `nginx.conf` before full compose, so the backend is at least containerizable
+- Priority: `Dockerfile` for `api/` + `nginx.conf` before full compose, so the backend is at least containerizable
 - Add `HEALTHCHECK` instructions to the Dockerfile so Docker and orchestrators can detect crashed containers
 
-#### AUDIT-I4: Add query timeout and slow-query logging to the database layer
+#### ✅ AUDIT-I4: Add query timeout and slow-query logging to the database layer
 
-There is no per-query timeout in `core/database.py`. A runaway query (e.g., a leaderboard query on a large dataset with a missing index) will hold a connection indefinitely and can cascade into a full outage.
-
-- Set `options="-c statement_timeout=5000"` in the `psycopg2.connect()` call (5-second hard limit)
-- Log any query that exceeds 500 ms as a warning with the query text (sanitized) and duration
+**Done.** `statement_timeout=5000` (5s hard limit) set via connection options in `core/database.py`. Any request that holds a DB connection longer than 500 ms emits a `WARNING` log line with the duration.
 
 ---
 
 ### API Design (8/10)
 
-#### AUDIT-A1: Add API versioning prefix (`/api/v1/`)
+#### ⬜ AUDIT-A1: Add API versioning prefix (`/api/v1/`)
 
-All endpoints are currently under `/api/` and `/auth/`. Any breaking change (renamed field, removed endpoint, changed response shape) requires coordinating the frontend and backend simultaneously with no deprecation window.
+All endpoints are currently under `/api/` and `/auth/`. Any breaking change requires coordinating the frontend and backend simultaneously with no deprecation window.
 
 - Prefix all routes with `/api/v1/` and `/auth/v1/` (or use a version header strategy)
 - Keep the old unprefixed routes as aliases for one release cycle, then remove them
 - Update the Angular proxy config and all `HttpClient` calls accordingly
 
-#### AUDIT-A2: Standardize error response schema across all endpoints
+#### ⬜ AUDIT-A2: Standardize error response schema across all endpoints
 
 FastAPI 422 errors return `{"detail": [...]}` as an array. Custom `HTTPException`s return `{"detail": "string"}`. Some routers return `{"error": "..."}`. Clients must handle three different shapes.
 
@@ -567,7 +512,7 @@ FastAPI 422 errors return `{"detail": [...]}` as an array. Custom `HTTPException
 - Add an exception handler in `main.py` that converts `HTTPException` and `RequestValidationError` to this shape
 - Update `AuthService.handleError()` in Angular to expect the new shape
 
-#### AUDIT-A3: Expose OpenAPI schema as a downloadable artifact in CI
+#### ⬜ AUDIT-A3: Expose OpenAPI schema as a downloadable artifact in CI
 
 FastAPI auto-generates `/docs` and `/openapi.json`, but the schema is never exported or versioned. Schema drift between API and frontend types goes undetected.
 
@@ -579,38 +524,43 @@ FastAPI auto-generates `/docs` and `/openapi.json`, but the schema is never expo
 
 ### Frontend (7/10)
 
-#### AUDIT-F1: Add a global Angular `ErrorHandler` and user-facing error boundary
+#### ⬜ AUDIT-F1: Add a global Angular `ErrorHandler` and user-facing error boundary
 
-There is no global error handler. An unhandled exception in a component (e.g., the Monaco editor failing to load, an API returning an unexpected shape) renders a blank screen with no user feedback.
+There is no global error handler. An unhandled exception in a component renders a blank screen with no user feedback.
 
 - Create a `GlobalErrorHandler` class implementing Angular's `ErrorHandler` interface
-- Register it in `app.config.ts` as `{ provide: ErrorHandler, useClass: GlobalErrorHandler }`
+- Register in `app.config.ts` as `{ provide: ErrorHandler, useClass: GlobalErrorHandler }`
 - The handler should: (1) log to Sentry (AUDIT-O2), (2) show a toast or inline error message, (3) never rethrow in a way that crashes the app
 - Add a fallback `<app-error-boundary>` component for route-level failures
 
-#### AUDIT-F2: Add accessibility baseline — run Lighthouse and fix critical violations
+#### ⬜ AUDIT-F2: Add accessibility baseline — run Lighthouse and fix critical violations
 
-No accessibility audit has been done. WCAG 2.1 AA compliance is a legal requirement in many jurisdictions and widens the potential user base.
+No accessibility audit has been done. WCAG 2.1 AA compliance is a legal requirement in many jurisdictions. ESLint now flags violations as warnings (97 currently); these need to be resolved.
 
 - Run `npx @lhci/cli autorun` (Lighthouse CI) against a production build; target score ≥ 90 on Accessibility
-- Common fixes likely needed: `aria-label` on icon buttons (Monaco toolbar, sidebar filters), sufficient color contrast on difficulty badges, keyboard navigation in the Monaco editor, focus management on modal/dialog opens
+- Common fixes needed (flagged by ESLint): `aria-label` on icon buttons, keyboard handlers alongside `(click)`, focusable interactive elements, `type` attribute on all `<button>` elements
 - Add a Lighthouse CI step to `ci.yml` that fails on Accessibility score < 80
+- Once all a11y ESLint warnings are fixed, escalate `click-events-have-key-events` and `interactive-supports-focus` back to `error`
 
-#### AUDIT-F3: Add bundle size tracking to CI to catch regressions
+#### ⬜ AUDIT-F3: Add bundle size tracking to CI to catch regressions
 
-Angular's build budget (`angular.json` warns at 500 kB, errors at 1 MB) is a hard ceiling but not tracked over time. A new dependency or a lazy-load boundary removed silently grows the bundle toward the limit.
+Angular's build budget (500 kB warn / 1 MB error) is a hard ceiling but not tracked over time.
 
 - Add `npx bundlesize` or `ng build --stats-json && npx webpack-bundle-analyzer` as a CI step
 - Record the initial bundle size per PR as a GitHub check with a ±5% change threshold
-- Monaco editor (~300 kB) is already the dominant chunk — ensure it is loaded lazily (only on `/sandbox`)
+- Monaco editor (~300 kB) is the dominant chunk — must be lazy-loaded (only on `/sandbox`) before this is meaningful
 
-#### AUDIT-F4: Enable lazy loading for all routes except the landing page
+#### ⬜ AUDIT-F4: Enable lazy loading for all routes except the landing page
 
-If all Angular routes are eagerly loaded, the entire app (including Monaco editor, Sandbox, Admin panel) is downloaded on the first page load even if the user only visits `/`.
+All Angular routes are eagerly loaded — the entire app including Monaco editor is downloaded on first page load.
 
-- Audit `app.routes.ts` and confirm each route uses `loadComponent: () => import(...)` syntax
-- The sandbox route in particular must lazy-load: Monaco editor must not be in the initial bundle
+- Convert each route in `app.routes.ts` to `loadComponent: () => import(...)` syntax
+- The sandbox route must lazy-load: Monaco editor must not be in the initial bundle
 - Verify with `ng build --stats-json` that `main.js` does not contain Monaco or Sandbox code
+
+#### Sandbox to the right
+
+now the sandbox is under description, which is counterintuitive and not accessible. Put the Description and Sandbox panels half-half of the right screen (we can still drag the edge to resize the panel). The Tests/Ai Evaluation/Community panel should remain at the bottom.
 
 ---
 
