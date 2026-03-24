@@ -1,7 +1,7 @@
 <div class="auth-root">
   <app-header></app-header>
   <div class="auth-header">
-    <button class="btn-back" (click)="goBack()">
+    <button type="button" class="btn-back" (click)="goBack()">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -53,9 +53,9 @@
         <div class="form-group">
           <div class="label-row">
             <label for="password">Password</label>
-            <span class="view-toggle" (click)="showPassword = !showPassword">
+            <button type="button" class="view-toggle" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
               {{ showPassword ? 'Hide' : 'Show' }}
-            </span>
+            </button>
           </div>
           <input
             [type]="showPassword ? 'text' : 'password'"

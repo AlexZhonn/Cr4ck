@@ -15,22 +15,22 @@
         <polyline points="4 17 10 11 4 5"></polyline>
         <line x1="12" y1="19" x2="20" y2="19"></line>
       </svg>
-      <span class="font-mono font-bold text-lg tracking-tight" (click)="GotoLandingPage()"
-        >Cr4ck</span
+      <button type="button" class="font-mono font-bold text-lg tracking-tight btn-logo" (click)="GotoLandingPage()"
+        >Cr4ck</button
       >
     </div>
   </div>
 
   <div class="nav-actions">
-    <button class="btn-nav" (click)="GotoProblems()">Problems</button>
-    <button class="btn-nav" (click)="GotoLeaderboard()">Leaderboard</button>
-    <button class="btn-nav" (click)="GotoAbout()">About</button>
+    <button type="button" class="btn-nav" (click)="GotoProblems()">Problems</button>
+    <button type="button" class="btn-nav" (click)="GotoLeaderboard()">Leaderboard</button>
+    <button type="button" class="btn-nav" (click)="GotoAbout()">About</button>
     @if (isLoggedIn()) {
-      <button class="nav-username btn-nav" (click)="GotoProfile()">{{ user()?.username }}</button>
-      <button class="btn-signin" (click)="logout()">Sign out</button>
+      <button type="button" class="nav-username btn-nav" (click)="GotoProfile()">{{ user()?.username }}</button>
+      <button type="button" class="btn-signin" (click)="logout()">Sign out</button>
     } @else {
-      <button class="btn-signin" (click)="GotoLogin()">Sign in</button>
-      <button class="btn-register" (click)="GotoRegister()">Register</button>
+      <button type="button" class="btn-signin" (click)="GotoLogin()">Sign in</button>
+      <button type="button" class="btn-register" (click)="GotoRegister()">Register</button>
     }
   </div>
 </header>

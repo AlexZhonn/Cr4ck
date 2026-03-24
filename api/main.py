@@ -3,13 +3,42 @@ import time
 import uuid
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from core.config import setup_cors
 from core.redis import get_redis
+
+# ── Sentry (optional) ─────────────────────────────────────────────────────────
+import os as _os
+_sentry_dsn = _os.getenv("SENTRY_DSN")
+if _sentry_dsn:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.starlette import StarletteIntegration
+
+        def _before_send(event, hint):
+            # Drop 401/403/404 — not actionable server errors
+            if "response" in hint:
+                status = getattr(hint["response"], "status_code", None)
+                if status in (401, 403, 404):
+                    return None
+            return event
+
+        sentry_sdk.init(
+            dsn=_sentry_dsn,
+            traces_sample_rate=0.1,
+            before_send=_before_send,
+            integrations=[StarletteIntegration(), FastApiIntegration()],
+        )
+        logging.getLogger(__name__).info("Sentry initialized")
+    except ImportError:
+        logging.getLogger(__name__).warning("sentry-sdk not installed; crash reporting disabled")
 from routers import auth as auth_router
 from routers import challenges as challenges_router
 from routers import evaluate as evaluate_router
@@ -44,6 +73,41 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 setup_cors(app)
+
+
+# ── Standardized error responses ───────────────────────────────────────────────
+# All errors return { "error": { "code": str, "message": str, "field": str|None } }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    detail = exc.detail
+    if isinstance(detail, dict):
+        message = detail.get("message", str(detail))
+        code = detail.get("code", f"http_{exc.status_code}")
+        field = detail.get("field")
+    else:
+        message = str(detail)
+        code = f"http_{exc.status_code}"
+        field = None
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": code, "message": message, "field": field}},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    first = errors[0] if errors else {}
+    field = ".".join(str(loc) for loc in first.get("loc", [])[1:]) or None
+    message = "; ".join(
+        f"{'.'.join(str(l) for l in e.get('loc', [])[1:])}: {e['msg']}" for e in errors
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"error": {"code": "validation_error", "message": message, "field": field}},
+    )
 
 
 # ── Request logging middleware ─────────────────────────────────────────────────

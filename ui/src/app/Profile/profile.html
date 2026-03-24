@@ -55,7 +55,7 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
             <span>{{ keyStatus()!.provider_label }} key saved</span>
-            <button class="btn-remove-key" (click)="removeKey()" [disabled]="keyLoading()">Remove</button>
+            <button type="button" class="btn-remove-key" (click)="removeKey()" [disabled]="keyLoading()">Remove</button>
           </div>
         }
 
@@ -72,7 +72,7 @@
             placeholder="Paste API key…"
             autocomplete="off"
           />
-          <button class="btn-save-key" (click)="saveKey()" [disabled]="keySaving() || !apiKeyInput">
+          <button type="button" class="btn-save-key" (click)="saveKey()" [disabled]="keySaving() || !apiKeyInput">
             {{ keySaving() ? 'Saving…' : (keyStatus()?.has_key ? 'Update' : 'Save') }}
           </button>
         </div>
@@ -95,12 +95,12 @@
         } @else if (completed().length === 0) {
           <div class="history-empty">
             <p>No challenges attempted yet.</p>
-            <button class="btn-problems" (click)="goProblems()">Start a challenge</button>
+            <button type="button" class="btn-problems" (click)="goProblems()">Start a challenge</button>
           </div>
         } @else {
           <div class="history-list">
             @for (c of completed(); track c.challenge_id) {
-              <div class="history-row" (click)="goChallenge(c.challenge_id)">
+              <button type="button" class="history-row" (click)="goChallenge(c.challenge_id)" [attr.aria-label]="c.title + ' — score ' + c.best_score + '/100'">
                 <div class="history-left">
                   <span [class]="'diff-badge ' + difficultyClass(c.difficulty)">{{ c.difficulty }}</span>
                   <div class="history-info">
@@ -116,14 +116,14 @@
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
                 </div>
-              </div>
+              </button>
             }
           </div>
         }
       </div>
 
       @if (completed().length > 0) {
-        <button class="btn-problems" (click)="goProblems()">
+        <button type="button" class="btn-problems" (click)="goProblems()">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="16 18 22 12 16 6"></polyline>

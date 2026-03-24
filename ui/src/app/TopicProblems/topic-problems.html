@@ -6,7 +6,7 @@
 
       <!-- Back + title -->
       <div class="topic-nav">
-        <button class="btn-back" (click)="goBack()">
+        <button type="button" class="btn-back" (click)="goBack()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -29,6 +29,7 @@
           <div class="filter-bar">
             @for (f of filters; track f) {
               <button
+                type="button"
                 class="filter-btn"
                 [class.active]="activeFilter() === f"
                 [class.filter-easy]="f === 'Easy'"
@@ -47,6 +48,7 @@
           <div class="filter-bar">
             @for (l of languages; track l) {
               <button
+                type="button"
                 class="filter-btn lang-btn"
                 [class.active]="activeLang() === l"
                 (click)="setLang(l)">
@@ -78,7 +80,8 @@
       } @else {
         <div class="challenge-list">
           @for (challenge of challenges(); track challenge.id) {
-            <div class="challenge-row" [class.completed-row]="profileSvc.isCompleted(challenge.id)" (click)="selectChallenge(challenge.id)">
+            <button type="button" class="challenge-row" [class.completed-row]="profileSvc.isCompleted(challenge.id)" (click)="selectChallenge(challenge.id)"
+              [attr.aria-label]="challenge.title + ' — ' + challenge.difficulty">
               <div class="row-left">
                 <span [class]="'difficulty-badge ' + difficultyClass(challenge.difficulty)">
                   {{ challenge.difficulty }}
@@ -106,7 +109,7 @@
                 stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
-            </div>
+            </button>
           }
         </div>
       }

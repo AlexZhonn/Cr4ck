@@ -1,6 +1,18 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
+/**
+ * Extracts a human-readable message from an API error response.
+ * Handles both the new standardized shape { error: { message } }
+ * and the legacy FastAPI shapes { detail: string | array }.
+ */
+function extractErrorMessage(err: any, fallback: string): string {
+  if (err?.error?.message) return err.error.message;
+  if (typeof err?.detail === 'string') return err.detail;
+  if (Array.isArray(err?.detail)) return err.detail.map((e: any) => e.msg).join(', ');
+  return fallback;
+}
+
 export interface UserPublic {
   id: string;
   username: string;
@@ -65,11 +77,8 @@ export class AuthService {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Login failed' }));
-      const msg = Array.isArray(err.detail)
-        ? err.detail.map((e: any) => e.msg).join(', ')
-        : (err.detail ?? 'Login failed');
-      throw new Error(msg);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(extractErrorMessage(err, 'Login failed'));
     }
 
     const tokens: TokenResponse = await res.json();
@@ -85,11 +94,8 @@ export class AuthService {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Registration failed' }));
-      const msg = Array.isArray(err.detail)
-        ? err.detail.map((e: any) => e.msg).join(', ')
-        : (err.detail ?? 'Registration failed');
-      throw new Error(msg);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(extractErrorMessage(err, 'Registration failed'));
     }
     // Auto-login after registration
     await this.login(email, password);

@@ -2,17 +2,19 @@
 
   <!-- Header -->
   <header class="h-14 border-b border-white/10 flex items-center px-6 bg-[#111111] shrink-0">
-    <div
-      class="flex items-center gap-2 text-emerald-400 cursor-pointer hover:opacity-80 transition-opacity"
+    <button
+      type="button"
+      class="flex items-center gap-2 text-emerald-400 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-0 p-0"
       (click)="goHome()"
+      aria-label="Go to home"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="4 17 10 11 4 5"></polyline>
         <line x1="12" y1="19" x2="20" y2="19"></line>
       </svg>
       <span class="font-mono font-bold text-lg tracking-tight">Cr4ck</span>
-    </div>
+    </button>
     <div class="ml-auto flex items-center gap-4">
       <!-- Online indicator -->
       <div class="flex items-center gap-1.5 text-xs font-mono text-gray-500">
@@ -76,6 +78,7 @@
         <div class="flex gap-1.5">
           @for (d of ['', 'Easy', 'Medium', 'Hard']; track d) {
             <button
+              type="button"
               (click)="setFilterDifficulty(d)"
               [class]="
                 'flex-1 py-1 rounded text-xs font-mono transition-colors ' +
@@ -92,7 +95,7 @@
         @if (filterTopic() || filterDifficulty() || filterSearch()) {
           <div class="flex items-center justify-between text-xs font-mono text-gray-600">
             <span>{{ challenges().length }} shown</span>
-            <button (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')" class="text-gray-600 hover:text-gray-400">Clear</button>
+            <button type="button" (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')" class="text-gray-600 hover:text-gray-400">Clear filters</button>
           </div>
         }
       </div>
@@ -103,6 +106,7 @@
         <nav class="flex-1 px-2 space-y-1">
           @for (challenge of challenges(); track challenge.id) {
             <button
+              type="button"
               (click)="selectChallenge(challenge.id)"
               [class]="
                 'w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center justify-between group ' +
@@ -186,6 +190,7 @@
               <!-- Run Tests button -->
               @if (hasTestCases) {
                 <button
+                  type="button"
                   (click)="runTests()"
                   [disabled]="isRunning() || isEvaluating() || !activeChallenge"
                   title="Run Tests"
@@ -206,6 +211,7 @@
               }
               <!-- Submit & Evaluate button -->
               <button
+                type="button"
                 (click)="evaluateCode()"
                 [disabled]="isEvaluating() || isRunning() || !activeChallenge"
                 title="Submit & Evaluate"
@@ -250,6 +256,7 @@
           <div class="h-10 border-b border-white/10 flex items-center bg-[#111111]">
             <!-- Tests Tab -->
             <button
+              type="button"
               (click)="switchTab('tests')"
               [class]="
                 'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
@@ -278,6 +285,7 @@
 
             <!-- AI Feedback Tab -->
             <button
+              type="button"
               (click)="switchTab('feedback')"
               [class]="
                 'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
@@ -300,6 +308,7 @@
 
             <!-- Community Tab -->
             <button
+              type="button"
               (click)="switchTab('community')"
               [class]="
                 'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
@@ -524,6 +533,7 @@
                       class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20"
                     ></textarea>
                     <button
+                      type="button"
                       (click)="submitPost()"
                       [disabled]="postSubmitting() || !newPostBody().trim()"
                       class="px-3 py-1.5 bg-violet-500/15 text-violet-400 hover:bg-violet-500/25 rounded text-xs font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -578,8 +588,8 @@
                                   class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-200 resize-none focus:outline-none focus:border-violet-500/50"
                                 ></textarea>
                                 <div class="flex gap-2">
-                                  <button (click)="saveEdit(post.id)" class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25">Save</button>
-                                  <button (click)="editingPostId.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
+                                  <button type="button" (click)="saveEdit(post.id)" class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25">Save</button>
+                                  <button type="button" (click)="editingPostId.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
                                 </div>
                               </div>
                             } @else {
@@ -594,26 +604,29 @@
                               <!-- Votes -->
                               <div class="flex items-center gap-1">
                                 <button
+                                  type="button"
                                   (click)="votePost(post.id, post.user_vote === 1 ? 0 : 1)"
                                   [class]="'text-xs transition-colors ' + (post.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')"
-                                  title="Upvote"
+                                  aria-label="Upvote"
                                 >▲</button>
                                 <span class="text-xs font-mono text-gray-400 w-5 text-center">{{ post.vote_score }}</span>
                                 <button
+                                  type="button"
                                   (click)="votePost(post.id, post.user_vote === -1 ? 0 : -1)"
                                   [class]="'text-xs transition-colors ' + (post.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')"
-                                  title="Downvote"
+                                  aria-label="Downvote"
                                 >▼</button>
                               </div>
                               <!-- Reply -->
                               <button
+                                type="button"
                                 (click)="replyingTo.set(replyingTo() === post.id ? null : post.id); replyBody.set('')"
                                 class="text-xs text-gray-600 hover:text-gray-300 font-mono"
                               >Reply</button>
                               <!-- Edit / Delete (own posts only) -->
                               @if (isOwnPost(post)) {
-                                <button (click)="startEdit(post)" class="text-xs text-gray-600 hover:text-gray-300 font-mono">Edit</button>
-                                <button (click)="deletePost(post.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
+                                <button type="button" (click)="startEdit(post)" class="text-xs text-gray-600 hover:text-gray-300 font-mono">Edit</button>
+                                <button type="button" (click)="deletePost(post.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
                               }
                             </div>
                           }
@@ -630,13 +643,14 @@
                               ></textarea>
                               <div class="flex gap-2">
                                 <button
+                                  type="button"
                                   (click)="submitReply(post.id)"
                                   [disabled]="postSubmitting() || !replyBody().trim()"
                                   class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25 disabled:opacity-40"
                                 >
                                   @if (postSubmitting()) { Posting… } @else { Reply }
                                 </button>
-                                <button (click)="replyingTo.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
+                                <button type="button" (click)="replyingTo.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
                               </div>
                             </div>
                           }
@@ -655,13 +669,15 @@
                                     [innerHTML]="renderMarkdown(reply.body)"></div>
                                   <!-- Reply votes + own-post actions -->
                                   <div class="flex items-center gap-2 mt-1.5">
-                                    <button (click)="votePost(reply.id, reply.user_vote === 1 ? 0 : 1)"
-                                      [class]="'text-xs ' + (reply.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')">▲</button>
+                                    <button type="button" (click)="votePost(reply.id, reply.user_vote === 1 ? 0 : 1)"
+                                      [class]="'text-xs ' + (reply.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')"
+                                      aria-label="Upvote reply">▲</button>
                                     <span class="text-xs font-mono text-gray-500 w-4 text-center">{{ reply.vote_score }}</span>
-                                    <button (click)="votePost(reply.id, reply.user_vote === -1 ? 0 : -1)"
-                                      [class]="'text-xs ' + (reply.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')">▼</button>
+                                    <button type="button" (click)="votePost(reply.id, reply.user_vote === -1 ? 0 : -1)"
+                                      [class]="'text-xs ' + (reply.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')"
+                                      aria-label="Downvote reply">▼</button>
                                     @if (isOwnPost(reply)) {
-                                      <button (click)="deletePost(reply.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
+                                      <button type="button" (click)="deletePost(reply.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
                                     }
                                   </div>
                                 </div>

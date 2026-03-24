@@ -1,32 +1,62 @@
 import { Routes } from '@angular/router';
-import { LandingPageComponent } from './LandingPage/landing';
-import { SandboxComponent } from './sandbox/sandbox';
-import { LoginComponent } from './Login/login';
-import { RegisterComponent } from './Register/register';
-import { ProblemSetComponent } from './ProblemSet/problem-set';
-import { TopicProblemsComponent } from './TopicProblems/topic-problems';
 import { authGuard } from './guards/auth.guard';
-import { AboutComponent } from './About/about';
-import { ProfileComponent } from './Profile/profile';
-import { ProblemComponent } from './Problem/problem';
-import { LeaderboardComponent } from './Leaderboard/leaderboard';
-import { VerifyEmailComponent } from './VerifyEmail/verify-email';
-import { ForgotPasswordComponent } from './ForgotPassword/forgot-password';
-import { ResetPasswordComponent } from './ResetPassword/reset-password';
 
 export const routes: Routes = [
-  { path: '', component: LandingPageComponent },
-  { path: 'problems', component: ProblemSetComponent },
+  {
+    path: '',
+    loadComponent: () => import('./LandingPage/landing').then((m) => m.LandingPageComponent),
+  },
+  {
+    path: 'problems',
+    loadComponent: () => import('./ProblemSet/problem-set').then((m) => m.ProblemSetComponent),
+  },
   // topic must come before :id so Angular doesn't treat "topic" as a problem id
-  { path: 'problems/topic/:topic', component: TopicProblemsComponent },
-  { path: 'problems/:id', component: ProblemComponent },
-  { path: 'sandbox', component: SandboxComponent, canActivate: [authGuard] },
-  { path: 'leaderboard', component: LeaderboardComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'verify-email', component: VerifyEmailComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
+  {
+    path: 'problems/topic/:topic',
+    loadComponent: () =>
+      import('./TopicProblems/topic-problems').then((m) => m.TopicProblemsComponent),
+  },
+  {
+    path: 'problems/:id',
+    loadComponent: () => import('./Problem/problem').then((m) => m.ProblemComponent),
+  },
+  {
+    path: 'sandbox',
+    loadComponent: () => import('./sandbox/sandbox').then((m) => m.SandboxComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'leaderboard',
+    loadComponent: () => import('./Leaderboard/leaderboard').then((m) => m.LeaderboardComponent),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./Login/login').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./Register/register').then((m) => m.RegisterComponent),
+  },
+  {
+    path: 'about',
+    loadComponent: () => import('./About/about').then((m) => m.AboutComponent),
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./Profile/profile').then((m) => m.ProfileComponent),
+  },
+  {
+    path: 'verify-email',
+    loadComponent: () => import('./VerifyEmail/verify-email').then((m) => m.VerifyEmailComponent),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./ForgotPassword/forgot-password').then((m) => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./ResetPassword/reset-password').then((m) => m.ResetPasswordComponent),
+  },
 ];

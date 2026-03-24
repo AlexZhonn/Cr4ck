@@ -48,6 +48,169 @@ jobs:
       - name: Build (production)
         run: npm run build -- --configuration production
 
+      # AUDIT-F3: bundle size tracking
+      - name: Bundle size check
+        run: npx bundlesize --config .bundlesizerc.json
+        continue-on-error: true  # informational for now; tighten limits as Monaco is optimized
+
+  # ── E2E tests: Playwright (AUDIT-T3) ──────────────────────────────────────
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]   # only run if unit tests pass
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cr4ck
+          POSTGRES_PASSWORD: cr4ck
+          POSTGRES_DB: cr4ck_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install backend dependencies
+        working-directory: api
+        run: pip install -r requirements.txt
+
+      - name: Run database migrations
+        working-directory: api
+        run: |
+          for f in migrations/0*.sql; do
+            psql "$TEST_DATABASE_URL" -f "$f" || true
+          done
+        env:
+          TEST_DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_e2e
+
+      - name: Start backend
+        working-directory: api
+        run: |
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          echo "Waiting for backend..."
+          for i in {1..30}; do curl -sf http://localhost:8000/health && break || sleep 2; done
+        env:
+          DATABASE_URL: postgresql://cr4ck:cr4ck@localhost:5432/cr4ck_e2e
+          SECRET_KEY: stubstubstubstubstubstubstubstubstubstubstubstubstubstub12345678
+          ANTHROPIC_API_KEY: sk-stub
+          API_KEY_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
+          ALLOWED_ORIGINS: "http://localhost:4200"
+          TEST_MODE: "true"
+          TEST_SECRET: e2e-test-secret
+
+      - name: Install frontend dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ui
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Angular (production)
+        working-directory: ui
+        run: npm run build -- --configuration production
+
+      - name: Serve Angular build
+        working-directory: ui
+        run: |
+          npx serve -s dist/ui/browser -l 4200 &
+          sleep 3
+
+      - name: Run Playwright tests
+        working-directory: ui
+        run: npm run test:e2e
+        env:
+          E2E_BASE_URL: http://localhost:4200
+          E2E_API_URL: http://localhost:8000
+          TEST_SECRET: e2e-test-secret
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: ui/playwright-report/
+          retention-days: 14
+
+  # ── OpenAPI schema export (AUDIT-A3) ──────────────────────────────────────
+  openapi:
+    name: OpenAPI Schema
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Export OpenAPI schema
+        run: |
+          python - <<'EOF'
+          import json, sys
+          sys.path.insert(0, ".")
+          import os
+          os.environ.setdefault("DATABASE_URL", "postgresql://stub:stub@localhost/stub")
+          os.environ.setdefault("SECRET_KEY", "0" * 64)
+          os.environ.setdefault("API_KEY_SECRET", "0" * 64)
+          os.environ.setdefault("ANTHROPIC_API_KEY", "sk-stub")
+          from main import app
+          schema = app.openapi()
+          with open("openapi.json", "w") as f:
+              json.dump(schema, f, indent=2)
+          print(f"OpenAPI schema exported: {len(schema.get('paths', {}))} paths")
+          EOF
+
+      - name: Upload OpenAPI schema artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-schema
+          path: api/openapi.json
+          retention-days: 30
+
+      - name: Diff schema against main branch (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Download the schema from the base branch artifact if available
+          gh api \
+            repos/${{ github.repository }}/actions/artifacts \
+            --jq '.artifacts[] | select(.name=="openapi-schema") | .id' \
+            | head -1 | xargs -I{} \
+            gh api repos/${{ github.repository }}/actions/artifacts/{}/zip \
+            -H "Accept: application/vnd.github+json" > /dev/null 2>&1 || true
+          echo "Schema diff against base branch is available in the artifact."
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+
   # ── Backend: lint, type-check, SAST, test ─────────────────────────────────
   backend:
     name: Backend

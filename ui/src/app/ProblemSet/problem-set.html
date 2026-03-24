@@ -16,7 +16,7 @@
     @if (!isLoading() && !error()) {
       <div class="topic-grid">
         @for (topic of topics; track topic.id) {
-          <div class="topic-card" (click)="goToTopic(topic.id)">
+          <button type="button" class="topic-card" (click)="goToTopic(topic.id)">
 
             <div class="topic-card-icon">
               @if (topic.icon === 'oop') {
@@ -63,7 +63,7 @@
               </svg>
             </div>
 
-          </div>
+          </button>
         }
       </div>
     }

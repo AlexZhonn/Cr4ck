@@ -48,12 +48,11 @@ module.exports = defineConfig([
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {
-      // Accessibility violations tracked under AUDIT-F2; warn for now
-      // so CI doesn't block while the full a11y audit is in progress.
-      '@angular-eslint/template/button-has-type': 'warn',
-      '@angular-eslint/template/click-events-have-key-events': 'warn',
-      '@angular-eslint/template/interactive-supports-focus': 'warn',
-      '@angular-eslint/template/alt-text': 'warn',
+      // Accessibility rules — AUDIT-F2 completed; escalated from warn to error.
+      '@angular-eslint/template/button-has-type': 'error',
+      '@angular-eslint/template/click-events-have-key-events': 'error',
+      '@angular-eslint/template/interactive-supports-focus': 'error',
+      '@angular-eslint/template/alt-text': 'error',
     },
   },
 ]);

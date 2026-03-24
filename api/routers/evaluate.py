@@ -8,6 +8,7 @@ Falls back to the server's ANTHROPIC_API_KEY if the user has no key configured
 """
 
 import asyncio
+import logging
 import os
 import json
 from fastapi import APIRouter, HTTPException, Depends, Request
@@ -16,6 +17,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 limiter = Limiter(key_func=get_remote_address)
+logger = logging.getLogger(__name__)
 
 from auth.dependencies import get_current_user
 from auth.apikey import decrypt_key
@@ -190,12 +192,40 @@ def evaluate(
         f"Please evaluate this submission."
     )
 
+    logger.info(
+        "evaluate.submitted",
+        extra={
+            "user_id": str(current_user.id),
+            "challenge_id": body.challenge_id,
+            "language": body.language,
+            "provider": provider,
+        },
+    )
+
     try:
         data = _run_evaluation(provider, api_key, user_message)
         feedback = EvaluationFeedback(**data)
     except HTTPException:
+        logger.info(
+            "evaluate.failed",
+            extra={
+                "user_id": str(current_user.id),
+                "challenge_id": body.challenge_id,
+                "language": body.language,
+                "reason": "ai_error",
+            },
+        )
         raise
     except (json.JSONDecodeError, ValueError):
+        logger.info(
+            "evaluate.failed",
+            extra={
+                "user_id": str(current_user.id),
+                "challenge_id": body.challenge_id,
+                "language": body.language,
+                "reason": "malformed_response",
+            },
+        )
         raise HTTPException(status_code=502, detail="AI returned malformed response — please try again")
 
     # Record attempt and award XP
@@ -243,6 +273,19 @@ def evaluate(
 
     feedback.xp_earned = xp_earned
     feedback.is_first_completion = is_first_completion
+
+    # Emit outcome metric
+    logger.info(
+        "evaluate.passed" if feedback.score >= 40 else "evaluate.failed",
+        extra={
+            "user_id": str(current_user.id),
+            "challenge_id": body.challenge_id,
+            "language": body.language,
+            "score": feedback.score,
+            "xp_earned": xp_earned,
+            "is_first_completion": is_first_completion,
+        },
+    )
 
     if xp_earned > 0:
         cache_delete(LEADERBOARD_KEY)

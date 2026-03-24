@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "path": "./dist/ui/browser/main*.js",
+      "maxSize": "300 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "./dist/ui/browser/chunk-*.js",
+      "maxSize": "400 kB",
+      "compression": "gzip"
+    }
+  ]
+}

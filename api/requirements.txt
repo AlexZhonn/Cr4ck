@@ -13,3 +13,4 @@ slowapi==0.1.9
 python-json-logger==2.0.7
 openai==1.75.0
 google-generativeai==0.8.5
+sentry-sdk[fastapi]==2.20.0

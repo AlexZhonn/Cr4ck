@@ -9,6 +9,7 @@ Auth endpoints:
   GET  /auth/me                   — get current user profile
 """
 
+import logging
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -16,6 +17,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 limiter = Limiter(key_func=get_remote_address)
+logger = logging.getLogger(__name__)
 
 from auth.dependencies import get_current_user
 from auth.password import generate_salt, hash_password, verify_password, needs_rehash
@@ -107,18 +109,21 @@ def login(request: Request, body: LoginRequest, db=Depends(get_db)):
     password_ok = verify_password(body.password, stored_salt, stored_hash)
 
     if not user or not password_ok:
+        logger.info("auth.login.failure", extra={"reason": "invalid_credentials"})
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
 
     if not user["is_active"]:
+        logger.info("auth.login.failure", extra={"reason": "account_disabled"})
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is disabled",
         )
 
     if not user["is_verified"]:
+        logger.info("auth.login.failure", extra={"reason": "email_not_verified"})
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Check your inbox or request a new verification link.",
@@ -151,6 +156,7 @@ def login(request: Request, body: LoginRequest, db=Depends(get_db)):
             (jti, user_id),
         )
 
+    logger.info("auth.login.success", extra={"user_id": user_id, "role": role})
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -364,6 +370,32 @@ def reset_password(body: ResetPasswordRequest, db=Depends(get_db)):
             """,
             (new_hash, str(user["id"])),
         )
+
+
+# ── Test-only endpoint (disabled in production) ────────────────────────────────
+import os as _os
+
+if _os.getenv("TEST_MODE", "").lower() == "true":
+    from fastapi import Header
+
+    @router.post("/test/verify-bypass", status_code=status.HTTP_204_NO_CONTENT)
+    def test_verify_bypass(
+        email: str,
+        x_test_secret: str = Header(alias="X-Test-Secret"),
+        db=Depends(get_db),
+    ):
+        """
+        TESTING ONLY — marks a user as verified without email confirmation.
+        Only active when TEST_MODE=true. Gated by X-Test-Secret header.
+        """
+        expected = _os.getenv("TEST_SECRET", "test-secret")
+        if not secrets.compare_digest(x_test_secret, expected):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+        with db.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET is_verified = TRUE WHERE email = %s",
+                (email,),
+            )
 
 
 @router.get("/me", response_model=UserPublic)
