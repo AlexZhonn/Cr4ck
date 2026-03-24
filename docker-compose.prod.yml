@@ -1,28 +1,14 @@
 version: '3.9'
 
 # Production Docker Compose for Cr4ck
+# Database is hosted on Supabase — no local DB service needed.
 # Usage:
-#   1. Copy api/.env.prod.example → api/.env.prod and fill in all values
+#   1. Copy api/.env.prod.example → api/.env.prod and fill in all values (including Supabase DATABASE_URL)
 #   2. Build the Angular app:  cd ui && npm run build -- --configuration production
 #   3. Place TLS certs in ./certs/fullchain.pem and ./certs/privkey.pem
 #   4. docker compose -f docker-compose.prod.yml up -d
 
 services:
-
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB:       cr4ck
-      POSTGRES_USER:     cr4ck
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cr4ck"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -43,11 +29,8 @@ services:
     restart: unless-stopped
     env_file: ./api/.env.prod
     environment:
-      DATABASE_URL: postgresql://cr4ck:${DB_PASSWORD}@db:5432/cr4ck
-      REDIS_URL:    redis://redis:6379/0
+      REDIS_URL: redis://redis:6379/0
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -72,5 +55,4 @@ services:
         condition: service_healthy
 
 volumes:
-  db_data:
   redis_data:
