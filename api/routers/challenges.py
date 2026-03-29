@@ -4,9 +4,11 @@ GET /api/challenges/:id      — single challenge detail
 """
 
 import math
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Query, status, Depends
 from pydantic import BaseModel
 
+from auth.dependencies import get_current_user
 from core.database import get_db
 from core.redis import cache_get, cache_set, CHALLENGES_KEY, CHALLENGES_TTL
 
@@ -100,3 +102,30 @@ def get_challenge(challenge_id: str, db=Depends(get_db)):
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Challenge not found")
     return _row_to_challenge(row)
+
+
+class SubmissionOut(BaseModel):
+    id: int
+    score: int
+    language: str
+    code: str
+    submitted_at: datetime
+
+
+@router.get("/challenges/{challenge_id}/my-submissions", response_model=list[SubmissionOut])
+def my_submissions(
+    challenge_id: str,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    with db.cursor() as cur:
+        cur.execute(
+            """SELECT id, score, language, code, submitted_at
+               FROM submissions
+               WHERE user_id = %s AND challenge_id = %s
+               ORDER BY submitted_at DESC
+               LIMIT 50""",
+            (str(current_user.id), challenge_id),
+        )
+        rows = cur.fetchall()
+    return [SubmissionOut(**r) for r in rows]

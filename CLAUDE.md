@@ -185,14 +185,11 @@ make check      # tsc --noEmit + Python import check
 - Sidebar filter state persistence: topic, difficulty, and search (`q`) persisted in URL query params; restored on init; cleared together
 - Challenge keyword search: search input in sandbox sidebar filters by title + description client-side; synced to `?q=` URL param
 - Challenges list pagination: `GET /api/challenges` now returns `{ items, total, page, limit, pages }`; frontend fetches with `?limit=200` to load all at once; `?page=` + `?limit=` available for future use
+- Submission history: migration 012 adds `submissions` table + `last_code/last_score/last_language` to `user_challenges`; `routers/evaluate.py` inserts a row on every evaluation; `GET /api/challenges/:id/my-submissions` returns ordered history; "History" tab in sandbox bottom panel shows scores, timestamps, expandable code with "Load into editor" button
+- Sandbox layout: description + editor side-by-side (top half), Tests/AI/Community/History tabs panel at bottom — all three split points draggable with localStorage persist
+- Password change from profile: `PUT /auth/password` verifies current password with Argon2, rehashes new one; "Change Password" card in Profile settings with current/new/confirm fields
 
-### 1. Submission History with Code Storage
-
-The biggest missing learning feature. `user_challenges` tracks `best_score + attempts` but never stores the actual code submitted. Users can't review past work, see how they improved, or learn from their own mistakes.
-
-- Add `last_code TEXT` + `last_score INT` columns to `user_challenges` (migration 012); update `routers/evaluate.py` to persist the submitted code on every evaluation
-- New endpoint: `GET /api/challenges/:id/my-submissions` — returns ordered attempt history (score, code, submitted_at)
-- Sandbox UI: "My Submissions" tab or sub-panel in the right panel, showing past attempts with diffs or re-loadable code
+### 1. ~~Submission History with Code Storage~~ ✅ Done
 
 ### 2. Learning Paths / Challenge Sequences
 
@@ -302,12 +299,9 @@ After scoring ≥ 80, prompt users to opt-in to share their solution publicly. T
 - `GET /api/challenges/:id/top-solutions` — returns top public solutions sorted by score; code visible after user has attempted the challenge (prevents copying)
 - Community tab in sandbox: "Top Solutions" section below posts
 
-### 7. Password Change from Profile
+### ~~7. Password Change from Profile~~ ✅ Done
 
-Basic UX expectation. Currently a user who wants to change their password must go through the forgot-password email flow, which is clunky and confusing.
-
-- `PUT /auth/password` — requires `{ current_password, new_password }`; verifies current password with Argon2, rehashes new one
-- Profile settings card with a "Change password" form (current + new + confirm)
+`PUT /auth/password` added to `routers/auth.py` — verifies current password with Argon2, rehashes new one. "Change Password" card in Profile page with current/new/confirm fields.
 
 ### 8. WebSocket Authentication
 

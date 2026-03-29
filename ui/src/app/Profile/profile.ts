@@ -105,6 +105,47 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  // Password change
+  readonly pwChanging = signal(false);
+  readonly pwError = signal<string | null>(null);
+  readonly pwSuccess = signal<string | null>(null);
+  currentPassword = '';
+  newPassword = '';
+  confirmPassword = '';
+
+  async changePassword() {
+    this.pwError.set(null);
+    this.pwSuccess.set(null);
+    if (this.newPassword !== this.confirmPassword) {
+      this.pwError.set('New passwords do not match.');
+      return;
+    }
+    if (this.newPassword.length < 8) {
+      this.pwError.set('New password must be at least 8 characters.');
+      return;
+    }
+    this.pwChanging.set(true);
+    try {
+      const res = await fetch('/auth/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...this.auth.authHeaders() },
+        body: JSON.stringify({ current_password: this.currentPassword, new_password: this.newPassword }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message ?? err.detail ?? 'Failed to change password');
+      }
+      this.pwSuccess.set('Password changed successfully.');
+      this.currentPassword = '';
+      this.newPassword = '';
+      this.confirmPassword = '';
+    } catch (e: any) {
+      this.pwError.set(e.message);
+    } finally {
+      this.pwChanging.set(false);
+    }
+  }
+
   xpToNextLevel(xp: number): number { return Math.ceil((Math.floor(xp / 100) + 1) * 100); }
   xpProgress(xp: number): number { return xp % 100; }
   level(xp: number): number { return Math.floor(xp / 100) + 1; }

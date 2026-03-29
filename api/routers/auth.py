@@ -13,6 +13,7 @@ import logging
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel as _BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -412,3 +413,39 @@ def me(current_user: UserInDB = Depends(get_current_user)):
         streak_days=current_user.streak_days,
         challenges_completed=current_user.challenges_completed,
     )
+
+
+class ChangePasswordRequest(_BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.put("/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    body: ChangePasswordRequest,
+    current_user: UserInDB = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    if len(body.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="New password must be at least 8 characters",
+        )
+
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT password_hash, password_salt FROM users WHERE id = %s",
+            (str(current_user.id),),
+        )
+        row = cur.fetchone()
+
+    if not verify_password(body.current_password, row["password_hash"], row["password_salt"]):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
+
+    new_salt = generate_salt()
+    new_hash = hash_password(body.new_password, new_salt)
+    with db.cursor() as cur:
+        cur.execute(
+            "UPDATE users SET password_hash = %s, password_salt = %s, updated_at = NOW() WHERE id = %s",
+            (new_hash, new_salt, str(current_user.id)),
+        )

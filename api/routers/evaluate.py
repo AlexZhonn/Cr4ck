@@ -243,16 +243,27 @@ def evaluate(
 
         if is_first_completion:
             cur.execute(
-                "INSERT INTO user_challenges (user_id, challenge_id, best_score, attempts) VALUES (%s, %s, %s, 1)",
-                (user_id, body.challenge_id, feedback.score),
+                """INSERT INTO user_challenges
+                   (user_id, challenge_id, best_score, attempts, last_code, last_score, last_language)
+                   VALUES (%s, %s, %s, 1, %s, %s, %s)""",
+                (user_id, body.challenge_id, feedback.score, body.code, feedback.score, body.language),
             )
         else:
             xp_earned = 0
             new_best = max(existing["best_score"], feedback.score)
             cur.execute(
-                "UPDATE user_challenges SET best_score = %s, attempts = attempts + 1, last_attempted_at = NOW() WHERE user_id = %s AND challenge_id = %s",
-                (new_best, user_id, body.challenge_id),
+                """UPDATE user_challenges
+                   SET best_score = %s, attempts = attempts + 1, last_attempted_at = NOW(),
+                       last_code = %s, last_score = %s, last_language = %s
+                   WHERE user_id = %s AND challenge_id = %s""",
+                (new_best, body.code, feedback.score, body.language, user_id, body.challenge_id),
             )
+
+        # Always record full submission history
+        cur.execute(
+            "INSERT INTO submissions (user_id, challenge_id, score, language, code) VALUES (%s, %s, %s, %s, %s)",
+            (user_id, body.challenge_id, feedback.score, body.language, body.code),
+        )
 
         cur.execute("SELECT last_login_at, streak_days FROM users WHERE id = %s", (user_id,))
         urow = cur.fetchone()

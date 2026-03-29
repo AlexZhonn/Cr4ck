@@ -81,6 +81,43 @@
         @if (keySuccess()) { <p class="key-success">{{ keySuccess() }}</p> }
       </div>
 
+      <!-- Password change -->
+      <div class="settings-section">
+        <h2 class="section-title">Change Password</h2>
+        <p class="section-desc">Update your account password.</p>
+        <div class="key-form">
+          <input
+            type="password"
+            [(ngModel)]="currentPassword"
+            placeholder="Current password"
+            class="key-input"
+            autocomplete="current-password"
+          />
+          <input
+            type="password"
+            [(ngModel)]="newPassword"
+            placeholder="New password (min 8 chars)"
+            class="key-input"
+            autocomplete="new-password"
+          />
+          <input
+            type="password"
+            [(ngModel)]="confirmPassword"
+            placeholder="Confirm new password"
+            class="key-input"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="btn-save-key"
+            (click)="changePassword()"
+            [disabled]="pwChanging() || !currentPassword || !newPassword || !confirmPassword"
+          >{{ pwChanging() ? 'Saving…' : 'Change Password' }}</button>
+        </div>
+        @if (pwError()) { <p class="key-error">{{ pwError() }}</p> }
+        @if (pwSuccess()) { <p class="key-success">{{ pwSuccess() }}</p> }
+      </div>
+
       <!-- Challenge history -->
       <div class="history-section">
         <h2 class="history-title">Challenge History</h2>

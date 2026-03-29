@@ -143,40 +143,41 @@
     <!-- Workspace -->
     <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
 
-      <!-- Top Half: Problem Description -->
-      <div
-        [style.height.px]="descHeight()"
-        class="shrink-0 border-b border-white/10 bg-[#141414] p-6 overflow-y-auto"
-      >
-        @if (activeChallenge) {
-          <div class="max-w-3xl">
-            <div class="flex items-center gap-3 mb-4">
-              <h1 class="text-2xl font-semibold text-white tracking-tight">
-                {{ activeChallenge.title }}
-              </h1>
-              <span [class]="'px-2 py-0.5 rounded text-xs font-mono ' + difficultyClass">
-                {{ activeChallenge.difficulty }}
-              </span>
-            </div>
-            <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ activeChallenge.description }}</div>
-          </div>
-        } @else if (!isLoadingChallenges()) {
-          <p class="text-gray-500 text-sm">No challenge selected.</p>
-        }
-      </div>
-
-      <!-- Description drag handle -->
-      <div
-        class="drag-handle drag-handle--row"
-        (mousedown)="startDrag('desc', $event)"
-        title="Drag to resize"
-      ></div>
-
-      <!-- Bottom Half: Editor + Right Panel -->
+      <!-- Top Area: Description + Editor side by side -->
       <div class="flex-1 flex min-h-0 overflow-hidden">
 
+        <!-- Description Panel -->
+        <div
+          [style.flex-basis.px]="descWidth()"
+          style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto;"
+          class="border-r border-white/10 bg-[#141414] p-6"
+        >
+          @if (activeChallenge) {
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <h1 class="text-2xl font-semibold text-white tracking-tight">
+                  {{ activeChallenge.title }}
+                </h1>
+                <span [class]="'px-2 py-0.5 rounded text-xs font-mono ' + difficultyClass">
+                  {{ activeChallenge.difficulty }}
+                </span>
+              </div>
+              <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ activeChallenge.description }}</div>
+            </div>
+          } @else if (!isLoadingChallenges()) {
+            <p class="text-gray-500 text-sm">No challenge selected.</p>
+          }
+        </div>
+
+        <!-- Description / Editor drag handle -->
+        <div
+          class="drag-handle drag-handle--col"
+          (mousedown)="startDrag('desc', $event)"
+          title="Drag to resize"
+        ></div>
+
         <!-- Editor Pane -->
-        <div class="flex-1 min-w-0 flex flex-col border-r border-white/10 bg-[#0a0a0a] overflow-hidden">
+        <div class="flex-1 min-w-0 flex flex-col bg-[#0a0a0a] overflow-hidden">
           <div class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]" style="container-type: inline-size; container-name: editor-toolbar;">
             <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
@@ -238,19 +239,21 @@
           </div>
         </div>
 
-        <!-- Editor / Right panel drag handle -->
-        <div
-          class="drag-handle drag-handle--col"
-          (mousedown)="startDrag('right', $event)"
-          title="Drag to resize"
-        ></div>
+      </div>
 
-        <!-- Right Panel: Tabbed (Tests + AI Feedback) -->
-        <div
-          [style.flex-basis.px]="rightWidth()"
-          style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow: hidden;"
-          class="flex flex-col bg-[#141414]"
-        >
+      <!-- Bottom drag handle -->
+      <div
+        class="drag-handle drag-handle--row"
+        (mousedown)="startDrag('bottom', $event)"
+        title="Drag to resize"
+      ></div>
+
+      <!-- Bottom Panel: Tabbed (Tests + AI Feedback + Community) -->
+      <div
+        [style.height.px]="bottomHeight()"
+        style="flex-shrink: 0; flex-grow: 0; overflow: hidden;"
+        class="flex flex-col bg-[#141414] border-t border-white/10"
+      >
 
           <!-- Tab Header -->
           <div class="h-10 border-b border-white/10 flex items-center bg-[#111111]">
@@ -323,6 +326,28 @@
               </svg>
               Community
             </button>
+
+            <!-- History Tab -->
+            @if (auth.isLoggedIn()) {
+              <button
+                type="button"
+                (click)="switchTab('history')"
+                [class]="
+                  'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
+                  (activeTab() === 'history'
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-300')
+                "
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="12 8 12 12 14 14"></polyline>
+                  <path d="M3.05 11a9 9 0 1 0 .5-4"></path>
+                  <polyline points="3 3 3 7 7 7"></polyline>
+                </svg>
+                History
+              </button>
+            }
           </div>
 
           <!-- Tab Content -->
@@ -694,10 +719,66 @@
               </div>
             }
 
+            <!-- History Panel -->
+            @if (activeTab() === 'history') {
+              <div class="p-4">
+                @if (historyLoading()) {
+                  <div class="flex flex-col items-center justify-center min-h-32 text-gray-500 gap-3 py-8">
+                    <span class="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></span>
+                    <p class="text-xs font-mono animate-pulse">Loading submissions…</p>
+                  </div>
+                } @else if (historyError()) {
+                  <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ historyError() }}</div>
+                } @else if (submissions().length === 0) {
+                  <div class="text-center py-8 text-gray-600 text-sm font-mono">
+                    No submissions yet for this challenge.
+                  </div>
+                } @else {
+                  <div class="space-y-2">
+                    @for (sub of submissions(); track sub.id) {
+                      <div class="rounded-lg border border-white/10 overflow-hidden">
+                        <!-- Submission header -->
+                        <div
+                          class="flex items-center gap-3 px-3 py-2 bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
+                          (click)="toggleSubmission(sub.id)"
+                        >
+                          <span [class]="
+                            'text-sm font-bold font-mono ' +
+                            (sub.score >= 80 ? 'text-emerald-400' : sub.score >= 60 ? 'text-amber-400' : 'text-rose-400')
+                          ">{{ sub.score }}</span>
+                          <span class="text-xs font-mono text-gray-500">/ 100</span>
+                          <span class="text-xs font-mono text-gray-500 px-1.5 py-0.5 rounded bg-white/5">{{ sub.language }}</span>
+                          <span class="text-xs font-mono text-gray-600 ml-auto">{{ sub.submitted_at | date:'MMM d, h:mm a' }}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            [class]="'text-gray-600 transition-transform ' + (expandedSubmissionId() === sub.id ? 'rotate-180' : '')">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </div>
+                        <!-- Expanded code view -->
+                        @if (expandedSubmissionId() === sub.id) {
+                          <div class="border-t border-white/10">
+                            <div class="flex items-center justify-between px-3 py-1.5 bg-[#111] border-b border-white/10">
+                              <span class="text-xs font-mono text-gray-600">Submitted code</span>
+                              <button
+                                type="button"
+                                (click)="loadSubmissionIntoEditor(sub.code)"
+                                class="text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors"
+                              >Load into editor</button>
+                            </div>
+                            <pre class="p-3 text-xs font-mono text-gray-300 overflow-x-auto bg-[#0a0a0a] whitespace-pre-wrap break-all">{{ sub.code }}</pre>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
           </div>
         </div>
 
-      </div>
     </main>
   </div>
 </div>

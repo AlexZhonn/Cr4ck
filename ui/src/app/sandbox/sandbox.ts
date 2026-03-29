@@ -36,6 +36,14 @@ interface RunResponse {
   total: number;
 }
 
+interface SubmissionRecord {
+  id: number;
+  score: number;
+  language: string;
+  code: string;
+  submitted_at: string;
+}
+
 @Component({
   selector: 'app-sandbox',
   standalone: true,
@@ -109,10 +117,16 @@ export class SandboxComponent implements OnInit, OnDestroy {
   evalError = signal<string | null>(null);
 
   // Tests panel
-  activeTab = signal<'feedback' | 'tests' | 'community'>('feedback');
+  activeTab = signal<'feedback' | 'tests' | 'community' | 'history'>('feedback');
   isRunning = signal(false);
   runResults = signal<RunResponse | null>(null);
   runError = signal<string | null>(null);
+
+  // Submission history
+  submissions = signal<SubmissionRecord[]>([]);
+  historyLoading = signal(false);
+  historyError = signal<string | null>(null);
+  expandedSubmissionId = signal<number | null>(null);
 
   // Community panel
   readonly postsSvc = inject(PostsService);
@@ -128,18 +142,19 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   // -----------------------------------------------------------------------
   // Draggable panel sizes (px), persisted in localStorage
+  // New layout: sidebar | [desc | editor] / bottom-tabs
   // -----------------------------------------------------------------------
   private readonly LS = {
     sidebar: 'cr4ck_sidebar_w',
-    desc:    'cr4ck_desc_h',
-    right:   'cr4ck_right_w',
+    desc:    'cr4ck_desc_w',   // width of description panel (left of editor)
+    bottom:  'cr4ck_bottom_h', // height of bottom tabs panel
   };
 
   sidebarWidth  = signal(this._load(this.LS.sidebar, 256));
-  descHeight    = signal(this._load(this.LS.desc,    240));
-  rightWidth    = signal(this._load(this.LS.right,   380));
+  descWidth     = signal(this._load(this.LS.desc,    480));
+  bottomHeight  = signal(this._load(this.LS.bottom,  280));
 
-  private _activeHandle: 'sidebar' | 'desc' | 'right' | null = null;
+  private _activeHandle: 'sidebar' | 'desc' | 'bottom' | null = null;
   private _dragStart = { x: 0, y: 0, init: 0 };
 
   private _load(key: string, fallback: number): number {
@@ -151,19 +166,19 @@ export class SandboxComponent implements OnInit, OnDestroy {
     localStorage.setItem(key, String(value));
   }
 
-  startDrag(handle: 'sidebar' | 'desc' | 'right', event: MouseEvent) {
+  startDrag(handle: 'sidebar' | 'desc' | 'bottom', event: MouseEvent) {
     event.preventDefault();
     this._activeHandle = handle;
     this._dragStart = {
       x: event.clientX,
       y: event.clientY,
       init: handle === 'sidebar' ? this.sidebarWidth()
-          : handle === 'desc'    ? this.descHeight()
-          :                        this.rightWidth(),
+          : handle === 'desc'    ? this.descWidth()
+          :                        this.bottomHeight(),
     };
     document.addEventListener('mousemove', this._onDrag);
     document.addEventListener('mouseup',   this._onDragEnd);
-    document.body.style.cursor = handle === 'desc' ? 'row-resize' : 'col-resize';
+    document.body.style.cursor = handle === 'bottom' ? 'row-resize' : 'col-resize';
     document.body.style.userSelect = 'none';
   }
 
@@ -177,16 +192,16 @@ export class SandboxComponent implements OnInit, OnDestroy {
         break;
       }
       case 'desc': {
-        const h = Math.min(Math.max(init + (e.clientY - y), 80), 500);
-        this.descHeight.set(h);
-        this._save(this.LS.desc, h);
+        const w = Math.min(Math.max(init + (e.clientX - x), 200), 900);
+        this.descWidth.set(w);
+        this._save(this.LS.desc, w);
         break;
       }
-      case 'right': {
-        // handle sits left of right panel: drag left → bigger, drag right → smaller
-        const w = Math.min(Math.max(init + (x - e.clientX), 200), 700);
-        this.rightWidth.set(w);
-        this._save(this.LS.right, w);
+      case 'bottom': {
+        // handle sits above bottom panel: drag up → bigger, drag down → smaller
+        const h = Math.min(Math.max(init + (y - e.clientY), 120), 600);
+        this.bottomHeight.set(h);
+        this._save(this.LS.bottom, h);
         break;
       }
     }
@@ -248,6 +263,9 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.postsError.set(null);
     this.replyingTo.set(null);
     this.editingPostId.set(null);
+    this.submissions.set([]);
+    this.historyError.set(null);
+    this.expandedSubmissionId.set(null);
     this.editorOptions = this.buildEditorOptions(challenge.language);
   }
 
@@ -265,11 +283,40 @@ export class SandboxComponent implements OnInit, OnDestroy {
     }
   }
 
-  async switchTab(tab: 'feedback' | 'tests' | 'community') {
+  async switchTab(tab: 'feedback' | 'tests' | 'community' | 'history') {
     this.activeTab.set(tab);
     if (tab === 'community' && this.posts().length === 0) {
       await this.loadPosts();
     }
+    if (tab === 'history') {
+      await this.loadHistory();
+    }
+  }
+
+  async loadHistory() {
+    const id = this.activeChallengeId();
+    if (!id || !this.auth.isLoggedIn()) return;
+    this.historyLoading.set(true);
+    this.historyError.set(null);
+    try {
+      const res = await fetch(`/api/challenges/${id}/my-submissions`, {
+        headers: this.auth.authHeaders(),
+      });
+      if (!res.ok) throw new Error('Failed to load history');
+      this.submissions.set(await res.json());
+    } catch (e: any) {
+      this.historyError.set(e.message ?? 'Failed to load history');
+    } finally {
+      this.historyLoading.set(false);
+    }
+  }
+
+  toggleSubmission(id: number) {
+    this.expandedSubmissionId.set(this.expandedSubmissionId() === id ? null : id);
+  }
+
+  loadSubmissionIntoEditor(code: string) {
+    this.code = code;
   }
 
   async submitPost() {
@@ -397,6 +444,13 @@ export class SandboxComponent implements OnInit, OnDestroy {
       }
 
       this.feedback.set(await response.json());
+      // Refresh history so the new submission appears if the tab is open
+      if (this.activeTab() === 'history') {
+        await this.loadHistory();
+      } else {
+        // Invalidate cached list so next open fetches fresh data
+        this.submissions.set([]);
+      }
     } catch (err: any) {
       this.evalError.set(err.message ?? 'An error occurred while evaluating your code.');
     } finally {
