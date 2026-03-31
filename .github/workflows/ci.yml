@@ -26,7 +26,7 @@ jobs:
           cache-dependency-path: ui/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # AUDIT-C2: type-check
       - name: TypeScript type-check
@@ -120,7 +120,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ui
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Install Playwright browsers
         working-directory: ui
@@ -251,7 +251,7 @@ jobs:
 
       # AUDIT-C3: Ruff lint (now with explicit config from pyproject.toml)
       - name: Ruff lint
-        run: ruff check .
+        run: python -m ruff check .
 
       # AUDIT-C3: mypy static type checking
       - name: mypy type check

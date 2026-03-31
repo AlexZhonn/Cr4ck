@@ -31,12 +31,17 @@ export class ProfileService {
     const sync = () => {
       const cur = this._completed();
       if (cur !== prev) {
-        ids.set(new Set(cur.map(c => c.challenge_id)));
+        ids.set(new Set(cur.map((c) => c.challenge_id)));
         prev = cur;
       }
     };
     // Use a computed-like approach: expose a getter that syncs on read
-    return { get: () => { sync(); return ids(); } };
+    return {
+      get: () => {
+        sync();
+        return ids();
+      },
+    };
   })();
 
   async load(): Promise<void> {
@@ -56,7 +61,9 @@ export class ProfileService {
       const data: CompletedChallenge[] = await res.json();
       this._completed.set(data);
       this._loaded = true;
-    } catch { /* silently ignore */ }
+    } catch {
+      /* silently ignore */
+    }
   }
 
   async getCompleted(): Promise<CompletedChallenge[]> {
@@ -65,10 +72,10 @@ export class ProfileService {
   }
 
   isCompleted(challengeId: string): boolean {
-    return this._completed().some(c => c.challenge_id === challengeId);
+    return this._completed().some((c) => c.challenge_id === challengeId);
   }
 
   bestScore(challengeId: string): number | null {
-    return this._completed().find(c => c.challenge_id === challengeId)?.best_score ?? null;
+    return this._completed().find((c) => c.challenge_id === challengeId)?.best_score ?? null;
   }
 }
