@@ -102,7 +102,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     first = errors[0] if errors else {}
     field = ".".join(str(loc) for loc in first.get("loc", [])[1:]) or None
     message = "; ".join(
-        f"{'.'.join(str(l) for l in e.get('loc', [])[1:])}: {e['msg']}" for e in errors
+        f"{'.'.join(str(loc_part) for loc_part in e.get('loc', [])[1:])}: {e['msg']}" for e in errors
     )
     return JSONResponse(
         status_code=422,

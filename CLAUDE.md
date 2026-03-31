@@ -31,7 +31,7 @@ uvicorn main:app --reload --port 8000
 
 Requires `.env` in `api/`:
 
-```
+```env
 DATABASE_URL=postgresql://...
 SECRET_KEY=...
 ALLOWED_ORIGINS=http://localhost:4200
@@ -55,7 +55,7 @@ Angular proxies `/auth/*`, `/api/*`, and `/ws` → `http://localhost:8000` via `
 
 ## Architecture
 
-```
+```text
 ui/src/app/
   LandingPage/      Hero + CTA
   Header/           Nav (logo, links, auth state)
@@ -157,6 +157,34 @@ make dev-api    # API only
 make dev-ui     # UI only
 make check      # tsc --noEmit + Python import check
 ```
+
+---
+
+## Pre-Commit CI Mirror (run before every commit)
+
+**Always run these commands after completing a task and before committing.** They mirror the GitHub Actions pipeline exactly so failures are caught locally.
+
+### Backend (from `api/`, with venv activated)
+
+```bash
+python -m ruff check .
+mypy . --ignore-missing-imports
+bandit -r . -ll --exclude ./venv,./tests -q
+python -c "import main"
+```
+
+### Frontend (from `ui/`)
+
+```bash
+npx tsc --noEmit
+npm run format:check
+npm run lint
+npm run test:ci
+npm run build -- --configuration production
+```
+
+> If `format:check` fails, run `npx prettier --write "src/**/*.{ts,html,css}"` to auto-fix, then re-check.
+> Backend tests (`pytest`) require a running Postgres — skip locally if no DB available, but CI will catch them.
 
 ---
 
@@ -368,6 +396,7 @@ Ratings below are from the 2026 annual check. All items scored below 10/10. Orde
 #### ✅ AUDIT-T1: Add a backend test suite — zero tests currently exist
 
 **Done.** `api/requirements-dev.txt` with pytest, pytest-asyncio, httpx, pytest-cov, anyio. `api/tests/` contains:
+
 - `test_password.py` — 10 pure unit tests for Argon2id helpers (no DB)
 - `test_auth.py` — 16 integration tests: register, login (email + username), wrong password, unverified, refresh, logout token revocation, `/me`
 - `test_challenges.py` — 7 integration tests: paginated list, single fetch, 404
@@ -377,6 +406,7 @@ Ratings below are from the 2026 annual check. All items scored below 10/10. Orde
 #### ✅ AUDIT-T2: Wire frontend tests — Vitest is installed but never executed
 
 **Done.** 27 tests across 5 spec files, all passing:
+
 - `auth.service.spec.ts` — 10 tests: isLoggedIn, login success/failure, logout, authHeaders, restore
 - `challenges.service.spec.ts` — 6 tests: load, cache idempotency, byId, byTopic, error handling
 - `auth.guard.spec.ts` — 2 tests: authenticated returns true, unauthenticated redirects to /login
