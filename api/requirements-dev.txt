@@ -7,3 +7,4 @@ pytest-cov==6.0.0
 httpx==0.28.1
 anyio==4.7.0
 mypy==1.13.0
+ruff==0.9.10
