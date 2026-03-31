@@ -24,7 +24,10 @@ export class RegisterComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private router: Router, private auth: AuthService) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+  ) {}
 
   goBack() {
     this.router.navigate(['/']);
@@ -34,7 +37,9 @@ export class RegisterComponent {
 
   signUpWithGitHub() {
     this.githubComingSoon = true;
-    setTimeout(() => { this.githubComingSoon = false; }, 3000);
+    setTimeout(() => {
+      this.githubComingSoon = false;
+    }, 3000);
   }
 
   async onSubmit() {
@@ -50,7 +55,7 @@ export class RegisterComponent {
       await this.auth.register(
         this.registerData.UserName,
         this.registerData.email,
-        this.registerData.password
+        this.registerData.password,
       );
       this.router.navigate(['/problems']);
     } catch (err: any) {

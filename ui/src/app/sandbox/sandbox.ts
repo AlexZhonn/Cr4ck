@@ -95,7 +95,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   readonly allTopics = computed(() => {
     const seen = new Set<string>();
-    this.svc.challenges().forEach(c => seen.add(c.topic));
+    this.svc.challenges().forEach((c) => seen.add(c.topic));
     return Array.from(seen).sort();
   });
 
@@ -104,9 +104,12 @@ export class SandboxComponent implements OnInit, OnDestroy {
     const topic = this.filterTopic();
     const diff = this.filterDifficulty();
     const q = this.filterSearch().toLowerCase().trim();
-    if (topic) list = list.filter(c => c.topic === topic);
-    if (diff)  list = list.filter(c => c.difficulty === diff);
-    if (q)     list = list.filter(c => c.title.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q));
+    if (topic) list = list.filter((c) => c.topic === topic);
+    if (diff) list = list.filter((c) => c.difficulty === diff);
+    if (q)
+      list = list.filter(
+        (c) => c.title.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q),
+      );
     return list;
   });
 
@@ -135,7 +138,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
   postsError = signal<string | null>(null);
   newPostBody = signal('');
   postSubmitting = signal(false);
-  replyingTo = signal<string | null>(null);   // post id being replied to
+  replyingTo = signal<string | null>(null); // post id being replied to
   replyBody = signal('');
   editingPostId = signal<string | null>(null);
   editBody = signal('');
@@ -146,13 +149,13 @@ export class SandboxComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------
   private readonly LS = {
     sidebar: 'cr4ck_sidebar_w',
-    desc:    'cr4ck_desc_w',   // width of description panel (left of editor)
-    bottom:  'cr4ck_bottom_h', // height of bottom tabs panel
+    desc: 'cr4ck_desc_w', // width of description panel (left of editor)
+    bottom: 'cr4ck_bottom_h', // height of bottom tabs panel
   };
 
-  sidebarWidth  = signal(this._load(this.LS.sidebar, 256));
-  descWidth     = signal(this._load(this.LS.desc,    480));
-  bottomHeight  = signal(this._load(this.LS.bottom,  280));
+  sidebarWidth = signal(this._load(this.LS.sidebar, 256));
+  descWidth = signal(this._load(this.LS.desc, 480));
+  bottomHeight = signal(this._load(this.LS.bottom, 280));
 
   private _activeHandle: 'sidebar' | 'desc' | 'bottom' | null = null;
   private _dragStart = { x: 0, y: 0, init: 0 };
@@ -172,12 +175,15 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this._dragStart = {
       x: event.clientX,
       y: event.clientY,
-      init: handle === 'sidebar' ? this.sidebarWidth()
-          : handle === 'desc'    ? this.descWidth()
-          :                        this.bottomHeight(),
+      init:
+        handle === 'sidebar'
+          ? this.sidebarWidth()
+          : handle === 'desc'
+            ? this.descWidth()
+            : this.bottomHeight(),
     };
     document.addEventListener('mousemove', this._onDrag);
-    document.addEventListener('mouseup',   this._onDragEnd);
+    document.addEventListener('mouseup', this._onDragEnd);
     document.body.style.cursor = handle === 'bottom' ? 'row-resize' : 'col-resize';
     document.body.style.userSelect = 'none';
   }
@@ -210,7 +216,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
   private _onDragEnd = () => {
     this._activeHandle = null;
     document.removeEventListener('mousemove', this._onDrag);
-    document.removeEventListener('mouseup',   this._onDragEnd);
+    document.removeEventListener('mouseup', this._onDragEnd);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
   };
@@ -234,11 +240,11 @@ export class SandboxComponent implements OnInit, OnDestroy {
     if (all.length === 0) return;
 
     const params = this.route.snapshot.queryParamMap;
-    const topicParam  = params.get('topic');
-    const diffParam   = params.get('difficulty');
+    const topicParam = params.get('topic');
+    const diffParam = params.get('difficulty');
     const searchParam = params.get('q');
-    if (topicParam)  this.filterTopic.set(topicParam);
-    if (diffParam)   this.filterDifficulty.set(diffParam);
+    if (topicParam) this.filterTopic.set(topicParam);
+    if (diffParam) this.filterDifficulty.set(diffParam);
     if (searchParam) this.filterSearch.set(searchParam);
 
     const challengeId = params.get('challenge');
@@ -326,7 +332,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.postSubmitting.set(true);
     try {
       const post = await this.postsSvc.createPost(id, body);
-      this.posts.update(p => [post, ...p]);
+      this.posts.update((p) => [post, ...p]);
       this.newPostBody.set('');
     } catch (e: any) {
       this.postsError.set(e.message ?? 'Failed to post');
@@ -342,8 +348,12 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.postSubmitting.set(true);
     try {
       const reply = await this.postsSvc.createPost(id, body, parentId);
-      this.posts.update(posts =>
-        posts.map(p => p.id === parentId ? { ...p, replies: [...(p.replies ?? []), reply], reply_count: p.reply_count + 1 } : p)
+      this.posts.update((posts) =>
+        posts.map((p) =>
+          p.id === parentId
+            ? { ...p, replies: [...(p.replies ?? []), reply], reply_count: p.reply_count + 1 }
+            : p,
+        ),
       );
       this.replyingTo.set(null);
       this.replyBody.set('');
@@ -364,8 +374,10 @@ export class SandboxComponent implements OnInit, OnDestroy {
     if (!body) return;
     try {
       const updated = await this.postsSvc.editPost(postId, body);
-      this.posts.update(posts =>
-        posts.map(p => p.id === postId ? { ...p, body: updated.body, updated_at: updated.updated_at } : p)
+      this.posts.update((posts) =>
+        posts.map((p) =>
+          p.id === postId ? { ...p, body: updated.body, updated_at: updated.updated_at } : p,
+        ),
       );
       this.editingPostId.set(null);
     } catch (e: any) {
@@ -376,7 +388,9 @@ export class SandboxComponent implements OnInit, OnDestroy {
   async deletePost(postId: string) {
     try {
       await this.postsSvc.deletePost(postId);
-      this.posts.update(posts => posts.map(p => p.id === postId ? { ...p, is_deleted: true, body: '[deleted]' } : p));
+      this.posts.update((posts) =>
+        posts.map((p) => (p.id === postId ? { ...p, is_deleted: true, body: '[deleted]' } : p)),
+      );
     } catch (e: any) {
       this.postsError.set(e.message ?? 'Failed to delete post');
     }
@@ -385,13 +399,21 @@ export class SandboxComponent implements OnInit, OnDestroy {
   async votePost(postId: string, value: 1 | -1 | 0) {
     try {
       const updated = await this.postsSvc.vote(postId, value);
-      this.posts.update(posts =>
-        posts.map(p => p.id === postId ? { ...p, vote_score: updated.vote_score, user_vote: updated.user_vote } : p)
+      this.posts.update((posts) =>
+        posts.map((p) =>
+          p.id === postId
+            ? { ...p, vote_score: updated.vote_score, user_vote: updated.user_vote }
+            : p,
+        ),
       );
-    } catch { /* ignore vote errors */ }
+    } catch {
+      /* ignore vote errors */
+    }
   }
 
-  goHome() { this.router.navigate(['/']); }
+  goHome() {
+    this.router.navigate(['/']);
+  }
 
   renderMarkdown(text: string): string {
     return marked.parse(text, { async: false }) as string;
@@ -533,7 +555,12 @@ export class SandboxComponent implements OnInit, OnDestroy {
   }
 
   fileExtension(): string {
-    const map: Record<string, string> = { python: 'py', typescript: 'ts', java: 'java', cpp: 'cpp' };
+    const map: Record<string, string> = {
+      python: 'py',
+      typescript: 'ts',
+      java: 'java',
+      cpp: 'cpp',
+    };
     return map[this.activeChallenge?.language ?? ''] ?? 'txt';
   }
 }

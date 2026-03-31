@@ -33,7 +33,7 @@ export class TopicProblemsComponent implements OnInit {
 
   readonly topicMeta = computed(() => {
     const t = this.topic();
-    return t ? TOPICS.find(x => x.id === t) ?? null : null;
+    return t ? (TOPICS.find((x) => x.id === t) ?? null) : null;
   });
 
   private readonly topicChallenges = computed<Challenge[]>(() => {
@@ -45,28 +45,38 @@ export class TopicProblemsComponent implements OnInit {
     let list = this.topicChallenges();
     const diff = this.activeFilter();
     const lang = this.activeLang();
-    if (diff !== 'All') list = list.filter(c => c.difficulty === diff);
-    if (lang !== 'All') list = list.filter(c => c.language.toLowerCase().includes(lang.toLowerCase()));
+    if (diff !== 'All') list = list.filter((c) => c.difficulty === diff);
+    if (lang !== 'All')
+      list = list.filter((c) => c.language.toLowerCase().includes(lang.toLowerCase()));
     return list;
   });
 
   readonly counts = computed(() => {
     const base = this.topicChallenges();
     const lang = this.activeLang();
-    const filtered = lang === 'All' ? base : base.filter(c => c.language.toLowerCase().includes(lang.toLowerCase()));
+    const filtered =
+      lang === 'All'
+        ? base
+        : base.filter((c) => c.language.toLowerCase().includes(lang.toLowerCase()));
     return {
       All: filtered.length,
-      Easy: filtered.filter(c => c.difficulty === 'Easy').length,
-      Medium: filtered.filter(c => c.difficulty === 'Medium').length,
-      Hard: filtered.filter(c => c.difficulty === 'Hard').length,
+      Easy: filtered.filter((c) => c.difficulty === 'Easy').length,
+      Medium: filtered.filter((c) => c.difficulty === 'Medium').length,
+      Hard: filtered.filter((c) => c.difficulty === 'Hard').length,
     };
   });
 
   readonly langCounts = computed(() => {
     const base = this.topicChallenges();
     const diff = this.activeFilter();
-    const filtered = diff === 'All' ? base : base.filter(c => c.difficulty === diff);
-    const result: Record<Language, number> = { All: filtered.length, TypeScript: 0, Java: 0, Python: 0, 'C++': 0 };
+    const filtered = diff === 'All' ? base : base.filter((c) => c.difficulty === diff);
+    const result: Record<Language, number> = {
+      All: filtered.length,
+      TypeScript: 0,
+      Java: 0,
+      Python: 0,
+      'C++': 0,
+    };
     for (const c of filtered) {
       for (const lang of this.languages.slice(1) as Language[]) {
         if (c.language.toLowerCase().includes(lang.toLowerCase())) result[lang]++;
@@ -77,7 +87,7 @@ export class TopicProblemsComponent implements OnInit {
 
   async ngOnInit() {
     const topicParam = this.route.snapshot.paramMap.get('topic') as Topic | null;
-    if (!topicParam || !TOPICS.find(t => t.id === topicParam)) {
+    if (!topicParam || !TOPICS.find((t) => t.id === topicParam)) {
       this.router.navigate(['/problems']);
       return;
     }
@@ -92,10 +102,18 @@ export class TopicProblemsComponent implements OnInit {
     }
   }
 
-  setFilter(f: Difficulty) { this.activeFilter.set(f); }
-  setLang(l: Language) { this.activeLang.set(l); }
-  goBack() { this.router.navigate(['/problems']); }
-  selectChallenge(id: string) { this.router.navigate(['/problems', id]); }
+  setFilter(f: Difficulty) {
+    this.activeFilter.set(f);
+  }
+  setLang(l: Language) {
+    this.activeLang.set(l);
+  }
+  goBack() {
+    this.router.navigate(['/problems']);
+  }
+  selectChallenge(id: string) {
+    this.router.navigate(['/problems', id]);
+  }
 
   difficultyClass(difficulty: string): string {
     const map: Record<string, string> = {
@@ -109,7 +127,7 @@ export class TopicProblemsComponent implements OnInit {
   descriptionPreview(description: string): string {
     const firstLine = description
       .split('\n')
-      .find(line => line.trim() && !line.startsWith('**') && !line.startsWith('-'));
+      .find((line) => line.trim() && !line.startsWith('**') && !line.startsWith('-'));
     return firstLine?.trim() ?? '';
   }
 }

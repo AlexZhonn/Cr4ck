@@ -138,10 +138,18 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.lang-dot[data-lang="TypeScript"] { background: #3178c6; }
-.lang-dot[data-lang="Java"]       { background: #f89820; }
-.lang-dot[data-lang="Python"]     { background: #3572a5; }
-.lang-dot[data-lang="C++"]        { background: #f34b7d; }
+.lang-dot[data-lang='TypeScript'] {
+  background: #3178c6;
+}
+.lang-dot[data-lang='Java'] {
+  background: #f89820;
+}
+.lang-dot[data-lang='Python'] {
+  background: #3572a5;
+}
+.lang-dot[data-lang='C++'] {
+  background: #f34b7d;
+}
 
 /* Empty / loading / error states */
 .empty-state {
@@ -159,13 +167,15 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255,255,255,0.08);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   border-top-color: #34d399;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -187,7 +197,9 @@
   border-radius: 0.75rem;
   padding: 1.25rem 1.5rem;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s;
+  transition:
+    border-color 0.2s,
+    transform 0.15s;
   gap: 1rem;
 }
 

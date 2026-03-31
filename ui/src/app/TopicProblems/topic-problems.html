@@ -3,13 +3,20 @@
 
   @if (topicMeta()) {
     <main class="topic-main">
-
       <!-- Back + title -->
       <div class="topic-nav">
         <button type="button" class="btn-back" (click)="goBack()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
           All topics
@@ -35,7 +42,8 @@
                 [class.filter-easy]="f === 'Easy'"
                 [class.filter-medium]="f === 'Medium'"
                 [class.filter-hard]="f === 'Hard'"
-                (click)="setFilter(f)">
+                (click)="setFilter(f)"
+              >
                 {{ f }}
                 <span class="filter-count">{{ counts()[f] }}</span>
               </button>
@@ -51,7 +59,8 @@
                 type="button"
                 class="filter-btn lang-btn"
                 [class.active]="activeLang() === l"
-                (click)="setLang(l)">
+                (click)="setLang(l)"
+              >
                 @if (l !== 'All') {
                   <span class="lang-dot" [attr.data-lang]="l"></span>
                 }
@@ -75,13 +84,21 @@
         </div>
       } @else if (challenges().length === 0) {
         <div class="empty-state">
-          <p>No {{ activeFilter() === 'All' ? '' : activeFilter() + ' ' }}challenges in this topic yet.</p>
+          <p>
+            No {{ activeFilter() === 'All' ? '' : activeFilter() + ' ' }}challenges in this topic
+            yet.
+          </p>
         </div>
       } @else {
         <div class="challenge-list">
           @for (challenge of challenges(); track challenge.id) {
-            <button type="button" class="challenge-row" [class.completed-row]="profileSvc.isCompleted(challenge.id)" (click)="selectChallenge(challenge.id)"
-              [attr.aria-label]="challenge.title + ' — ' + challenge.difficulty">
+            <button
+              type="button"
+              class="challenge-row"
+              [class.completed-row]="profileSvc.isCompleted(challenge.id)"
+              (click)="selectChallenge(challenge.id)"
+              [attr.aria-label]="challenge.title + ' — ' + challenge.difficulty"
+            >
               <div class="row-left">
                 <span [class]="'difficulty-badge ' + difficultyClass(challenge.difficulty)">
                   {{ challenge.difficulty }}
@@ -90,10 +107,21 @@
                   <div class="row-title-line">
                     <h3 class="row-title">{{ challenge.title }}</h3>
                     @if (profileSvc.isCompleted(challenge.id)) {
-                      <span class="done-badge" title="Best score: {{ profileSvc.bestScore(challenge.id) }}/100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
-                          fill="none" stroke="currentColor" stroke-width="3"
-                          stroke-linecap="round" stroke-linejoin="round">
+                      <span
+                        class="done-badge"
+                        title="Best score: {{ profileSvc.bestScore(challenge.id) }}/100"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         {{ profileSvc.bestScore(challenge.id) }}
@@ -104,16 +132,24 @@
                   <p class="row-desc">{{ descriptionPreview(challenge.description) }}</p>
                 </div>
               </div>
-              <svg class="row-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                class="row-arrow"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
           }
         </div>
       }
-
     </main>
   }
 </div>

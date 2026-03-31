@@ -28,10 +28,7 @@ describe('LoginComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, HttpClientTestingModule],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuth },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuth }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -110,7 +107,9 @@ describe('LoginComponent', () => {
   it('isLoading is true during login and false afterwards', async () => {
     let resolveLogin!: () => void;
     (mockAuth.login as ReturnType<typeof vi.fn>).mockReturnValue(
-      new Promise<void>(res => { resolveLogin = res; }),
+      new Promise<void>((res) => {
+        resolveLogin = res;
+      }),
     );
 
     const submitPromise = component.onSubmit();

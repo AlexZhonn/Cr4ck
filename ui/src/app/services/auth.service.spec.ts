@@ -29,9 +29,7 @@ describe('AuthService', () => {
     localStorage.clear();
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: Router, useValue: { navigate: vi.fn() } },
-      ],
+      providers: [{ provide: Router, useValue: { navigate: vi.fn() } }],
     });
     service = TestBed.inject(AuthService);
     fetchSpy = vi.spyOn(globalThis, 'fetch');
@@ -60,12 +58,8 @@ describe('AuthService', () => {
 
   it('login() stores tokens and sets user on success', async () => {
     fetchSpy
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(MOCK_TOKENS), { status: 200 }),
-      )
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(MOCK_USER), { status: 200 }),
-      );
+      .mockResolvedValueOnce(new Response(JSON.stringify(MOCK_TOKENS), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(MOCK_USER), { status: 200 }));
 
     await service.login('test@example.com', 'password');
 
@@ -117,9 +111,7 @@ describe('AuthService', () => {
   it('restore() fetches /auth/me when access token is present', async () => {
     localStorage.setItem('cr4ck_access', 'stored-token');
 
-    fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify(MOCK_USER), { status: 200 }),
-    );
+    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_USER), { status: 200 }));
 
     await service.restore();
 

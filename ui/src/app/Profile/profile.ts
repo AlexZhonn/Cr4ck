@@ -26,7 +26,11 @@ export class ProfileComponent implements OnInit {
   readonly historyError = signal<string | null>(null);
 
   // API key settings
-  readonly keyStatus = signal<{ has_key: boolean; provider: string | null; provider_label: string | null } | null>(null);
+  readonly keyStatus = signal<{
+    has_key: boolean;
+    provider: string | null;
+    provider_label: string | null;
+  } | null>(null);
   readonly keyLoading = signal(false);
   readonly keySaving = signal(false);
   readonly keyError = signal<string | null>(null);
@@ -35,8 +39,8 @@ export class ProfileComponent implements OnInit {
   apiKeyInput = '';
   readonly providers = [
     { value: 'anthropic', label: 'Anthropic (Claude)' },
-    { value: 'openai',    label: 'OpenAI (GPT-4)' },
-    { value: 'google',    label: 'Google (Gemini)' },
+    { value: 'openai', label: 'OpenAI (GPT-4)' },
+    { value: 'google', label: 'Google (Gemini)' },
   ];
 
   async ngOnInit() {
@@ -45,10 +49,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
     try {
-      const [data] = await Promise.all([
-        this.profileSvc.getCompleted(),
-        this.loadKeyStatus(),
-      ]);
+      const [data] = await Promise.all([this.profileSvc.getCompleted(), this.loadKeyStatus()]);
       this.completed.set(data);
     } catch (e: any) {
       this.historyError.set(e.message ?? 'Could not load history');
@@ -57,14 +58,20 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  goProblems() { this.router.navigate(['/problems']); }
-  goChallenge(id: string) { this.router.navigate(['/problems', id]); }
+  goProblems() {
+    this.router.navigate(['/problems']);
+  }
+  goChallenge(id: string) {
+    this.router.navigate(['/problems', id]);
+  }
 
   async loadKeyStatus() {
     try {
       const res = await fetch('/auth/api-key/status', { headers: this.auth.authHeaders() });
       if (res.ok) this.keyStatus.set(await res.json());
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   async saveKey() {
@@ -100,7 +107,9 @@ export class ProfileComponent implements OnInit {
       await fetch('/auth/api-key', { method: 'DELETE', headers: this.auth.authHeaders() });
       this.keySuccess.set('API key removed.');
       await this.loadKeyStatus();
-    } catch { /* ignore */ } finally {
+    } catch {
+      /* ignore */
+    } finally {
       this.keyLoading.set(false);
     }
   }
@@ -129,7 +138,10 @@ export class ProfileComponent implements OnInit {
       const res = await fetch('/auth/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...this.auth.authHeaders() },
-        body: JSON.stringify({ current_password: this.currentPassword, new_password: this.newPassword }),
+        body: JSON.stringify({
+          current_password: this.currentPassword,
+          new_password: this.newPassword,
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -146,9 +158,15 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  xpToNextLevel(xp: number): number { return Math.ceil((Math.floor(xp / 100) + 1) * 100); }
-  xpProgress(xp: number): number { return xp % 100; }
-  level(xp: number): number { return Math.floor(xp / 100) + 1; }
+  xpToNextLevel(xp: number): number {
+    return Math.ceil((Math.floor(xp / 100) + 1) * 100);
+  }
+  xpProgress(xp: number): number {
+    return xp % 100;
+  }
+  level(xp: number): number {
+    return Math.floor(xp / 100) + 1;
+  }
 
   difficultyClass(d: string): string {
     return d === 'Easy' ? 'badge-easy' : d === 'Medium' ? 'badge-medium' : 'badge-hard';

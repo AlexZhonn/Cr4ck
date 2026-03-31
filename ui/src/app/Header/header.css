@@ -42,7 +42,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.375rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .btn-signin:hover {

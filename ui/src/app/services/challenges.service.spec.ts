@@ -41,9 +41,7 @@ describe('ChallengesService', () => {
   });
 
   it('load() fetches /api/challenges and maps rows to Challenge shape', async () => {
-    fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify(MOCK_PAGE), { status: 200 }),
-    );
+    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_PAGE), { status: 200 }));
 
     await service.load();
 
@@ -58,9 +56,7 @@ describe('ChallengesService', () => {
   });
 
   it('load() is idempotent — only fetches once even when called multiple times', async () => {
-    fetchSpy.mockResolvedValue(
-      new Response(JSON.stringify(MOCK_PAGE), { status: 200 }),
-    );
+    fetchSpy.mockResolvedValue(new Response(JSON.stringify(MOCK_PAGE), { status: 200 }));
 
     await service.load();
     await service.load();
@@ -76,9 +72,7 @@ describe('ChallengesService', () => {
   });
 
   it('byId() returns matching challenge after load', async () => {
-    fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify(MOCK_PAGE), { status: 200 }),
-    );
+    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_PAGE), { status: 200 }));
     await service.load();
 
     expect(service.byId('ch-001')?.title).toBe('Design a Stack');
@@ -86,9 +80,7 @@ describe('ChallengesService', () => {
   });
 
   it('byTopic() returns challenges filtered by topic', async () => {
-    fetchSpy.mockResolvedValueOnce(
-      new Response(JSON.stringify(MOCK_PAGE), { status: 200 }),
-    );
+    fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_PAGE), { status: 200 }));
     await service.load();
 
     const matches = service.byTopic('data-structures' as any);

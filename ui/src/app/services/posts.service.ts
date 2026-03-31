@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface PostAuthor {
-  id: string;  // UUID
+  id: string; // UUID
   username: string;
   xp: number;
 }
@@ -31,7 +31,7 @@ export class PostsService {
   async listPosts(challengeId: string, offset = 0, limit = 20): Promise<Post[]> {
     const res = await fetch(
       `/api/challenges/${challengeId}/posts?limit=${limit}&offset=${offset}`,
-      { headers: this.authHeader() }
+      { headers: this.authHeader() },
     );
     if (!res.ok) throw new Error(`Failed to load posts: ${res.status}`);
     return res.json();

@@ -53,7 +53,12 @@
         <div class="form-group">
           <div class="label-row">
             <label for="password">Password</label>
-            <button type="button" class="view-toggle" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <button
+              type="button"
+              class="view-toggle"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
               {{ showPassword ? 'Hide' : 'Show' }}
             </button>
           </div>

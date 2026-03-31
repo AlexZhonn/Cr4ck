@@ -24,7 +24,11 @@ export class LoginComponent {
   resendLoading = false;
   resendSent = false;
 
-  constructor(private router: Router, private auth: AuthService, private http: HttpClient) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private http: HttpClient,
+  ) {}
 
   goBack() {
     this.router.navigate(['/']);
@@ -34,7 +38,9 @@ export class LoginComponent {
 
   loginWithGitHub() {
     this.githubComingSoon = true;
-    setTimeout(() => { this.githubComingSoon = false; }, 3000);
+    setTimeout(() => {
+      this.githubComingSoon = false;
+    }, 3000);
   }
 
   async onSubmit() {
@@ -57,12 +63,20 @@ export class LoginComponent {
 
   resendVerification() {
     this.resendLoading = true;
-    this.http.post('/auth/resend-verification', {
-      email: this.loginData.email,
-      password: this.loginData.password,
-    }).subscribe({
-      next: () => { this.resendSent = true; this.resendLoading = false; },
-      error: () => { this.resendSent = true; this.resendLoading = false; }, // always silent
-    });
+    this.http
+      .post('/auth/resend-verification', {
+        email: this.loginData.email,
+        password: this.loginData.password,
+      })
+      .subscribe({
+        next: () => {
+          this.resendSent = true;
+          this.resendLoading = false;
+        },
+        error: () => {
+          this.resendSent = true;
+          this.resendLoading = false;
+        }, // always silent
+      });
   }
 }

@@ -22,8 +22,14 @@ export class ForgotPasswordComponent {
   onSubmit() {
     this.isLoading = true;
     this.http.post('/auth/forgot-password', { email: this.email }).subscribe({
-      next: () => { this.submitted = true; this.isLoading = false; },
-      error: () => { this.submitted = true; this.isLoading = false; }, // always silent
+      next: () => {
+        this.submitted = true;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.submitted = true;
+        this.isLoading = false;
+      }, // always silent
     });
   }
 }

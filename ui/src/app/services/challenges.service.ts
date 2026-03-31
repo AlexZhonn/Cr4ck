@@ -42,7 +42,7 @@ export class ChallengesService {
     if (this._loading) return this._loading;
 
     this._loading = fetch('/api/challenges?limit=200')
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error(`Failed to load challenges (${res.status})`);
         return res.json();
       })
@@ -58,10 +58,10 @@ export class ChallengesService {
   }
 
   byId(id: string): Challenge | undefined {
-    return this._challenges().find(c => c.id === id);
+    return this._challenges().find((c) => c.id === id);
   }
 
   byTopic(topic: Topic): Challenge[] {
-    return this._challenges().filter(c => c.topic === topic);
+    return this._challenges().filter((c) => c.topic === topic);
   }
 }

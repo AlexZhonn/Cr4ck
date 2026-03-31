@@ -34,8 +34,7 @@ export class VerifyEmailComponent implements OnInit {
       },
       error: (err) => {
         this.state = 'error';
-        this.errorMessage =
-          err?.error?.detail ?? 'Invalid or expired verification link.';
+        this.errorMessage = err?.error?.detail ?? 'Invalid or expired verification link.';
       },
     });
   }

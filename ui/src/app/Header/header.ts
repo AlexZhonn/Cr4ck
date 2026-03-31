@@ -17,14 +17,30 @@ export class HeaderComponent {
   readonly user = this.auth.user;
   readonly isLoggedIn = this.auth.isLoggedIn;
 
-  GotoLandingPage() { this.router.navigate(['/']); }
-  GotoSandbox() { this.router.navigate(['/sandbox']); }
-  GotoLogin() { this.router.navigate(['/login']); }
-  GotoRegister() { this.router.navigate(['/register']); }
-  GotoProblems() { this.router.navigate(['/problems']); }
-  GotoLeaderboard() { this.router.navigate(['/leaderboard']); }
-  GotoAbout() { this.router.navigate(['/about']); }
-  GotoProfile() { this.router.navigate(['/profile']); }
+  GotoLandingPage() {
+    this.router.navigate(['/']);
+  }
+  GotoSandbox() {
+    this.router.navigate(['/sandbox']);
+  }
+  GotoLogin() {
+    this.router.navigate(['/login']);
+  }
+  GotoRegister() {
+    this.router.navigate(['/register']);
+  }
+  GotoProblems() {
+    this.router.navigate(['/problems']);
+  }
+  GotoLeaderboard() {
+    this.router.navigate(['/leaderboard']);
+  }
+  GotoAbout() {
+    this.router.navigate(['/about']);
+  }
+  GotoProfile() {
+    this.router.navigate(['/profile']);
+  }
 
   async logout() {
     await this.auth.logout();

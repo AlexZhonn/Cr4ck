@@ -14,8 +14,17 @@
   } @else if (challenge) {
     <div class="problem-nav">
       <button type="button" class="btn-back" (click)="goBack()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
         All problems
@@ -24,7 +33,6 @@
 
     <main class="problem-container">
       <div class="problem-content">
-
         <!-- Header row -->
         <div class="problem-header">
           <div class="problem-meta">
@@ -40,9 +48,7 @@
             @if (line.startsWith('**') && line.endsWith('**')) {
               <p class="section-heading">{{ line.slice(2, -2) }}</p>
             } @else if (line.startsWith('- ')) {
-              <p class="bullet-line">
-                <span class="bullet-dot"></span>{{ line.slice(2) }}
-              </p>
+              <p class="bullet-line"><span class="bullet-dot"></span>{{ line.slice(2) }}</p>
             } @else if (line.trim()) {
               <p class="description-text">{{ line }}</p>
             }
@@ -57,12 +63,17 @@
 
         <!-- CTA -->
         <button type="button" class="btn-start" (click)="startChallenge()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
           </svg>
           Start challenge
         </button>
-
       </div>
     </main>
   }

@@ -1,5 +1,4 @@
 <div class="flex flex-col h-screen bg-[#0a0a0a] text-gray-300 font-sans">
-
   <!-- Header -->
   <header class="h-14 border-b border-white/10 flex items-center px-6 bg-[#111111] shrink-0">
     <button
@@ -8,8 +7,18 @@
       (click)="goHome()"
       aria-label="Go to home"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
         <polyline points="4 17 10 11 4 5"></polyline>
         <line x1="12" y1="19" x2="20" y2="19"></line>
       </svg>
@@ -18,7 +27,12 @@
     <div class="ml-auto flex items-center gap-4">
       <!-- Online indicator -->
       <div class="flex items-center gap-1.5 text-xs font-mono text-gray-500">
-        <span [class]="'w-1.5 h-1.5 rounded-full ' + (ws.connected() ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600')"></span>
+        <span
+          [class]="
+            'w-1.5 h-1.5 rounded-full ' +
+            (ws.connected() ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600')
+          "
+        ></span>
         @if (ws.connected()) {
           <span>{{ ws.onlineCount() }} online</span>
         } @else {
@@ -31,7 +45,9 @@
 
   <!-- Live activity feed -->
   @if (ws.activity().length > 0) {
-    <div class="border-b border-white/10 bg-[#0d0d0d] px-6 py-1.5 flex items-center gap-3 overflow-x-auto shrink-0">
+    <div
+      class="border-b border-white/10 bg-[#0d0d0d] px-6 py-1.5 flex items-center gap-3 overflow-x-auto shrink-0"
+    >
       <span class="text-xs font-mono text-gray-600 shrink-0">Live</span>
       <div class="flex items-center gap-4">
         @for (event of ws.activity(); track event.ts) {
@@ -45,16 +61,13 @@
 
   <!-- Main Content -->
   <div class="flex-1 flex overflow-hidden min-h-0">
-
     <!-- Sidebar -->
     <aside
       [style.flex-basis.px]="sidebarWidth()"
-      style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto; overflow-x: hidden;"
+      style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto; overflow-x: hidden"
       class="border-r border-white/10 bg-[#0f0f0f] flex flex-col"
     >
-      <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">
-        Challenges
-      </div>
+      <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">Challenges</div>
 
       <!-- Filters -->
       <div class="px-3 pb-3 space-y-2">
@@ -83,19 +96,30 @@
               [class]="
                 'flex-1 py-1 rounded text-xs font-mono transition-colors ' +
                 (filterDifficulty() === d
-                  ? (d === 'Easy' ? 'bg-emerald-500/20 text-emerald-400'
-                    : d === 'Medium' ? 'bg-amber-500/20 text-amber-400'
-                    : d === 'Hard' ? 'bg-rose-500/20 text-rose-400'
-                    : 'bg-white/10 text-gray-300')
+                  ? d === 'Easy'
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : d === 'Medium'
+                      ? 'bg-amber-500/20 text-amber-400'
+                      : d === 'Hard'
+                        ? 'bg-rose-500/20 text-rose-400'
+                        : 'bg-white/10 text-gray-300'
                   : 'bg-white/5 text-gray-600 hover:text-gray-300')
               "
-            >{{ d || 'All' }}</button>
+            >
+              {{ d || 'All' }}
+            </button>
           }
         </div>
         @if (filterTopic() || filterDifficulty() || filterSearch()) {
           <div class="flex items-center justify-between text-xs font-mono text-gray-600">
             <span>{{ challenges().length }} shown</span>
-            <button type="button" (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')" class="text-gray-600 hover:text-gray-400">Clear filters</button>
+            <button
+              type="button"
+              (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')"
+              class="text-gray-600 hover:text-gray-400"
+            >
+              Clear filters
+            </button>
           </div>
         }
       </div>
@@ -120,10 +144,21 @@
                 <span class="text-xs opacity-60 font-mono">{{ challenge.framework }}</span>
               </div>
               <svg
-                xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"
-                [class]="'shrink-0 transition-opacity ' + (activeChallengeId() === challenge.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                [class]="
+                  'shrink-0 transition-opacity ' +
+                  (activeChallengeId() === challenge.id
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100')
+                "
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
@@ -142,14 +177,12 @@
 
     <!-- Workspace -->
     <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
-
       <!-- Top Area: Description + Editor side by side -->
       <div class="flex-1 flex min-h-0 overflow-hidden">
-
         <!-- Description Panel -->
         <div
           [style.flex-basis.px]="descWidth()"
-          style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto;"
+          style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto"
           class="border-r border-white/10 bg-[#141414] p-6"
         >
           @if (activeChallenge) {
@@ -162,7 +195,9 @@
                   {{ activeChallenge.difficulty }}
                 </span>
               </div>
-              <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{{ activeChallenge.description }}</div>
+              <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {{ activeChallenge.description }}
+              </div>
             </div>
           } @else if (!isLoadingChallenges()) {
             <p class="text-gray-500 text-sm">No challenge selected.</p>
@@ -178,10 +213,22 @@
 
         <!-- Editor Pane -->
         <div class="flex-1 min-w-0 flex flex-col bg-[#0a0a0a] overflow-hidden">
-          <div class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]" style="container-type: inline-size; container-name: editor-toolbar;">
+          <div
+            class="h-10 border-b border-white/10 flex items-center justify-between px-4 bg-[#111111]"
+            style="container-type: inline-size; container-name: editor-toolbar"
+          >
             <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="16 18 22 12 16 6"></polyline>
                 <polyline points="8 6 2 12 8 18"></polyline>
               </svg>
@@ -198,11 +245,22 @@
                   class="editor-btn editor-btn--blue"
                 >
                   @if (isRunning()) {
-                    <span class="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
+                    <span
+                      class="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin shrink-0"
+                    ></span>
                   } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="shrink-0"
+                    >
                       <polyline points="9 11 12 14 22 4"></polyline>
                       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
@@ -219,9 +277,18 @@
                 class="editor-btn editor-btn--emerald"
               >
                 @if (isEvaluating()) {
-                  <span class="w-3 h-3 border border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
+                  <span
+                    class="w-3 h-3 border border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0"
+                  ></span>
                 } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="shrink-0">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="shrink-0"
+                  >
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
                 }
@@ -230,15 +297,14 @@
             </div>
           </div>
 
-          <div class="flex-1 overflow-hidden" style="min-height: 0;">
+          <div class="flex-1 overflow-hidden" style="min-height: 0">
             <ngx-monaco-editor
-              style="height: 100%; display: block;"
+              style="height: 100%; display: block"
               [options]="editorOptions"
               [(ngModel)]="code"
             ></ngx-monaco-editor>
           </div>
         </div>
-
       </div>
 
       <!-- Bottom drag handle -->
@@ -251,534 +317,821 @@
       <!-- Bottom Panel: Tabbed (Tests + AI Feedback + Community) -->
       <div
         [style.height.px]="bottomHeight()"
-        style="flex-shrink: 0; flex-grow: 0; overflow: hidden;"
+        style="flex-shrink: 0; flex-grow: 0; overflow: hidden"
         class="flex flex-col bg-[#141414] border-t border-white/10"
       >
-
-          <!-- Tab Header -->
-          <div class="h-10 border-b border-white/10 flex items-center bg-[#111111]">
-            <!-- Tests Tab -->
-            <button
-              type="button"
-              (click)="switchTab('tests')"
-              [class]="
-                'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
-                (activeTab() === 'tests'
-                  ? 'border-blue-400 text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-300')
-              "
+        <!-- Tab Header -->
+        <div class="h-10 border-b border-white/10 flex items-center bg-[#111111]">
+          <!-- Tests Tab -->
+          <button
+            type="button"
+            (click)="switchTab('tests')"
+            [class]="
+              'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
+              (activeTab() === 'tests'
+                ? 'border-blue-400 text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-300')
+            "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 11 12 14 22 4"></polyline>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-              </svg>
-              Tests
-              @if (runResults()) {
-                <span [class]="
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Tests
+            @if (runResults()) {
+              <span
+                [class]="
                   'px-1.5 py-0.5 rounded text-xs font-mono ' +
                   (runResults()!.passed === runResults()!.total
                     ? 'bg-emerald-500/20 text-emerald-400'
                     : 'bg-rose-500/20 text-rose-400')
-                ">
-                  {{ runResults()!.passed }}/{{ runResults()!.total }}
-                </span>
-              }
-            </button>
-
-            <!-- AI Feedback Tab -->
-            <button
-              type="button"
-              (click)="switchTab('feedback')"
-              [class]="
-                'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
-                (activeTab() === 'feedback'
-                  ? 'border-emerald-400 text-emerald-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-300')
-              "
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                <rect x="9" y="9" width="6" height="6"></rect>
-                <line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line>
-                <line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line>
-                <line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line>
-                <line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line>
-              </svg>
-              AI Evaluation
-            </button>
-
-            <!-- Community Tab -->
-            <button
-              type="button"
-              (click)="switchTab('community')"
-              [class]="
-                'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
-                (activeTab() === 'community'
-                  ? 'border-violet-400 text-violet-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-300')
-              "
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Community
-            </button>
-
-            <!-- History Tab -->
-            @if (auth.isLoggedIn()) {
-              <button
-                type="button"
-                (click)="switchTab('history')"
-                [class]="
-                  'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
-                  (activeTab() === 'history'
-                    ? 'border-amber-400 text-amber-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-300')
                 "
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="12 8 12 12 14 14"></polyline>
-                  <path d="M3.05 11a9 9 0 1 0 .5-4"></path>
-                  <polyline points="3 3 3 7 7 7"></polyline>
-                </svg>
-                History
-              </button>
+                {{ runResults()!.passed }}/{{ runResults()!.total }}
+              </span>
             }
-          </div>
+          </button>
 
-          <!-- Tab Content -->
-          <div class="flex-1 overflow-y-auto">
+          <!-- AI Feedback Tab -->
+          <button
+            type="button"
+            (click)="switchTab('feedback')"
+            [class]="
+              'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
+              (activeTab() === 'feedback'
+                ? 'border-emerald-400 text-emerald-400'
+                : 'border-transparent text-gray-500 hover:text-gray-300')
+            "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+              <rect x="9" y="9" width="6" height="6"></rect>
+              <line x1="9" y1="1" x2="9" y2="4"></line>
+              <line x1="15" y1="1" x2="15" y2="4"></line>
+              <line x1="9" y1="20" x2="9" y2="23"></line>
+              <line x1="15" y1="20" x2="15" y2="23"></line>
+              <line x1="20" y1="9" x2="23" y2="9"></line>
+              <line x1="20" y1="14" x2="23" y2="14"></line>
+              <line x1="1" y1="9" x2="4" y2="9"></line>
+              <line x1="1" y1="14" x2="4" y2="14"></line>
+            </svg>
+            AI Evaluation
+          </button>
 
-            <!-- Tests Panel -->
-            @if (activeTab() === 'tests') {
-              <div class="p-4">
-                @if (isRunning()) {
-                  <div class="flex flex-col items-center justify-center h-full min-h-48 text-gray-500 gap-4 py-12">
-                    <span class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-                    <p class="text-sm font-mono animate-pulse">Running test cases...</p>
-                  </div>
-                } @else if (runError()) {
-                  <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ runError() }}</div>
-                } @else if (runResults()) {
-                  <!-- Summary bar -->
-                  <div class="flex items-center gap-3 mb-4 p-3 rounded-lg bg-white/5">
-                    <span [class]="
+          <!-- Community Tab -->
+          <button
+            type="button"
+            (click)="switchTab('community')"
+            [class]="
+              'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
+              (activeTab() === 'community'
+                ? 'border-violet-400 text-violet-400'
+                : 'border-transparent text-gray-500 hover:text-gray-300')
+            "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Community
+          </button>
+
+          <!-- History Tab -->
+          @if (auth.isLoggedIn()) {
+            <button
+              type="button"
+              (click)="switchTab('history')"
+              [class]="
+                'h-full px-4 text-xs font-mono flex items-center gap-1.5 border-b-2 transition-colors ' +
+                (activeTab() === 'history'
+                  ? 'border-amber-400 text-amber-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300')
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="12 8 12 12 14 14"></polyline>
+                <path d="M3.05 11a9 9 0 1 0 .5-4"></path>
+                <polyline points="3 3 3 7 7 7"></polyline>
+              </svg>
+              History
+            </button>
+          }
+        </div>
+
+        <!-- Tab Content -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- Tests Panel -->
+          @if (activeTab() === 'tests') {
+            <div class="p-4">
+              @if (isRunning()) {
+                <div
+                  class="flex flex-col items-center justify-center h-full min-h-48 text-gray-500 gap-4 py-12"
+                >
+                  <span
+                    class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"
+                  ></span>
+                  <p class="text-sm font-mono animate-pulse">Running test cases...</p>
+                </div>
+              } @else if (runError()) {
+                <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">
+                  {{ runError() }}
+                </div>
+              } @else if (runResults()) {
+                <!-- Summary bar -->
+                <div class="flex items-center gap-3 mb-4 p-3 rounded-lg bg-white/5">
+                  <span
+                    [class]="
                       'text-xl font-bold font-mono ' +
-                      (runResults()!.passed === runResults()!.total ? 'text-emerald-400' : 'text-rose-400')
-                    ">
-                      {{ runResults()!.passed }}/{{ runResults()!.total }}
+                      (runResults()!.passed === runResults()!.total
+                        ? 'text-emerald-400'
+                        : 'text-rose-400')
+                    "
+                  >
+                    {{ runResults()!.passed }}/{{ runResults()!.total }}
+                  </span>
+                  <span class="text-xs text-gray-500 font-mono">tests passed</span>
+                  @if (runResults()!.passed === runResults()!.total) {
+                    <span
+                      class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400"
+                      >All passing</span
+                    >
+                  } @else {
+                    <span
+                      class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-400"
+                    >
+                      {{ runResults()!.total - runResults()!.passed }} failing
                     </span>
-                    <span class="text-xs text-gray-500 font-mono">tests passed</span>
-                    @if (runResults()!.passed === runResults()!.total) {
-                      <span class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">All passing</span>
-                    } @else {
-                      <span class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-400">
-                        {{ runResults()!.total - runResults()!.passed }} failing
-                      </span>
-                    }
-                  </div>
+                  }
+                </div>
 
-                  <!-- Individual test results -->
-                  <div class="space-y-3">
-                    @for (result of runResults()!.results; track result.description; let i = $index) {
-                      <div [class]="
+                <!-- Individual test results -->
+                <div class="space-y-3">
+                  @for (result of runResults()!.results; track result.description; let i = $index) {
+                    <div
+                      [class]="
                         'rounded-lg border text-xs font-mono overflow-hidden ' +
-                        (result.passed ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5')
-                      ">
-                        <!-- Test header -->
-                        <div [class]="
+                        (result.passed
+                          ? 'border-emerald-500/30 bg-emerald-500/5'
+                          : 'border-rose-500/30 bg-rose-500/5')
+                      "
+                    >
+                      <!-- Test header -->
+                      <div
+                        [class]="
                           'flex items-center gap-2 px-3 py-2 border-b ' +
                           (result.passed ? 'border-emerald-500/20' : 'border-rose-500/20')
-                        ">
-                          @if (result.passed) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                              fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-400 shrink-0"
-                              stroke-linecap="round" stroke-linejoin="round">
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                          } @else {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                              fill="none" stroke="currentColor" stroke-width="2.5" class="text-rose-400 shrink-0"
-                              stroke-linecap="round" stroke-linejoin="round">
-                              <line x1="18" y1="6" x2="6" y2="18"></line>
-                              <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                          }
-                          <span [class]="result.passed ? 'text-emerald-300' : 'text-rose-300'">
-                            Test {{ i + 1 }}
-                          </span>
-                          <span class="text-gray-500 truncate">— {{ result.description }}</span>
-                        </div>
-
-                        <!-- Test body -->
-                        <div class="p-3 space-y-2 text-xs">
-                          <div>
-                            <span class="text-gray-500">Input: </span>
-                            <span class="text-gray-300">{{ result.input }}</span>
-                          </div>
-                          <div>
-                            <span class="text-gray-500">Expected: </span>
-                            <span class="text-emerald-300">{{ result.expected_output }}</span>
-                          </div>
-                          @if (!result.passed) {
-                            <div>
-                              <span class="text-gray-500">Got: </span>
-                              <span class="text-rose-300">{{ result.actual_output || '(no output)' }}</span>
-                            </div>
-                          }
-                          @if (result.error) {
-                            <div class="mt-1 p-2 bg-rose-500/10 rounded text-rose-400 whitespace-pre-wrap">{{ result.error }}</div>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                } @else if (!hasTestCases) {
-                  <div class="flex flex-col items-center justify-center min-h-48 text-gray-600 gap-3 py-12">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="9 11 12 14 22 4"></polyline>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
-                    <p class="text-sm text-center max-w-48">No test cases for this challenge yet.</p>
-                  </div>
-                } @else {
-                  <div class="flex flex-col items-center justify-center min-h-48 text-gray-600 gap-3 py-12">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="9 11 12 14 22 4"></polyline>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
-                    <p class="text-sm text-center max-w-48">
-                      Click <strong class="text-blue-400">Run Tests</strong> to check your solution against {{ activeChallenge?.testCases?.length }} test cases.
-                    </p>
-                  </div>
-                }
-              </div>
-            }
-
-            <!-- AI Feedback Panel -->
-            @if (activeTab() === 'feedback') {
-              <div class="flex-1 overflow-y-auto p-6">
-                @if (isEvaluating()) {
-                  <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-4">
-                    <span class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
-                    <p class="text-sm font-mono animate-pulse">Analyzing architecture...</p>
-                  </div>
-                } @else if (evalError()) {
-                  <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ evalError() }}</div>
-                } @else if (feedback()) {
-                  <div class="space-y-5 text-sm">
-                    <!-- Score + XP -->
-                    <div class="flex items-center gap-3">
-                      <span class="text-3xl font-bold font-mono"
-                        [class]="feedback()!.score >= 70 ? 'text-emerald-400' : feedback()!.score >= 40 ? 'text-amber-400' : 'text-rose-400'">
-                        {{ feedback()!.score }}
-                      </span>
-                      <span class="text-gray-500 text-xs font-mono">/ 100</span>
-                      @if (feedback()!.xp_earned) {
-                        <span class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
-                          +{{ feedback()!.xp_earned }} XP
+                        "
+                      >
+                        @if (result.passed) {
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            class="text-emerald-400 shrink-0"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        } @else {
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            class="text-rose-400 shrink-0"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        }
+                        <span [class]="result.passed ? 'text-emerald-300' : 'text-rose-300'">
+                          Test {{ i + 1 }}
                         </span>
-                      }
-                      @if (!feedback()!.is_first_completion) {
-                        <span class="text-xs font-mono text-gray-500 ml-1">(already completed)</span>
-                      }
-                    </div>
-                    <!-- Summary -->
-                    <p class="text-gray-300 leading-relaxed">{{ feedback()!.summary }}</p>
-                    <!-- Strengths -->
-                    @if (feedback()!.strengths.length) {
-                      <div>
-                        <p class="text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2">Strengths</p>
-                        <ul class="space-y-1">
-                          @for (s of feedback()!.strengths; track s) {
-                            <li class="text-gray-300 flex gap-2"><span class="text-emerald-500">+</span>{{ s }}</li>
-                          }
-                        </ul>
+                        <span class="text-gray-500 truncate">— {{ result.description }}</span>
                       </div>
-                    }
-                    <!-- Improvements -->
-                    @if (feedback()!.improvements.length) {
-                      <div>
-                        <p class="text-amber-400 font-mono text-xs uppercase tracking-wider mb-2">Improvements</p>
-                        <ul class="space-y-1">
-                          @for (item of feedback()!.improvements; track item) {
-                            <li class="text-gray-300 flex gap-2"><span class="text-amber-500">→</span>{{ item }}</li>
-                          }
-                        </ul>
+
+                      <!-- Test body -->
+                      <div class="p-3 space-y-2 text-xs">
+                        <div>
+                          <span class="text-gray-500">Input: </span>
+                          <span class="text-gray-300">{{ result.input }}</span>
+                        </div>
+                        <div>
+                          <span class="text-gray-500">Expected: </span>
+                          <span class="text-emerald-300">{{ result.expected_output }}</span>
+                        </div>
+                        @if (!result.passed) {
+                          <div>
+                            <span class="text-gray-500">Got: </span>
+                            <span class="text-rose-300">{{
+                              result.actual_output || '(no output)'
+                            }}</span>
+                          </div>
+                        }
+                        @if (result.error) {
+                          <div
+                            class="mt-1 p-2 bg-rose-500/10 rounded text-rose-400 whitespace-pre-wrap"
+                          >
+                            {{ result.error }}
+                          </div>
+                        }
                       </div>
+                    </div>
+                  }
+                </div>
+              } @else if (!hasTestCases) {
+                <div
+                  class="flex flex-col items-center justify-center min-h-48 text-gray-600 gap-3 py-12"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="opacity-20"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  <p class="text-sm text-center max-w-48">No test cases for this challenge yet.</p>
+                </div>
+              } @else {
+                <div
+                  class="flex flex-col items-center justify-center min-h-48 text-gray-600 gap-3 py-12"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="opacity-20"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  <p class="text-sm text-center max-w-48">
+                    Click <strong class="text-blue-400">Run Tests</strong> to check your solution
+                    against {{ activeChallenge?.testCases?.length }} test cases.
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- AI Feedback Panel -->
+          @if (activeTab() === 'feedback') {
+            <div class="flex-1 overflow-y-auto p-6">
+              @if (isEvaluating()) {
+                <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-4">
+                  <span
+                    class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"
+                  ></span>
+                  <p class="text-sm font-mono animate-pulse">Analyzing architecture...</p>
+                </div>
+              } @else if (evalError()) {
+                <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">
+                  {{ evalError() }}
+                </div>
+              } @else if (feedback()) {
+                <div class="space-y-5 text-sm">
+                  <!-- Score + XP -->
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-3xl font-bold font-mono"
+                      [class]="
+                        feedback()!.score >= 70
+                          ? 'text-emerald-400'
+                          : feedback()!.score >= 40
+                            ? 'text-amber-400'
+                            : 'text-rose-400'
+                      "
+                    >
+                      {{ feedback()!.score }}
+                    </span>
+                    <span class="text-gray-500 text-xs font-mono">/ 100</span>
+                    @if (feedback()!.xp_earned) {
+                      <span
+                        class="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400"
+                      >
+                        +{{ feedback()!.xp_earned }} XP
+                      </span>
                     }
-                    <!-- OOP Feedback -->
-                    <div>
-                      <p class="text-blue-400 font-mono text-xs uppercase tracking-wider mb-2">OOP Design</p>
-                      <p class="text-gray-400 leading-relaxed">{{ feedback()!.oop_feedback }}</p>
-                    </div>
-                    <!-- Architecture Feedback -->
-                    <div>
-                      <p class="text-purple-400 font-mono text-xs uppercase tracking-wider mb-2">Architecture</p>
-                      <p class="text-gray-400 leading-relaxed">{{ feedback()!.architecture_feedback }}</p>
-                    </div>
+                    @if (!feedback()!.is_first_completion) {
+                      <span class="text-xs font-mono text-gray-500 ml-1">(already completed)</span>
+                    }
                   </div>
-                } @else {
-                  <div class="flex flex-col items-center justify-center h-full text-gray-600 gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-20"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="3" y1="9" x2="21" y2="9"></line>
-                      <line x1="9" y1="21" x2="9" y2="9"></line>
-                    </svg>
-                    <p class="text-sm text-center max-w-50">
-                      Submit your code to receive architectural feedback and best practices.
+                  <!-- Summary -->
+                  <p class="text-gray-300 leading-relaxed">{{ feedback()!.summary }}</p>
+                  <!-- Strengths -->
+                  @if (feedback()!.strengths.length) {
+                    <div>
+                      <p class="text-emerald-400 font-mono text-xs uppercase tracking-wider mb-2">
+                        Strengths
+                      </p>
+                      <ul class="space-y-1">
+                        @for (s of feedback()!.strengths; track s) {
+                          <li class="text-gray-300 flex gap-2">
+                            <span class="text-emerald-500">+</span>{{ s }}
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                  <!-- Improvements -->
+                  @if (feedback()!.improvements.length) {
+                    <div>
+                      <p class="text-amber-400 font-mono text-xs uppercase tracking-wider mb-2">
+                        Improvements
+                      </p>
+                      <ul class="space-y-1">
+                        @for (item of feedback()!.improvements; track item) {
+                          <li class="text-gray-300 flex gap-2">
+                            <span class="text-amber-500">→</span>{{ item }}
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                  <!-- OOP Feedback -->
+                  <div>
+                    <p class="text-blue-400 font-mono text-xs uppercase tracking-wider mb-2">
+                      OOP Design
+                    </p>
+                    <p class="text-gray-400 leading-relaxed">{{ feedback()!.oop_feedback }}</p>
+                  </div>
+                  <!-- Architecture Feedback -->
+                  <div>
+                    <p class="text-purple-400 font-mono text-xs uppercase tracking-wider mb-2">
+                      Architecture
+                    </p>
+                    <p class="text-gray-400 leading-relaxed">
+                      {{ feedback()!.architecture_feedback }}
                     </p>
                   </div>
-                }
-              </div>
-            }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-gray-600 gap-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="opacity-20"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                  <p class="text-sm text-center max-w-50">
+                    Submit your code to receive architectural feedback and best practices.
+                  </p>
+                </div>
+              }
+            </div>
+          }
 
-            <!-- Community Panel -->
-            @if (activeTab() === 'community') {
-              <div class="p-4 space-y-4">
+          <!-- Community Panel -->
+          @if (activeTab() === 'community') {
+            <div class="p-4 space-y-4">
+              <!-- New post form -->
+              @if (auth.isLoggedIn()) {
+                <div class="space-y-2">
+                  <textarea
+                    [value]="newPostBody()"
+                    (input)="newPostBody.set($any($event.target).value)"
+                    rows="3"
+                    placeholder="Share your approach or ask a question…"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20"
+                  ></textarea>
+                  <button
+                    type="button"
+                    (click)="submitPost()"
+                    [disabled]="postSubmitting() || !newPostBody().trim()"
+                    class="px-3 py-1.5 bg-violet-500/15 text-violet-400 hover:bg-violet-500/25 rounded text-xs font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    @if (postSubmitting()) {
+                      Posting…
+                    } @else {
+                      Post
+                    }
+                  </button>
+                </div>
+              } @else {
+                <p class="text-xs text-gray-600 font-mono">
+                  <a href="/login" class="text-violet-400 hover:underline">Log in</a> to join the
+                  discussion.
+                </p>
+              }
 
-                <!-- New post form -->
-                @if (auth.isLoggedIn()) {
-                  <div class="space-y-2">
-                    <textarea
-                      [value]="newPostBody()"
-                      (input)="newPostBody.set($any($event.target).value)"
-                      rows="3"
-                      placeholder="Share your approach or ask a question…"
-                      class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20"
-                    ></textarea>
-                    <button
-                      type="button"
-                      (click)="submitPost()"
-                      [disabled]="postSubmitting() || !newPostBody().trim()"
-                      class="px-3 py-1.5 bg-violet-500/15 text-violet-400 hover:bg-violet-500/25 rounded text-xs font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      @if (postSubmitting()) { Posting… } @else { Post }
-                    </button>
+              <!-- Error -->
+              @if (postsError()) {
+                <div class="text-rose-400 text-xs p-2 bg-rose-500/10 rounded">
+                  {{ postsError() }}
+                </div>
+              }
+
+              <!-- Loading -->
+              @if (postsLoading()) {
+                <div class="flex justify-center py-8">
+                  <span
+                    class="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"
+                  ></span>
+                </div>
+              }
+
+              <!-- Post list -->
+              @if (!postsLoading()) {
+                @if (posts().length === 0) {
+                  <div class="text-center py-10 text-gray-600 text-sm">
+                    No posts yet. Be the first!
                   </div>
                 } @else {
-                  <p class="text-xs text-gray-600 font-mono">
-                    <a href="/login" class="text-violet-400 hover:underline">Log in</a> to join the discussion.
-                  </p>
-                }
+                  <div class="space-y-4">
+                    @for (post of posts(); track post.id) {
+                      <div class="rounded-lg border border-white/8 bg-white/3 overflow-hidden">
+                        <!-- Post header -->
+                        <div class="flex items-center gap-2 px-3 py-2 border-b border-white/6">
+                          <span class="text-xs font-mono text-violet-300 font-medium">{{
+                            post.author.username
+                          }}</span>
+                          <span
+                            class="text-xs font-mono px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400"
+                          >
+                            {{ postsSvc.levelLabel(post.author.xp) }}
+                          </span>
+                          <span class="text-xs text-gray-600 ml-auto">{{
+                            postsSvc.timeAgo(post.created_at)
+                          }}</span>
+                        </div>
 
-                <!-- Error -->
-                @if (postsError()) {
-                  <div class="text-rose-400 text-xs p-2 bg-rose-500/10 rounded">{{ postsError() }}</div>
-                }
-
-                <!-- Loading -->
-                @if (postsLoading()) {
-                  <div class="flex justify-center py-8">
-                    <span class="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></span>
-                  </div>
-                }
-
-                <!-- Post list -->
-                @if (!postsLoading()) {
-                  @if (posts().length === 0) {
-                    <div class="text-center py-10 text-gray-600 text-sm">No posts yet. Be the first!</div>
-                  } @else {
-                    <div class="space-y-4">
-                      @for (post of posts(); track post.id) {
-                        <div class="rounded-lg border border-white/8 bg-white/3 overflow-hidden">
-
-                          <!-- Post header -->
-                          <div class="flex items-center gap-2 px-3 py-2 border-b border-white/6">
-                            <span class="text-xs font-mono text-violet-300 font-medium">{{ post.author.username }}</span>
-                            <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400">
-                              {{ postsSvc.levelLabel(post.author.xp) }}
-                            </span>
-                            <span class="text-xs text-gray-600 ml-auto">{{ postsSvc.timeAgo(post.created_at) }}</span>
-                          </div>
-
-                          <!-- Post body -->
-                          <div class="px-3 py-2.5">
-                            @if (editingPostId() === post.id) {
-                              <div class="space-y-2">
-                                <textarea
-                                  [value]="editBody()"
-                                  (input)="editBody.set($any($event.target).value)"
-                                  rows="3"
-                                  class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-200 resize-none focus:outline-none focus:border-violet-500/50"
-                                ></textarea>
-                                <div class="flex gap-2">
-                                  <button type="button" (click)="saveEdit(post.id)" class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25">Save</button>
-                                  <button type="button" (click)="editingPostId.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
-                                </div>
-                              </div>
-                            } @else {
-                              <div class="text-sm text-gray-300 leading-relaxed prose-post"
-                                [innerHTML]="renderMarkdown(post.body)"></div>
-                            }
-                          </div>
-
-                          <!-- Post actions -->
-                          @if (!post.is_deleted) {
-                            <div class="flex items-center gap-3 px-3 py-1.5 border-t border-white/6">
-                              <!-- Votes -->
-                              <div class="flex items-center gap-1">
-                                <button
-                                  type="button"
-                                  (click)="votePost(post.id, post.user_vote === 1 ? 0 : 1)"
-                                  [class]="'text-xs transition-colors ' + (post.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')"
-                                  aria-label="Upvote"
-                                >▲</button>
-                                <span class="text-xs font-mono text-gray-400 w-5 text-center">{{ post.vote_score }}</span>
-                                <button
-                                  type="button"
-                                  (click)="votePost(post.id, post.user_vote === -1 ? 0 : -1)"
-                                  [class]="'text-xs transition-colors ' + (post.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')"
-                                  aria-label="Downvote"
-                                >▼</button>
-                              </div>
-                              <!-- Reply -->
-                              <button
-                                type="button"
-                                (click)="replyingTo.set(replyingTo() === post.id ? null : post.id); replyBody.set('')"
-                                class="text-xs text-gray-600 hover:text-gray-300 font-mono"
-                              >Reply</button>
-                              <!-- Edit / Delete (own posts only) -->
-                              @if (isOwnPost(post)) {
-                                <button type="button" (click)="startEdit(post)" class="text-xs text-gray-600 hover:text-gray-300 font-mono">Edit</button>
-                                <button type="button" (click)="deletePost(post.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
-                              }
-                            </div>
-                          }
-
-                          <!-- Reply form -->
-                          @if (replyingTo() === post.id) {
-                            <div class="px-3 pb-3 space-y-2 border-t border-white/6 pt-2">
+                        <!-- Post body -->
+                        <div class="px-3 py-2.5">
+                          @if (editingPostId() === post.id) {
+                            <div class="space-y-2">
                               <textarea
-                                [value]="replyBody()"
-                                (input)="replyBody.set($any($event.target).value)"
-                                rows="2"
-                                placeholder="Write a reply…"
-                                class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-200 resize-none placeholder-gray-600 focus:outline-none focus:border-violet-500/50"
+                                [value]="editBody()"
+                                (input)="editBody.set($any($event.target).value)"
+                                rows="3"
+                                class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-200 resize-none focus:outline-none focus:border-violet-500/50"
                               ></textarea>
                               <div class="flex gap-2">
                                 <button
                                   type="button"
-                                  (click)="submitReply(post.id)"
-                                  [disabled]="postSubmitting() || !replyBody().trim()"
-                                  class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25 disabled:opacity-40"
+                                  (click)="saveEdit(post.id)"
+                                  class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25"
                                 >
-                                  @if (postSubmitting()) { Posting… } @else { Reply }
+                                  Save
                                 </button>
-                                <button type="button" (click)="replyingTo.set(null)" class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300">Cancel</button>
+                                <button
+                                  type="button"
+                                  (click)="editingPostId.set(null)"
+                                  class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300"
+                                >
+                                  Cancel
+                                </button>
                               </div>
                             </div>
+                          } @else {
+                            <div
+                              class="text-sm text-gray-300 leading-relaxed prose-post"
+                              [innerHTML]="renderMarkdown(post.body)"
+                            ></div>
                           }
-
-                          <!-- Replies -->
-                          @if (post.replies && post.replies.length > 0) {
-                            <div class="border-t border-white/6 divide-y divide-white/5">
-                              @for (reply of post.replies; track reply.id) {
-                                <div class="pl-6 pr-3 py-2.5">
-                                  <div class="flex items-center gap-2 mb-1.5">
-                                    <span class="text-xs font-mono text-violet-300/70">{{ reply.author.username }}</span>
-                                    <span class="text-xs font-mono px-1 py-0.5 rounded bg-violet-500/8 text-violet-400/70">{{ postsSvc.levelLabel(reply.author.xp) }}</span>
-                                    <span class="text-xs text-gray-600 ml-auto">{{ postsSvc.timeAgo(reply.created_at) }}</span>
-                                  </div>
-                                  <div class="text-xs text-gray-400 leading-relaxed prose-post"
-                                    [innerHTML]="renderMarkdown(reply.body)"></div>
-                                  <!-- Reply votes + own-post actions -->
-                                  <div class="flex items-center gap-2 mt-1.5">
-                                    <button type="button" (click)="votePost(reply.id, reply.user_vote === 1 ? 0 : 1)"
-                                      [class]="'text-xs ' + (reply.user_vote === 1 ? 'text-emerald-400' : 'text-gray-600 hover:text-emerald-400')"
-                                      aria-label="Upvote reply">▲</button>
-                                    <span class="text-xs font-mono text-gray-500 w-4 text-center">{{ reply.vote_score }}</span>
-                                    <button type="button" (click)="votePost(reply.id, reply.user_vote === -1 ? 0 : -1)"
-                                      [class]="'text-xs ' + (reply.user_vote === -1 ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400')"
-                                      aria-label="Downvote reply">▼</button>
-                                    @if (isOwnPost(reply)) {
-                                      <button type="button" (click)="deletePost(reply.id)" class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto">Delete</button>
-                                    }
-                                  </div>
-                                </div>
-                              }
-                            </div>
-                          }
-
                         </div>
-                      }
-                    </div>
-                  }
-                }
 
-              </div>
-            }
-
-            <!-- History Panel -->
-            @if (activeTab() === 'history') {
-              <div class="p-4">
-                @if (historyLoading()) {
-                  <div class="flex flex-col items-center justify-center min-h-32 text-gray-500 gap-3 py-8">
-                    <span class="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></span>
-                    <p class="text-xs font-mono animate-pulse">Loading submissions…</p>
-                  </div>
-                } @else if (historyError()) {
-                  <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">{{ historyError() }}</div>
-                } @else if (submissions().length === 0) {
-                  <div class="text-center py-8 text-gray-600 text-sm font-mono">
-                    No submissions yet for this challenge.
-                  </div>
-                } @else {
-                  <div class="space-y-2">
-                    @for (sub of submissions(); track sub.id) {
-                      <div class="rounded-lg border border-white/10 overflow-hidden">
-                        <!-- Submission header -->
-                        <div
-                          class="flex items-center gap-3 px-3 py-2 bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
-                          (click)="toggleSubmission(sub.id)"
-                        >
-                          <span [class]="
-                            'text-sm font-bold font-mono ' +
-                            (sub.score >= 80 ? 'text-emerald-400' : sub.score >= 60 ? 'text-amber-400' : 'text-rose-400')
-                          ">{{ sub.score }}</span>
-                          <span class="text-xs font-mono text-gray-500">/ 100</span>
-                          <span class="text-xs font-mono text-gray-500 px-1.5 py-0.5 rounded bg-white/5">{{ sub.language }}</span>
-                          <span class="text-xs font-mono text-gray-600 ml-auto">{{ sub.submitted_at | date:'MMM d, h:mm a' }}</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            [class]="'text-gray-600 transition-transform ' + (expandedSubmissionId() === sub.id ? 'rotate-180' : '')">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                          </svg>
-                        </div>
-                        <!-- Expanded code view -->
-                        @if (expandedSubmissionId() === sub.id) {
-                          <div class="border-t border-white/10">
-                            <div class="flex items-center justify-between px-3 py-1.5 bg-[#111] border-b border-white/10">
-                              <span class="text-xs font-mono text-gray-600">Submitted code</span>
+                        <!-- Post actions -->
+                        @if (!post.is_deleted) {
+                          <div class="flex items-center gap-3 px-3 py-1.5 border-t border-white/6">
+                            <!-- Votes -->
+                            <div class="flex items-center gap-1">
                               <button
                                 type="button"
-                                (click)="loadSubmissionIntoEditor(sub.code)"
-                                class="text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors"
-                              >Load into editor</button>
+                                (click)="votePost(post.id, post.user_vote === 1 ? 0 : 1)"
+                                [class]="
+                                  'text-xs transition-colors ' +
+                                  (post.user_vote === 1
+                                    ? 'text-emerald-400'
+                                    : 'text-gray-600 hover:text-emerald-400')
+                                "
+                                aria-label="Upvote"
+                              >
+                                ▲
+                              </button>
+                              <span class="text-xs font-mono text-gray-400 w-5 text-center">{{
+                                post.vote_score
+                              }}</span>
+                              <button
+                                type="button"
+                                (click)="votePost(post.id, post.user_vote === -1 ? 0 : -1)"
+                                [class]="
+                                  'text-xs transition-colors ' +
+                                  (post.user_vote === -1
+                                    ? 'text-rose-400'
+                                    : 'text-gray-600 hover:text-rose-400')
+                                "
+                                aria-label="Downvote"
+                              >
+                                ▼
+                              </button>
                             </div>
-                            <pre class="p-3 text-xs font-mono text-gray-300 overflow-x-auto bg-[#0a0a0a] whitespace-pre-wrap break-all">{{ sub.code }}</pre>
+                            <!-- Reply -->
+                            <button
+                              type="button"
+                              (click)="
+                                replyingTo.set(replyingTo() === post.id ? null : post.id);
+                                replyBody.set('')
+                              "
+                              class="text-xs text-gray-600 hover:text-gray-300 font-mono"
+                            >
+                              Reply
+                            </button>
+                            <!-- Edit / Delete (own posts only) -->
+                            @if (isOwnPost(post)) {
+                              <button
+                                type="button"
+                                (click)="startEdit(post)"
+                                class="text-xs text-gray-600 hover:text-gray-300 font-mono"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                (click)="deletePost(post.id)"
+                                class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto"
+                              >
+                                Delete
+                              </button>
+                            }
+                          </div>
+                        }
+
+                        <!-- Reply form -->
+                        @if (replyingTo() === post.id) {
+                          <div class="px-3 pb-3 space-y-2 border-t border-white/6 pt-2">
+                            <textarea
+                              [value]="replyBody()"
+                              (input)="replyBody.set($any($event.target).value)"
+                              rows="2"
+                              placeholder="Write a reply…"
+                              class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-200 resize-none placeholder-gray-600 focus:outline-none focus:border-violet-500/50"
+                            ></textarea>
+                            <div class="flex gap-2">
+                              <button
+                                type="button"
+                                (click)="submitReply(post.id)"
+                                [disabled]="postSubmitting() || !replyBody().trim()"
+                                class="text-xs px-2 py-1 bg-violet-500/15 text-violet-400 rounded hover:bg-violet-500/25 disabled:opacity-40"
+                              >
+                                @if (postSubmitting()) {
+                                  Posting…
+                                } @else {
+                                  Reply
+                                }
+                              </button>
+                              <button
+                                type="button"
+                                (click)="replyingTo.set(null)"
+                                class="text-xs px-2 py-1 text-gray-500 hover:text-gray-300"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Replies -->
+                        @if (post.replies && post.replies.length > 0) {
+                          <div class="border-t border-white/6 divide-y divide-white/5">
+                            @for (reply of post.replies; track reply.id) {
+                              <div class="pl-6 pr-3 py-2.5">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                  <span class="text-xs font-mono text-violet-300/70">{{
+                                    reply.author.username
+                                  }}</span>
+                                  <span
+                                    class="text-xs font-mono px-1 py-0.5 rounded bg-violet-500/8 text-violet-400/70"
+                                    >{{ postsSvc.levelLabel(reply.author.xp) }}</span
+                                  >
+                                  <span class="text-xs text-gray-600 ml-auto">{{
+                                    postsSvc.timeAgo(reply.created_at)
+                                  }}</span>
+                                </div>
+                                <div
+                                  class="text-xs text-gray-400 leading-relaxed prose-post"
+                                  [innerHTML]="renderMarkdown(reply.body)"
+                                ></div>
+                                <!-- Reply votes + own-post actions -->
+                                <div class="flex items-center gap-2 mt-1.5">
+                                  <button
+                                    type="button"
+                                    (click)="votePost(reply.id, reply.user_vote === 1 ? 0 : 1)"
+                                    [class]="
+                                      'text-xs ' +
+                                      (reply.user_vote === 1
+                                        ? 'text-emerald-400'
+                                        : 'text-gray-600 hover:text-emerald-400')
+                                    "
+                                    aria-label="Upvote reply"
+                                  >
+                                    ▲
+                                  </button>
+                                  <span class="text-xs font-mono text-gray-500 w-4 text-center">{{
+                                    reply.vote_score
+                                  }}</span>
+                                  <button
+                                    type="button"
+                                    (click)="votePost(reply.id, reply.user_vote === -1 ? 0 : -1)"
+                                    [class]="
+                                      'text-xs ' +
+                                      (reply.user_vote === -1
+                                        ? 'text-rose-400'
+                                        : 'text-gray-600 hover:text-rose-400')
+                                    "
+                                    aria-label="Downvote reply"
+                                  >
+                                    ▼
+                                  </button>
+                                  @if (isOwnPost(reply)) {
+                                    <button
+                                      type="button"
+                                      (click)="deletePost(reply.id)"
+                                      class="text-xs text-gray-600 hover:text-rose-400 font-mono ml-auto"
+                                    >
+                                      Delete
+                                    </button>
+                                  }
+                                </div>
+                              </div>
+                            }
                           </div>
                         }
                       </div>
                     }
                   </div>
                 }
-              </div>
-            }
+              }
+            </div>
+          }
 
-          </div>
+          <!-- History Panel -->
+          @if (activeTab() === 'history') {
+            <div class="p-4">
+              @if (historyLoading()) {
+                <div
+                  class="flex flex-col items-center justify-center min-h-32 text-gray-500 gap-3 py-8"
+                >
+                  <span
+                    class="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"
+                  ></span>
+                  <p class="text-xs font-mono animate-pulse">Loading submissions…</p>
+                </div>
+              } @else if (historyError()) {
+                <div class="text-rose-400 text-sm p-3 bg-rose-500/10 rounded-lg">
+                  {{ historyError() }}
+                </div>
+              } @else if (submissions().length === 0) {
+                <div class="text-center py-8 text-gray-600 text-sm font-mono">
+                  No submissions yet for this challenge.
+                </div>
+              } @else {
+                <div class="space-y-2">
+                  @for (sub of submissions(); track sub.id) {
+                    <div class="rounded-lg border border-white/10 overflow-hidden">
+                      <!-- Submission header -->
+                      <div
+                        class="flex items-center gap-3 px-3 py-2 bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
+                        (click)="toggleSubmission(sub.id)"
+                      >
+                        <span
+                          [class]="
+                            'text-sm font-bold font-mono ' +
+                            (sub.score >= 80
+                              ? 'text-emerald-400'
+                              : sub.score >= 60
+                                ? 'text-amber-400'
+                                : 'text-rose-400')
+                          "
+                          >{{ sub.score }}</span
+                        >
+                        <span class="text-xs font-mono text-gray-500">/ 100</span>
+                        <span
+                          class="text-xs font-mono text-gray-500 px-1.5 py-0.5 rounded bg-white/5"
+                          >{{ sub.language }}</span
+                        >
+                        <span class="text-xs font-mono text-gray-600 ml-auto">{{
+                          sub.submitted_at | date: 'MMM d, h:mm a'
+                        }}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          [class]="
+                            'text-gray-600 transition-transform ' +
+                            (expandedSubmissionId() === sub.id ? 'rotate-180' : '')
+                          "
+                        >
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </div>
+                      <!-- Expanded code view -->
+                      @if (expandedSubmissionId() === sub.id) {
+                        <div class="border-t border-white/10">
+                          <div
+                            class="flex items-center justify-between px-3 py-1.5 bg-[#111] border-b border-white/10"
+                          >
+                            <span class="text-xs font-mono text-gray-600">Submitted code</span>
+                            <button
+                              type="button"
+                              (click)="loadSubmissionIntoEditor(sub.code)"
+                              class="text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors"
+                            >
+                              Load into editor
+                            </button>
+                          </div>
+                          <pre
+                            class="p-3 text-xs font-mono text-gray-300 overflow-x-auto bg-[#0a0a0a] whitespace-pre-wrap break-all"
+                            >{{ sub.code }}</pre
+                          >
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
-
+      </div>
     </main>
   </div>
 </div>

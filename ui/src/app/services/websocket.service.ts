@@ -3,7 +3,13 @@ import { AuthService } from './auth.service';
 
 export type WsEvent =
   | { type: 'connected'; online: number }
-  | { type: 'solve_event'; username: string; challenge_title: string; xp_earned: number; score: number }
+  | {
+      type: 'solve_event';
+      username: string;
+      challenge_title: string;
+      xp_earned: number;
+      score: number;
+    }
   | { type: 'leaderboard_update' }
   | { type: 'heartbeat' }
   | { type: 'pong' };
@@ -53,7 +59,9 @@ export class WebSocketService implements OnDestroy {
       try {
         const msg = JSON.parse(event.data) as WsEvent;
         this._handle(msg);
-      } catch { /* ignore malformed */ }
+      } catch {
+        /* ignore malformed */
+      }
     };
 
     ws.onclose = () => {
@@ -74,22 +82,30 @@ export class WebSocketService implements OnDestroy {
         this.onlineCount.set(msg.online);
         break;
       case 'solve_event':
-        this._push(`${msg.username} solved "${msg.challenge_title}" · +${msg.xp_earned} XP · score ${msg.score}`);
+        this._push(
+          `${msg.username} solved "${msg.challenge_title}" · +${msg.xp_earned} XP · score ${msg.score}`,
+        );
         break;
       case 'leaderboard_update':
-        this.leaderboardUpdate.update(n => n + 1);
+        this.leaderboardUpdate.update((n) => n + 1);
         break;
     }
   }
 
   private _push(text: string): void {
     const MAX = 6;
-    this.activity.update(prev => [{ text, ts: Date.now() }, ...prev].slice(0, MAX));
+    this.activity.update((prev) => [{ text, ts: Date.now() }, ...prev].slice(0, MAX));
   }
 
   private _clearTimers(): void {
-    if (this.pingTimer) { clearInterval(this.pingTimer); this.pingTimer = null; }
-    if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
   }
 
   disconnect(): void {

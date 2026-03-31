@@ -37,7 +37,7 @@ export class ProblemSetComponent implements OnInit {
 
   difficultyRange(topic: Topic): string {
     const list = this.svc.byTopic(topic);
-    const has = (d: string) => list.some(c => c.difficulty === d);
+    const has = (d: string) => list.some((c) => c.difficulty === d);
     const parts: string[] = [];
     if (has('Easy')) parts.push('Easy');
     if (has('Medium')) parts.push('Medium');
