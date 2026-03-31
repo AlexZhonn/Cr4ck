@@ -54,7 +54,7 @@ export class ProfileService {
     const token = this.auth.getAccessToken();
     if (!token) return;
     try {
-      const res = await fetch('/api/profile/completed', {
+      const res = await fetch('/api/v1/profile/completed', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return;

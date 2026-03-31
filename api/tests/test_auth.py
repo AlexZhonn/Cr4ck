@@ -1,5 +1,5 @@
 """
-Integration tests for /auth/* endpoints.
+Integration tests for /auth/v1/* endpoints.
 
 Requires a running PostgreSQL database (uses TEST_DATABASE_URL or DATABASE_URL).
 Email sending is mocked so no external service is called.
@@ -15,7 +15,7 @@ from tests.conftest import db_required
 pytestmark = pytest.mark.asyncio
 
 
-# ── /auth/register ─────────────────────────────────────────────────────────────
+# ── /auth/v1/register ─────────────────────────────────────────────────────────────
 
 @db_required
 class TestRegister:
@@ -27,7 +27,7 @@ class TestRegister:
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
-            resp = await client.post("/auth/register", json=payload)
+            resp = await client.post("/auth/v1/register", json=payload)
 
         assert resp.status_code == 201
         body = resp.json()
@@ -43,7 +43,7 @@ class TestRegister:
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
-            resp = await client.post("/auth/register", json=payload)
+            resp = await client.post("/auth/v1/register", json=payload)
         assert resp.status_code == 409
 
     async def test_register_duplicate_username(self, client, verified_user):
@@ -53,7 +53,7 @@ class TestRegister:
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
-            resp = await client.post("/auth/register", json=payload)
+            resp = await client.post("/auth/v1/register", json=payload)
         assert resp.status_code == 409
 
     async def test_register_short_password(self, client):
@@ -63,7 +63,7 @@ class TestRegister:
             "password": "short",
         }
         with patch("routers.auth.send_verification_email"):
-            resp = await client.post("/auth/register", json=payload)
+            resp = await client.post("/auth/v1/register", json=payload)
         assert resp.status_code == 422
 
     async def test_register_invalid_username(self, client):
@@ -74,17 +74,17 @@ class TestRegister:
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
-            resp = await client.post("/auth/register", json=payload)
+            resp = await client.post("/auth/v1/register", json=payload)
         assert resp.status_code == 422
 
 
-# ── /auth/login ────────────────────────────────────────────────────────────────
+# ── /auth/v1/login ────────────────────────────────────────────────────────────────
 
 @db_required
 class TestLogin:
     async def test_login_with_email(self, client, verified_user):
         resp = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["email"], "password": verified_user["password"]},
         )
         assert resp.status_code == 200
@@ -95,7 +95,7 @@ class TestLogin:
 
     async def test_login_with_username(self, client, verified_user):
         resp = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["username"], "password": verified_user["password"]},
         )
         assert resp.status_code == 200
@@ -103,39 +103,39 @@ class TestLogin:
 
     async def test_login_wrong_password(self, client, verified_user):
         resp = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["email"], "password": "wrongpassword"},
         )
         assert resp.status_code == 401
 
     async def test_login_nonexistent_user(self, client):
         resp = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": "nobody@example.invalid", "password": "anything1!"},
         )
         assert resp.status_code == 401
 
     async def test_login_unverified_user(self, client, unverified_user):
         resp = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": unverified_user["email"], "password": unverified_user["password"]},
         )
         assert resp.status_code == 403
 
 
-# ── /auth/refresh & /auth/logout ──────────────────────────────────────────────
+# ── /auth/v1/refresh & /auth/v1/logout ──────────────────────────────────────────────
 
 @db_required
 class TestRefreshAndLogout:
     async def test_refresh_returns_new_tokens(self, client, verified_user):
         login = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["email"], "password": verified_user["password"]},
         )
         original = login.json()
 
         refresh = await client.post(
-            "/auth/refresh",
+            "/auth/v1/refresh",
             json={"refresh_token": original["refresh_token"]},
         )
         assert refresh.status_code == 200
@@ -144,36 +144,36 @@ class TestRefreshAndLogout:
         assert new_tokens["refresh_token"] != original["refresh_token"]
 
     async def test_refresh_invalid_token(self, client):
-        resp = await client.post("/auth/refresh", json={"refresh_token": "not.a.valid.token"})
+        resp = await client.post("/auth/v1/refresh", json={"refresh_token": "not.a.valid.token"})
         assert resp.status_code == 401
 
     async def test_logout_revokes_refresh_token(self, client, verified_user):
         login = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["email"], "password": verified_user["password"]},
         )
         refresh_token = login.json()["refresh_token"]
 
-        logout = await client.post("/auth/logout", json={"refresh_token": refresh_token})
+        logout = await client.post("/auth/v1/logout", json={"refresh_token": refresh_token})
         assert logout.status_code == 204
 
         # Using the revoked refresh token should now fail
-        retry = await client.post("/auth/refresh", json={"refresh_token": refresh_token})
+        retry = await client.post("/auth/v1/refresh", json={"refresh_token": refresh_token})
         assert retry.status_code == 401
 
 
-# ── /auth/me ──────────────────────────────────────────────────────────────────
+# ── /auth/v1/me ──────────────────────────────────────────────────────────────────
 
 @db_required
 class TestMe:
     async def test_me_returns_user(self, client, verified_user):
         login = await client.post(
-            "/auth/login",
+            "/auth/v1/login",
             json={"email": verified_user["email"], "password": verified_user["password"]},
         )
         token = login.json()["access_token"]
 
-        resp = await client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+        resp = await client.get("/auth/v1/me", headers={"Authorization": f"Bearer {token}"})
         assert resp.status_code == 200
         body = resp.json()
         assert body["username"] == verified_user["username"]
@@ -181,9 +181,9 @@ class TestMe:
         assert "password_hash" not in body
 
     async def test_me_unauthenticated(self, client):
-        resp = await client.get("/auth/me")
+        resp = await client.get("/auth/v1/me")
         assert resp.status_code == 403
 
     async def test_me_invalid_token(self, client):
-        resp = await client.get("/auth/me", headers={"Authorization": "Bearer bad.token.here"})
+        resp = await client.get("/auth/v1/me", headers={"Authorization": "Bearer bad.token.here"})
         assert resp.status_code == 401

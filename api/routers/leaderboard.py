@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from core.database import get_db
 from core.redis import cache_get, cache_set, LEADERBOARD_KEY, LEADERBOARD_TTL
 
-router = APIRouter(prefix="/api", tags=["leaderboard"])
+router = APIRouter(tags=["leaderboard"])
 
 LEADERBOARD_LIMIT = 50
 

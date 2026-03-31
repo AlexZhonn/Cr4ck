@@ -67,7 +67,7 @@ export class ProfileComponent implements OnInit {
 
   async loadKeyStatus() {
     try {
-      const res = await fetch('/auth/api-key/status', { headers: this.auth.authHeaders() });
+      const res = await fetch('/auth/v1/api-key/status', { headers: this.auth.authHeaders() });
       if (res.ok) this.keyStatus.set(await res.json());
     } catch {
       /* ignore */
@@ -80,7 +80,7 @@ export class ProfileComponent implements OnInit {
     this.keyError.set(null);
     this.keySuccess.set(null);
     try {
-      const res = await fetch('/auth/api-key', {
+      const res = await fetch('/auth/v1/api-key', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...this.auth.authHeaders() },
         body: JSON.stringify({ provider: this.selectedProvider, api_key: this.apiKeyInput.trim() }),
@@ -104,7 +104,7 @@ export class ProfileComponent implements OnInit {
     this.keyError.set(null);
     this.keySuccess.set(null);
     try {
-      await fetch('/auth/api-key', { method: 'DELETE', headers: this.auth.authHeaders() });
+      await fetch('/auth/v1/api-key', { method: 'DELETE', headers: this.auth.authHeaders() });
       this.keySuccess.set('API key removed.');
       await this.loadKeyStatus();
     } catch {
@@ -135,7 +135,7 @@ export class ProfileComponent implements OnInit {
     }
     this.pwChanging.set(true);
     try {
-      const res = await fetch('/auth/password', {
+      const res = await fetch('/auth/v1/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...this.auth.authHeaders() },
         body: JSON.stringify({

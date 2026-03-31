@@ -1,0 +1,50 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 02:00 UTC daily
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install pg_dump
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Run pg_dump
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          FILENAME="cr4ck_backup_${TIMESTAMP}.dump"
+          pg_dump "$DATABASE_URL" --format=custom --no-password -f "$FILENAME"
+          echo "BACKUP_FILE=$FILENAME" >> "$GITHUB_ENV"
+
+      - name: Upload backup to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.BACKUP_AWS_REGION }}
+          S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+        run: |
+          aws s3 cp "$BACKUP_FILE" "s3://${S3_BUCKET}/backups/${BACKUP_FILE}"
+          echo "Backup uploaded: s3://${S3_BUCKET}/backups/${BACKUP_FILE}"
+
+      - name: Prune backups older than 30 days
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.BACKUP_AWS_REGION }}
+          S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+        run: |
+          CUTOFF=$(date -d "30 days ago" +%Y-%m-%dT%H:%M:%S 2>/dev/null || date -v-30d +%Y-%m-%dT%H:%M:%S)
+          aws s3api list-objects-v2 \
+            --bucket "$S3_BUCKET" \
+            --prefix "backups/" \
+            --query "Contents[?LastModified<='${CUTOFF}'].Key" \
+            --output text | tr '\t' '\n' | while read -r key; do
+              [ -n "$key" ] && aws s3 rm "s3://${S3_BUCKET}/${key}" && echo "Deleted: $key"
+            done

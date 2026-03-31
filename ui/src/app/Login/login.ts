@@ -64,7 +64,7 @@ export class LoginComponent {
   resendVerification() {
     this.resendLoading = true;
     this.http
-      .post('/auth/resend-verification', {
+      .post('/auth/v1/resend-verification', {
         email: this.loginData.email,
         password: this.loginData.password,
       })

@@ -146,15 +146,27 @@ async def request_logger(request: Request, call_next):
 
 
 # ── Routers ───────────────────────────────────────────────────────────────────
-app.include_router(auth_router.router)
-app.include_router(challenges_router.router)
-app.include_router(evaluate_router.router)
-app.include_router(leaderboard_router.router)
-app.include_router(run_router.router)
+# Versioned (canonical) — /auth/v1/* and /api/v1/*
+app.include_router(auth_router.router, prefix="/auth/v1")
+app.include_router(apikey_router.router, prefix="/auth/v1")
+app.include_router(challenges_router.router, prefix="/api/v1")
+app.include_router(evaluate_router.router, prefix="/api/v1")
+app.include_router(leaderboard_router.router, prefix="/api/v1")
+app.include_router(run_router.router, prefix="/api/v1")
+app.include_router(posts_router.router, prefix="/api/v1")
+app.include_router(profile_router.router, prefix="/api/v1")
+# WebSocket (unversioned — protocol-level, not an HTTP resource path)
 app.include_router(ws_router.router)
-app.include_router(posts_router.router)
-app.include_router(profile_router.router)
-app.include_router(apikey_router.router)
+
+# Legacy unversioned aliases — DEPRECATED, remove after one release cycle
+app.include_router(auth_router.router, prefix="/auth")
+app.include_router(apikey_router.router, prefix="/auth")
+app.include_router(challenges_router.router, prefix="/api")
+app.include_router(evaluate_router.router, prefix="/api")
+app.include_router(leaderboard_router.router, prefix="/api")
+app.include_router(run_router.router, prefix="/api")
+app.include_router(posts_router.router, prefix="/api")
+app.include_router(profile_router.router, prefix="/api")
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────

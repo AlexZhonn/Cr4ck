@@ -12,7 +12,7 @@ from auth.dependencies import get_current_user
 from core.database import get_db
 from core.redis import cache_get, cache_set, CHALLENGES_KEY, CHALLENGES_TTL
 
-router = APIRouter(prefix="/api", tags=["challenges"])
+router = APIRouter(tags=["challenges"])
 
 
 class TestCase(BaseModel):

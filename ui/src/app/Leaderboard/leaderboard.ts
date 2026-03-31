@@ -25,7 +25,7 @@ export class LeaderboardComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const res = await fetch('/api/leaderboard');
+      const res = await fetch('/api/v1/leaderboard');
       if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`);
       this.entries.set(await res.json());
     } catch (err: any) {

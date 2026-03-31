@@ -305,7 +305,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.historyLoading.set(true);
     this.historyError.set(null);
     try {
-      const res = await fetch(`/api/challenges/${id}/my-submissions`, {
+      const res = await fetch(`/api/v1/challenges/${id}/my-submissions`, {
         headers: this.auth.authHeaders(),
       });
       if (!res.ok) throw new Error('Failed to load history');
@@ -439,7 +439,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
     try {
       const token = localStorage.getItem('cr4ck_access');
-      const response = await fetch('/api/evaluate', {
+      const response = await fetch('/api/v1/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -496,7 +496,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
     try {
       const token = localStorage.getItem('cr4ck_access');
-      const response = await fetch('/api/run', {
+      const response = await fetch('/api/v1/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

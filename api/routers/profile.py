@@ -10,7 +10,7 @@ from auth.dependencies import get_current_user
 from core.database import get_db
 from models.user import UserInDB
 
-router = APIRouter(prefix="/api/profile", tags=["profile"])
+router = APIRouter(prefix="/profile", tags=["profile"])
 
 
 class CompletedChallenge(BaseModel):

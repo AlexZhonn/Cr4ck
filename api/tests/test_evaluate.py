@@ -1,5 +1,5 @@
 """
-Integration tests for POST /api/evaluate.
+Integration tests for POST /api/v1/evaluate.
 
 AI calls are mocked so no external API key is needed.
 """
@@ -26,7 +26,7 @@ _MOCK_AI_RESPONSE = {
 async def _login(client, user) -> str:
     """Helper: log in and return access token."""
     resp = await client.post(
-        "/auth/login",
+        "/auth/v1/login",
         json={"email": user["email"], "password": user["password"]},
     )
     return resp.json()["access_token"]
@@ -36,7 +36,7 @@ class TestEvaluate:
     async def test_unauthenticated_returns_401_or_403(self, client):
         """Unauthenticated evaluate request must be rejected."""
         resp = await client.post(
-            "/api/evaluate",
+            "/api/v1/evaluate",
             json={
                 "challenge_id": "00000000-0000-0000-0000-000000000001",
                 "challenge_title": "Test",
@@ -58,7 +58,7 @@ class TestEvaluate:
             mock_client.messages.create = AsyncMock(return_value=mock_message)
 
             resp = await client.post(
-                "/api/evaluate",
+                "/api/v1/evaluate",
                 headers={"Authorization": f"Bearer {token}"},
                 json={
                     "challenge_id": "00000000-0000-0000-0000-000000000001",

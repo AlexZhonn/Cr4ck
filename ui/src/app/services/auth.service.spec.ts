@@ -108,7 +108,7 @@ describe('AuthService', () => {
 
   // ── restore() ────────────────────────────────────────────────────────────────
 
-  it('restore() fetches /auth/me when access token is present', async () => {
+  it('restore() fetches /auth/v1/me when access token is present', async () => {
     localStorage.setItem('cr4ck_access', 'stored-token');
 
     fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_USER), { status: 200 }));

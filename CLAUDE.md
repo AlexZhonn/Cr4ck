@@ -367,7 +367,7 @@ Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custo
 
 Ratings below are from the 2026 annual check. All items scored below 10/10. Ordered by severity within each category.
 
-**Progress: 24 / 24 completed** (last updated 2026-03-23)
+**Progress: 26 / 26 completed** (last updated 2026-03-31)
 
 ---
 
@@ -486,13 +486,13 @@ Ratings below are from the 2026 annual check. All items scored below 10/10. Orde
 
 **Done.** `core/database.py` now uses `psycopg2.pool.ThreadedConnectionPool`. Pool initialized lazily on first request (min=2, max=20, env-configurable via `DB_POOL_MIN`/`DB_POOL_MAX`). `get_db()` acquires/releases from pool instead of open/close. `get_db_context()` updated identically.
 
-#### ⬜ AUDIT-I2: Add automated database backup
+#### ✅ AUDIT-I2: Add automated database backup
 
-There is no backup strategy documented or automated. A misconfigured migration or accidental `DELETE` without a `WHERE` clause would cause permanent data loss.
+**Done.** `.github/workflows/db-backup.yml` runs daily at 02:00 UTC (plus `workflow_dispatch`). Steps: `pg_dump --format=custom` → upload to S3 at `s3://$BACKUP_S3_BUCKET/backups/` → prune objects older than 30 days via `s3api list-objects-v2`. Required secrets: `DATABASE_URL`, `DB_PASSWORD`, `BACKUP_AWS_ACCESS_KEY_ID`, `BACKUP_AWS_SECRET_ACCESS_KEY`, `BACKUP_AWS_REGION`, `BACKUP_S3_BUCKET`.
 
-- If using Supabase: enable Point-in-Time Recovery (PITR) in the Supabase dashboard — this is one toggle
-- If self-hosted: add a daily `pg_dump` cron job (GitHub Actions or system cron) that uploads to S3 / R2 with a 30-day retention policy
-- Document the restore procedure in this file
+**Restore procedure:** `pg_restore --dbname=$DATABASE_URL --clean --no-owner cr4ck_backup_<timestamp>.dump` (download the `.dump` file from S3 first).
+
+If using Supabase: enable Point-in-Time Recovery (PITR) in the Supabase dashboard as an alternative — the GitHub Actions backup is the self-hosted fallback.
 
 #### ✅ AUDIT-I3: Write the production Docker Compose (already on roadmap as item 10)
 
@@ -506,13 +506,9 @@ There is no backup strategy documented or automated. A misconfigured migration o
 
 ### API Design (8/10)
 
-#### ⬜ AUDIT-A1: Add API versioning prefix (`/api/v1/`)
+#### ✅ AUDIT-A1: Add API versioning prefix (`/api/v1/`)
 
-All endpoints are currently under `/api/` and `/auth/`. Any breaking change requires coordinating the frontend and backend simultaneously with no deprecation window.
-
-- Prefix all routes with `/api/v1/` and `/auth/v1/` (or use a version header strategy)
-- Keep the old unprefixed routes as aliases for one release cycle, then remove them
-- Update the Angular proxy config and all `HttpClient` calls accordingly
+**Done.** All FastAPI routers now use empty/resource-only prefixes; `main.py` mounts each router twice — once at `/api/v1` (or `/auth/v1`) as the canonical path and once at the legacy `/api` (or `/auth`) path for backward compatibility. Frontend (all `fetch` / `HttpClient` calls), `proxy.conf.json`, backend integration tests, and Playwright e2e setup all updated to use the versioned paths. Legacy aliases remain for one release cycle — remove the legacy `include_router` calls in `main.py` and the unversioned proxy entries in `ui/proxy.conf.json` once all clients have migrated.
 
 #### ✅ AUDIT-A2: Standardize error response schema across all endpoints
 

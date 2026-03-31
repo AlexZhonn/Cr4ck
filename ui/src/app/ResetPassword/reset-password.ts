@@ -37,7 +37,7 @@ export class ResetPasswordComponent implements OnInit {
   onSubmit() {
     this.isLoading = true;
     this.http
-      .post('/auth/reset-password', { token: this.token, password: this.password })
+      .post('/auth/v1/reset-password', { token: this.token, password: this.password })
       .subscribe({
         next: () => {
           this.state = 'success';

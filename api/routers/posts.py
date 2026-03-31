@@ -19,7 +19,7 @@ from auth.dependencies import get_current_user
 from core.database import get_db
 from models.user import UserInDB
 
-router = APIRouter(prefix="/api", tags=["posts"])
+router = APIRouter(tags=["posts"])
 
 
 # ---------------------------------------------------------------------------

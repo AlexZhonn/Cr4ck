@@ -30,7 +30,7 @@ export class PostsService {
 
   async listPosts(challengeId: string, offset = 0, limit = 20): Promise<Post[]> {
     const res = await fetch(
-      `/api/challenges/${challengeId}/posts?limit=${limit}&offset=${offset}`,
+      `/api/v1/challenges/${challengeId}/posts?limit=${limit}&offset=${offset}`,
       { headers: this.authHeader() },
     );
     if (!res.ok) throw new Error(`Failed to load posts: ${res.status}`);
@@ -38,7 +38,7 @@ export class PostsService {
   }
 
   async createPost(challengeId: string, body: string, parentId?: string): Promise<Post> {
-    const res = await fetch(`/api/challenges/${challengeId}/posts`, {
+    const res = await fetch(`/api/v1/challenges/${challengeId}/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({ body, parent_id: parentId ?? null }),
@@ -51,7 +51,7 @@ export class PostsService {
   }
 
   async editPost(postId: string, body: string): Promise<Post> {
-    const res = await fetch(`/api/posts/${postId}`, {
+    const res = await fetch(`/api/v1/posts/${postId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({ body }),
@@ -64,7 +64,7 @@ export class PostsService {
   }
 
   async deletePost(postId: string): Promise<void> {
-    const res = await fetch(`/api/posts/${postId}`, {
+    const res = await fetch(`/api/v1/posts/${postId}`, {
       method: 'DELETE',
       headers: this.authHeader(),
     });
@@ -74,7 +74,7 @@ export class PostsService {
   }
 
   async vote(postId: string, value: 1 | -1 | 0): Promise<Post> {
-    const res = await fetch(`/api/posts/${postId}/vote`, {
+    const res = await fetch(`/api/v1/posts/${postId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({ value }),

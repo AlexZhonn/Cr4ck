@@ -25,7 +25,7 @@ from core.database import get_db
 from core.redis import cache_delete, LEADERBOARD_KEY
 from models.user import UserInDB
 
-router = APIRouter(prefix="/api", tags=["evaluate"])
+router = APIRouter(tags=["evaluate"])
 
 
 class EvaluateRequest(BaseModel):

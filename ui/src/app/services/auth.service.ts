@@ -70,7 +70,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<void> {
-    const res = await fetch('/auth/login', {
+    const res = await fetch('/auth/v1/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -87,7 +87,7 @@ export class AuthService {
   }
 
   async register(username: string, email: string, password: string): Promise<void> {
-    const res = await fetch('/auth/register', {
+    const res = await fetch('/auth/v1/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),
@@ -105,7 +105,7 @@ export class AuthService {
     const token = this.getAccessToken();
     if (!token) return;
 
-    const res = await fetch('/auth/me', {
+    const res = await fetch('/auth/v1/me', {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -130,7 +130,7 @@ export class AuthService {
       return;
     }
 
-    const res = await fetch('/auth/refresh', {
+    const res = await fetch('/auth/v1/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -149,7 +149,7 @@ export class AuthService {
   async logout(): Promise<void> {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
-      fetch('/auth/logout', {
+      fetch('/auth/v1/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: refreshToken }),

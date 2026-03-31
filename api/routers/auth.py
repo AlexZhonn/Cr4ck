@@ -36,7 +36,7 @@ from models.user import (
     UserPublic,
 )
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 @router.post("/register", response_model=UserPublic, status_code=status.HTTP_201_CREATED)

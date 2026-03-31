@@ -1,5 +1,15 @@
 {
+  "/auth/v1": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/auth": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/v1": {
     "target": "http://localhost:8000",
     "secure": false,
     "changeOrigin": true

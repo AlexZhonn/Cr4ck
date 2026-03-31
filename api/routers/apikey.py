@@ -14,7 +14,7 @@ from auth.apikey import encrypt_key
 from core.database import get_db
 from models.user import UserInDB
 
-router = APIRouter(prefix="/auth", tags=["api-key"])
+router = APIRouter(tags=["api-key"])
 
 AIProvider = Literal["anthropic", "openai", "google"]
 

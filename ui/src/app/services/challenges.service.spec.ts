@@ -40,7 +40,7 @@ describe('ChallengesService', () => {
     expect(service.challenges()).toEqual([]);
   });
 
-  it('load() fetches /api/challenges and maps rows to Challenge shape', async () => {
+  it('load() fetches /api/v1/challenges and maps rows to Challenge shape', async () => {
     fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify(MOCK_PAGE), { status: 200 }));
 
     await service.load();
@@ -52,7 +52,7 @@ describe('ChallengesService', () => {
     expect(ch.id).toBe('ch-001');
     expect(ch.title).toBe('Design a Stack');
     expect(ch.starterCode).toBe('class Stack:\n    pass');
-    expect(fetchSpy).toHaveBeenCalledWith('/api/challenges?limit=200');
+    expect(fetchSpy).toHaveBeenCalledWith('/api/v1/challenges?limit=200');
   });
 
   it('load() is idempotent — only fetches once even when called multiple times', async () => {

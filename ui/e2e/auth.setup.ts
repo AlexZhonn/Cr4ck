@@ -22,15 +22,15 @@ export const TEST_USER = {
 
 setup('create and verify test user', async ({ request, page }) => {
   // 1. Register
-  const reg = await request.post(`${API}/auth/register`, {
+  const reg = await request.post(`${API}/auth/v1/register`, {
     data: TEST_USER,
   });
   expect(reg.status()).toBe(201);
 
   // 2. Bypass email verification directly via the DB-level API (test endpoint)
-  //    In CI, the backend exposes POST /auth/test/verify-bypass when TEST_MODE=true.
+  //    In CI, the backend exposes POST /auth/v1/test/verify-bypass when TEST_MODE=true.
   //    Falls back to extracting the token via the admin API if available.
-  const bypass = await request.post(`${API}/auth/test/verify-bypass`, {
+  const bypass = await request.post(`${API}/auth/v1/test/verify-bypass`, {
     data: { email: TEST_USER.email },
     headers: { 'X-Test-Secret': process.env['TEST_SECRET'] ?? 'test-secret' },
   });

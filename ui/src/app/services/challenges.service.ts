@@ -41,7 +41,7 @@ export class ChallengesService {
     if (this._loaded) return;
     if (this._loading) return this._loading;
 
-    this._loading = fetch('/api/challenges?limit=200')
+    this._loading = fetch('/api/v1/challenges?limit=200')
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to load challenges (${res.status})`);
         return res.json();
