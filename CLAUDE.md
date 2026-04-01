@@ -3,6 +3,15 @@
 > **Always update this file when completing work items, discovering bugs, or making architectural decisions.**
 > Completed work is logged in [CHANGELOG.md](CHANGELOG.md).
 
+## On Completing Any Work Item
+
+When you finish a feature, fix, or infrastructure change, you **must** do all of the following before committing:
+
+1. **Update [README.md](README.md)** — reflect any new endpoints in the API Reference table, new env vars in the Environment Variables table, new migrations in the Database Migrations table, new routes in any relevant section, and remove items from Known Issues / Roadmap if they are now done.
+2. **Update [CHANGELOG.md](CHANGELOG.md)** — add an entry under the appropriate category (Features, Bug Fixes, Audit Items, etc.) describing what was done.
+3. **Update this file (CLAUDE.md)** — mark the item done in What's Next, move any completed audit items out, and update Known Issues / Tech Debt if relevant.
+4. **Update or add tests** — every backend change needs a corresponding test in `api/tests/`; every frontend service or component change needs a spec update in `ui/src/app/**/*.spec.ts`. If a new endpoint is added, add at minimum an unauthenticated guard test and a happy-path integration test.
+
 ## Project Overview
 
 **Cr4ck** is an AI-powered coding challenge platform focused on Object-Oriented Programming (OOP) and System Design. Users write code in a browser-based Monaco Editor and receive instant AI architectural feedback.
