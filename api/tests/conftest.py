@@ -112,7 +112,7 @@ def verified_user(db):
 
     suffix = uuid.uuid4().hex[:8]
     username = f"testuser_{suffix}"
-    email = f"test_{suffix}@example.invalid"
+    email = f"test_{suffix}@example.com"
     password = "TestP@ss1234!"
     salt = generate_salt()
     pw_hash = hash_password(password, salt)
@@ -152,7 +152,7 @@ def unverified_user(db):
 
     suffix = uuid.uuid4().hex[:8]
     username = f"unverified_{suffix}"
-    email = f"unverified_{suffix}@example.invalid"
+    email = f"unverified_{suffix}@example.com"
     password = "TestP@ss1234!"
     salt = generate_salt()
     pw_hash = hash_password(password, salt)

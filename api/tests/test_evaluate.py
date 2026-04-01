@@ -4,8 +4,7 @@ Integration tests for POST /api/v1/evaluate.
 AI calls are mocked so no external API key is needed.
 """
 
-import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -49,14 +48,7 @@ class TestEvaluate:
     async def test_authenticated_evaluate(self, client, verified_user):
         token = await _login(client, verified_user)
 
-        mock_message = AsyncMock()
-        mock_message.content = [AsyncMock(text=json.dumps(_MOCK_AI_RESPONSE))]
-
-        with patch("routers.evaluate.anthropic") as mock_anthropic:
-            mock_client = AsyncMock()
-            mock_anthropic.Anthropic.return_value = mock_client
-            mock_client.messages.create = AsyncMock(return_value=mock_message)
-
+        with patch("routers.evaluate._call_anthropic", return_value=_MOCK_AI_RESPONSE):
             resp = await client.post(
                 "/api/v1/evaluate",
                 headers={"Authorization": f"Bearer {token}"},

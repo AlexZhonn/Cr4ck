@@ -5,7 +5,7 @@ function reportToSentry(err: Error): void {
   try {
     // @ts-expect-error — Sentry is optionally loaded at runtime
     if (typeof Sentry !== 'undefined') {
-      // @ts-expect-error
+      // @ts-expect-error — Sentry is optionally loaded at runtime
       Sentry.captureException(err);
     }
   } catch {

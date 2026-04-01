@@ -1062,8 +1062,9 @@
                   @for (sub of submissions(); track sub.id) {
                     <div class="rounded-lg border border-white/10 overflow-hidden">
                       <!-- Submission header -->
-                      <div
-                        class="flex items-center gap-3 px-3 py-2 bg-white/5 cursor-pointer hover:bg-white/8 transition-colors"
+                      <button
+                        type="button"
+                        class="flex items-center gap-3 px-3 py-2 bg-white/5 cursor-pointer hover:bg-white/8 transition-colors w-full text-left"
                         (click)="toggleSubmission(sub.id)"
                       >
                         <span
@@ -1102,7 +1103,7 @@
                         >
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
-                      </div>
+                      </button>
                       <!-- Expanded code view -->
                       @if (expandedSubmissionId() === sub.id) {
                         <div class="border-t border-white/10">

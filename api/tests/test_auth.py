@@ -23,7 +23,7 @@ class TestRegister:
         suffix = uuid.uuid4().hex[:8]
         payload = {
             "username": f"newuser_{suffix}",
-            "email": f"new_{suffix}@example.invalid",
+            "email": f"new_{suffix}@example.com",
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
@@ -49,7 +49,7 @@ class TestRegister:
     async def test_register_duplicate_username(self, client, verified_user):
         payload = {
             "username": verified_user["username"],
-            "email": f"other_{uuid.uuid4().hex[:8]}@example.invalid",
+            "email": f"other_{uuid.uuid4().hex[:8]}@example.com",
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
@@ -59,7 +59,7 @@ class TestRegister:
     async def test_register_short_password(self, client):
         payload = {
             "username": f"user_{uuid.uuid4().hex[:8]}",
-            "email": f"e_{uuid.uuid4().hex[:8]}@example.invalid",
+            "email": f"e_{uuid.uuid4().hex[:8]}@example.com",
             "password": "short",
         }
         with patch("routers.auth.send_verification_email"):
@@ -70,7 +70,7 @@ class TestRegister:
         """Username with spaces should fail validation."""
         payload = {
             "username": "has spaces",
-            "email": f"e_{uuid.uuid4().hex[:8]}@example.invalid",
+            "email": f"e_{uuid.uuid4().hex[:8]}@example.com",
             "password": "SecurePass1!",
         }
         with patch("routers.auth.send_verification_email"):
@@ -111,7 +111,7 @@ class TestLogin:
     async def test_login_nonexistent_user(self, client):
         resp = await client.post(
             "/auth/v1/login",
-            json={"email": "nobody@example.invalid", "password": "anything1!"},
+            json={"email": "nobody@example.com", "password": "anything1!"},
         )
         assert resp.status_code == 401
 
