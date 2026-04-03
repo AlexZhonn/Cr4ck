@@ -8,6 +8,8 @@
 ## Features
 
 ### Code Execution
+- **Test harness system** — `test_harness` column (migration 013) holds a hidden driver script per challenge. `POST /api/v1/run` concatenates user code + harness before submitting to Judge0/Docker, enabling stdin/stdout test cases to work against user-defined classes. Per-language conflict stripping: Java `public` removed from user type declarations, C++ `int main()` removed, Python `__main__` block removed. Harness generation script (`api/scripts/generate_harnesses.py`) uses Claude API to write harnesses for all 300 challenges.
+- **Multi-language support per challenge** — `starter_codes` JSONB column (migration 013) maps `{ language: starter_code }`. `ChallengeOut` returns it; frontend sandbox shows a language dropdown when multiple languages are available. `selectedLanguage` signal drives editor options, file extension, and request payloads.
 - **Docker-sandboxed code execution** (`/api/run`) — Python/Java/TypeScript/C++; stdin via file, local Python fallback
 
 ### Community

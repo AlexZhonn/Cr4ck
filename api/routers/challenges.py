@@ -30,6 +30,7 @@ class ChallengeOut(BaseModel):
     framework: str
     description: str
     starter_code: str
+    starter_codes: dict[str, str] = {}  # multi-language starter codes — test_harness intentionally excluded
     test_cases: list[TestCase] = []
 
 
@@ -45,6 +46,7 @@ def _row_to_challenge(row: dict) -> ChallengeOut:
         framework=row["framework"],
         description=row["description"],
         starter_code=row["starter_code"],
+        starter_codes=row.get("starter_codes") or {},
         test_cases=test_cases,
     )
 
@@ -71,7 +73,7 @@ def list_challenges(
         with db.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
+                SELECT id, title, topic, difficulty, language, framework, description, starter_code, starter_codes, test_cases
                 FROM challenges
                 WHERE is_active = TRUE
                 ORDER BY topic, difficulty, id
@@ -92,7 +94,7 @@ def get_challenge(challenge_id: str, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(
             """
-            SELECT id, title, topic, difficulty, language, framework, description, starter_code, test_cases
+            SELECT id, title, topic, difficulty, language, framework, description, starter_code, starter_codes, test_cases
             FROM challenges
             WHERE id = %s AND is_active = TRUE
             """,

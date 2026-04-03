@@ -11,6 +11,7 @@ interface ChallengeApiRow {
   framework: string;
   description: string;
   starter_code: string;
+  starter_codes: Record<string, string>;
   test_cases: TestCase[];
 }
 
@@ -24,6 +25,7 @@ function toChallenge(row: ChallengeApiRow): Challenge {
     framework: row.framework,
     description: row.description,
     starterCode: row.starter_code,
+    starterCodes: row.starter_codes ?? {},
     testCases: row.test_cases ?? [],
   };
 }

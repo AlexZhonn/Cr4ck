@@ -320,31 +320,9 @@ As challenge count grows, managing via SQL migrations becomes a bottleneck.
 
 Backend flow not wired. Frontend shows "coming soon". Use Supabase Auth or custom OAuth flow.
 
-### 8. Multi-Language Support per Challenge
+### 8. ✅ Multi-Language Support per Challenge — DONE (migration 013)
 
-Currently each challenge is locked to one language (`challenges.language VARCHAR(50)` + `challenges.starter_code TEXT`). Users cannot choose which language to solve a challenge in.
-
-#### DB (migration 014)
-
-```sql
-ALTER TABLE challenges ADD COLUMN starter_codes JSONB;
-UPDATE challenges SET starter_codes = jsonb_build_object(language, starter_code);
--- language column stays as the default/primary; starter_code kept for backwards compat
-```
-
-#### Backend
-
-- `ChallengeOut`: add `starter_codes: dict[str, str]` (e.g. `{"python": "...", "java": "..."}`); keep `language` + `starter_code` for backwards compat
-- `/api/v1/evaluate` and `/api/v1/run` already receive `language` from frontend — no changes needed
-
-#### Frontend
-
-- `Challenge` interface: add `starterCodes: Record<string, string>`
-- Sandbox toolbar: language dropdown showing available languages for the active challenge
-- `selectChallenge()`: default to first available language; set `selectedLanguage` signal
-- On language switch: swap `this.code` to that language's starter (warn if user has already edited)
-- `evaluate()` and `runTests()`: send `selectedLanguage` instead of `challenge.language`
-- `fileExtension()` and `buildEditorOptions()`: use `selectedLanguage`
+`starter_codes` JSONB column added. `ChallengeOut` returns it; frontend sandbox has a language dropdown. Harness generation script (`api/scripts/generate_harnesses.py`) populates additional language variants via migration 013b.
 
 ---
 
@@ -370,3 +348,5 @@ No backup strategy exists. A bad migration or accidental `DELETE` without `WHERE
 - **API_KEY_SECRET required**: `auth/apikey.py` will raise `RuntimeError` on startup if `API_KEY_SECRET` is not a 64-char hex string. Add to `.env`.
 - **ALLOW_SERVER_KEY=true by default**: Dev fallback uses server's `ANTHROPIC_API_KEY`. Set `ALLOW_SERVER_KEY=false` in prod to force BYOK.
 - **OpenAI + Google BYOK dispatch**: packages added to `requirements.txt`; provider-dispatch logic in `routers/evaluate.py` still routes everything through Anthropic — needs conditional branching for OpenAI/Google providers.
+- **Test harness required for Run Tests to work**: `POST /api/v1/run` concatenates `test_harness` from DB with user code before execution. Challenges with `test_harness IS NULL` fall back to raw user code (old behaviour — tests will fail). Run `api/scripts/generate_harnesses.py` and apply `013b_harness_data.sql` to populate harnesses for all 300 challenges.
+- **Harness conflicts stripped per language**: Java `public` stripped from user type declarations; C++ `int main()` stripped; Python `if __name__ == '__main__':` stripped. TypeScript harness must use `readline close` handler. See `routers/run.py` helpers.

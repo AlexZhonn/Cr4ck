@@ -113,7 +113,15 @@ export class SandboxComponent implements OnInit, OnDestroy {
     return list;
   });
 
+  readonly availableLanguages = computed(() => {
+    const c = this.activeChallenge;
+    if (!c) return [];
+    const keys = Object.keys(c.starterCodes ?? {});
+    return keys.length > 0 ? keys : [c.language];
+  });
+
   activeChallengeId = signal<string>('');
+  selectedLanguage = signal<string>('');
   code = '';
   isEvaluating = signal(false);
   feedback = signal<EvaluationFeedback | null>(null);
@@ -261,7 +269,10 @@ export class SandboxComponent implements OnInit, OnDestroy {
     const challenge = this.svc.byId(id);
     if (!challenge) return;
     this.activeChallengeId.set(id);
-    this.code = challenge.starterCode;
+    const langs = Object.keys(challenge.starterCodes ?? {});
+    const lang = langs.length > 0 ? langs[0] : challenge.language;
+    this.selectedLanguage.set(lang);
+    this.code = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
     this.feedback.set(null);
     this.runResults.set(null);
     this.runError.set(null);
@@ -272,7 +283,21 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.submissions.set([]);
     this.historyError.set(null);
     this.expandedSubmissionId.set(null);
-    this.editorOptions = this.buildEditorOptions(challenge.language);
+    this.editorOptions = this.buildEditorOptions(lang);
+  }
+
+  setLanguage(lang: string) {
+    const challenge = this.activeChallenge;
+    if (!challenge) return;
+    const currentStarter = (challenge.starterCodes ?? {})[this.selectedLanguage()] ?? challenge.starterCode;
+    if (this.code !== currentStarter) {
+      if (!confirm('Switching languages will replace your current code with the starter code. Continue?')) {
+        return;
+      }
+    }
+    this.selectedLanguage.set(lang);
+    this.code = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    this.editorOptions = this.buildEditorOptions(lang);
   }
 
   async loadPosts() {
@@ -425,9 +450,20 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   async evaluateCode() {
     const challenge = this.activeChallenge;
-    if (!challenge) return;
+    console.group('[evaluateCode] started');
+    console.log('activeChallenge:', challenge);
+    console.log('isLoggedIn:', this.auth.isLoggedIn());
+    console.log('code length:', this.code?.length ?? 0);
+
+    if (!challenge) {
+      console.warn('[evaluateCode] aborted — no active challenge');
+      console.groupEnd();
+      return;
+    }
 
     if (!this.auth.isLoggedIn()) {
+      console.warn('[evaluateCode] aborted — user not logged in');
+      console.groupEnd();
       this.evalError.set('You must be logged in to evaluate code. Please log in and try again.');
       return;
     }
@@ -437,43 +473,82 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.feedback.set(null);
     this.evalError.set(null);
 
+    const evalPayload = {
+      challenge_id: challenge.id,
+      challenge_title: challenge.title,
+      language: this.selectedLanguage(),
+      code: this.code,
+      problem_description: challenge.description,
+    };
+    console.log('[evaluateCode] request payload:', evalPayload);
+
     try {
-      const token = localStorage.getItem('cr4ck_access');
-      const response = await fetch('/api/v1/evaluate', {
+      let token = this.auth.getAccessToken();
+      console.log('[evaluateCode] access token present:', !!token);
+
+      const evalBody = JSON.stringify(evalPayload);
+      console.log('[evaluateCode] POST /api/v1/evaluate (attempt 1)');
+      let response = await fetch('/api/v1/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          challenge_id: challenge.id,
-          challenge_title: challenge.title,
-          language: challenge.language,
-          code: this.code,
-          problem_description: challenge.description,
-        }),
+        body: evalBody,
       });
+      console.log('[evaluateCode] response status:', response.status);
 
       if (response.status === 401) {
-        await this.auth.logout();
-        this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
-        return;
+        console.warn('[evaluateCode] 401 on attempt 1 — trying token refresh');
+        await this.auth.refresh();
+        token = this.auth.getAccessToken();
+        console.log('[evaluateCode] token after refresh:', !!token);
+        if (!token) {
+          console.error('[evaluateCode] no token after refresh — logging out');
+          console.groupEnd();
+          await this.auth.logout();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+          return;
+        }
+        console.log('[evaluateCode] POST /api/v1/evaluate (attempt 2 after refresh)');
+        response = await fetch('/api/v1/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: evalBody,
+        });
+        console.log('[evaluateCode] response status (attempt 2):', response.status);
+        if (response.status === 401) {
+          console.error('[evaluateCode] still 401 after refresh — logging out');
+          console.groupEnd();
+          await this.auth.logout();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+          return;
+        }
       }
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
-        throw new Error(err.detail ?? `HTTP ${response.status}`);
+        let errBody: any;
+        try {
+          errBody = await response.json();
+        } catch {
+          errBody = { detail: `HTTP ${response.status} (body not JSON)` };
+        }
+        console.error('[evaluateCode] non-OK response:', response.status, errBody);
+        throw new Error(errBody.detail ?? `HTTP ${response.status}`);
       }
 
-      this.feedback.set(await response.json());
-      // Refresh history so the new submission appears if the tab is open
+      const data = await response.json();
+      console.log('[evaluateCode] success — feedback:', data);
+      console.groupEnd();
+      this.feedback.set(data);
       if (this.activeTab() === 'history') {
         await this.loadHistory();
       } else {
-        // Invalidate cached list so next open fetches fresh data
         this.submissions.set([]);
       }
     } catch (err: any) {
+      console.error('[evaluateCode] caught exception:', err);
+      console.groupEnd();
       this.evalError.set(err.message ?? 'An error occurred while evaluating your code.');
     } finally {
       this.isEvaluating.set(false);
@@ -482,9 +557,20 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   async runTests() {
     const challenge = this.activeChallenge;
-    if (!challenge) return;
+    console.group('[runTests] started');
+    console.log('activeChallenge:', challenge);
+    console.log('isLoggedIn:', this.auth.isLoggedIn());
+    console.log('code length:', this.code?.length ?? 0);
+
+    if (!challenge) {
+      console.warn('[runTests] aborted — no active challenge');
+      console.groupEnd();
+      return;
+    }
 
     if (!this.auth.isLoggedIn()) {
+      console.warn('[runTests] aborted — user not logged in');
+      console.groupEnd();
       this.runError.set('You must be logged in to run tests. Please log in and try again.');
       return;
     }
@@ -494,34 +580,74 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.runResults.set(null);
     this.runError.set(null);
 
+    const runBody = {
+      challenge_id: challenge.id,
+      language: this.selectedLanguage(),
+      code: this.code,
+    };
+    console.log('[runTests] request body:', runBody);
+
     try {
-      const token = localStorage.getItem('cr4ck_access');
-      const response = await fetch('/api/v1/run', {
+      let token = this.auth.getAccessToken();
+      console.log('[runTests] access token present:', !!token);
+
+      console.log('[runTests] POST /api/v1/run (attempt 1)');
+      let response = await fetch('/api/v1/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          challenge_id: challenge.id,
-          language: challenge.language,
-          code: this.code,
-        }),
+        body: JSON.stringify(runBody),
       });
+      console.log('[runTests] response status:', response.status);
 
       if (response.status === 401) {
-        await this.auth.logout();
-        this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
-        return;
+        console.warn('[runTests] 401 on attempt 1 — trying token refresh');
+        await this.auth.refresh();
+        token = this.auth.getAccessToken();
+        console.log('[runTests] token after refresh:', !!token);
+        if (!token) {
+          console.error('[runTests] no token after refresh — logging out');
+          console.groupEnd();
+          await this.auth.logout();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+          return;
+        }
+        console.log('[runTests] POST /api/v1/run (attempt 2 after refresh)');
+        response = await fetch('/api/v1/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(runBody),
+        });
+        console.log('[runTests] response status (attempt 2):', response.status);
+        if (response.status === 401) {
+          console.error('[runTests] still 401 after refresh — logging out');
+          console.groupEnd();
+          await this.auth.logout();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: '/sandbox' } });
+          return;
+        }
       }
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }));
-        throw new Error(err.detail ?? `HTTP ${response.status}`);
+        let errBody: any;
+        try {
+          errBody = await response.json();
+        } catch {
+          errBody = { detail: `HTTP ${response.status} (body not JSON)` };
+        }
+        console.error('[runTests] non-OK response:', response.status, errBody);
+        throw new Error(errBody.detail ?? `HTTP ${response.status}`);
       }
 
-      this.runResults.set(await response.json());
+      const data = await response.json();
+      console.log('[runTests] success — results:', data);
+      console.groupEnd();
+      this.runResults.set(data);
     } catch (err: any) {
+      console.error('[runTests] caught exception:', err);
+      console.groupEnd();
       this.runError.set(err.message ?? 'An error occurred while running tests.');
     } finally {
       this.isRunning.set(false);
@@ -561,6 +687,6 @@ export class SandboxComponent implements OnInit, OnDestroy {
       java: 'java',
       cpp: 'cpp',
     };
-    return map[this.activeChallenge?.language ?? ''] ?? 'txt';
+    return map[this.selectedLanguage()] ?? 'txt';
   }
 }

@@ -15,6 +15,7 @@ export interface Challenge {
   topic: Topic;
   description: string;
   starterCode: string;
+  starterCodes?: Record<string, string>;
   testCases?: TestCase[];
 }
 

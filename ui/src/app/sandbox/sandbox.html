@@ -235,6 +235,18 @@
               <span>solution.{{ fileExtension() }}</span>
             </div>
             <div class="flex items-center gap-1.5 overflow-hidden">
+              <!-- Language selector — only shown when multiple languages are available -->
+              @if (availableLanguages().length > 1) {
+                <select
+                  [value]="selectedLanguage()"
+                  (change)="setLanguage($any($event.target).value)"
+                  class="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-mono text-gray-300 focus:outline-none focus:border-emerald-500/40"
+                >
+                  @for (lang of availableLanguages(); track lang) {
+                    <option [value]="lang">{{ lang }}</option>
+                  }
+                </select>
+              }
               <!-- Run Tests button -->
               @if (hasTestCases) {
                 <button
