@@ -23,6 +23,8 @@ CHALLENGES_TTL = 300  # 5 minutes
 LEADERBOARD_KEY = "cr4ck:leaderboard"
 LEADERBOARD_TTL = 60  # 1 minute
 
+DAILY_KEY_PREFIX = "cr4ck:daily:"  # + YYYY-MM-DD suffix
+
 
 def get_redis() -> redis.Redis | None:
     global _client

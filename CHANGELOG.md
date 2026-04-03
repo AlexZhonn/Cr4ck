@@ -7,6 +7,10 @@
 
 ## Features
 
+### Daily Challenge
+- **Daily AI-generated challenge** — `POST /api/admin/generate-daily` (protected by `X-Admin-Secret`) calls Claude to create a fresh challenge each day following a weekly rotation schedule (Mon=Easy design_patterns … Sat=Hard behavioral_patterns). Retries up to 3× on malformed output; falls back to a random unshown challenge. `GET /api/v1/daily` returns today's challenge (Redis-cached until midnight UTC). Landing page shows a "Today's Challenge" card with title, topic, difficulty badge, and a "Solve it" deep-link into the sandbox. GitHub Actions cron runs at midnight UTC.
+- **Migration 014** — `is_ai_generated BOOLEAN`, `generated_at TIMESTAMPTZ` added to `challenges`; `daily_challenges` table (`date DATE PRIMARY KEY`, `challenge_id UUID FK`).
+
 ### Code Execution
 - **Test harness system** — `test_harness` column (migration 013) holds a hidden driver script per challenge. `POST /api/v1/run` concatenates user code + harness before submitting to Judge0/Docker, enabling stdin/stdout test cases to work against user-defined classes. Per-language conflict stripping: Java `public` removed from user type declarations, C++ `int main()` removed, Python `__main__` block removed. Harness generation script (`api/scripts/generate_harnesses.py`) uses Claude API to write harnesses for all 300 challenges.
 - **Multi-language support per challenge** — `starter_codes` JSONB column (migration 013) maps `{ language: starter_code }`. `ChallengeOut` returns it; frontend sandbox shows a language dropdown when multiple languages are available. `selectedLanguage` signal drives editor options, file extension, and request payloads.

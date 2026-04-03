@@ -41,6 +41,35 @@
         <span class="pill">C++</span>
         <span class="pill pill-accent">AI Feedback</span>
       </div>
+
+      <!-- Today's Challenge card -->
+      @if (daily.loading()) {
+        <div class="daily-card daily-card--loading" aria-busy="true">
+          <div class="daily-card-header">
+            <span class="daily-label">Today's Challenge</span>
+          </div>
+          <div class="daily-skeleton"></div>
+        </div>
+      } @else if (daily.daily(); as challenge) {
+        <div class="daily-card">
+          <div class="daily-card-header">
+            <span class="daily-label">Today's Challenge</span>
+            <span class="daily-difficulty" [class]="difficultyClass(challenge.difficulty)">
+              {{ challenge.difficulty }}
+            </span>
+          </div>
+          <p class="daily-title">{{ challenge.title }}</p>
+          <p class="daily-topic">{{ challenge.topic | titlecase }}</p>
+          <button type="button" class="btn-daily" (click)="solveDaily()">
+            Solve it
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      }
     </div>
 
     <!-- Terminal preview decoration -->

@@ -221,6 +221,108 @@
   font-weight: bold;
 }
 
+/* Daily Challenge card */
+.daily-card {
+  background-color: rgba(52, 211, 153, 0.05);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.daily-card--loading {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.daily-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.daily-label {
+  font-size: 0.65rem;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #34d399;
+}
+
+.daily-difficulty {
+  font-size: 0.65rem;
+  font-family: monospace;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.25rem;
+}
+
+.daily-difficulty-easy {
+  background-color: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
+.daily-difficulty-medium {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.daily-difficulty-hard {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.daily-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f3f4f6;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.daily-topic {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin: 0;
+  font-family: monospace;
+}
+
+.btn-daily {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background-color: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  align-self: flex-start;
+}
+
+.btn-daily:hover {
+  background-color: rgba(52, 211, 153, 0.2);
+}
+
+.daily-skeleton {
+  height: 2.5rem;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.375rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Responsive: hide terminal on small screens */
 @media (max-width: 900px) {
   .terminal-preview {
