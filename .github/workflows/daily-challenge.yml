@@ -25,6 +25,14 @@ jobs:
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
           DATE_OVERRIDE: ${{ github.event.inputs.date_override }}
         run: |
+          set -euo pipefail
+
+          # Guard: API_URL must be set (check repo Settings → Secrets → Actions)
+          if [ -z "$API_URL" ]; then
+            echo "::error::API_URL secret is not set. Add it in repo Settings → Secrets → Actions."
+            exit 1
+          fi
+
           # Validate date_override format (YYYY-MM-DD) before using it
           if [ -n "$DATE_OVERRIDE" ]; then
             if ! echo "$DATE_OVERRIDE" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
@@ -47,7 +55,7 @@ jobs:
           cat /tmp/response.json
 
           # Fail the workflow if the API returns a non-2xx code
-          if [[ "$HTTP_STATUS" -lt 200 || "$HTTP_STATUS" -ge 300 ]]; then
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
             echo "::error::Daily challenge generation failed (HTTP $HTTP_STATUS)"
             exit 1
           fi
