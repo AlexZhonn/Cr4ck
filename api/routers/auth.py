@@ -400,7 +400,21 @@ if _os.getenv("TEST_MODE", "").lower() == "true":
 
 
 @router.get("/me", response_model=UserPublic)
-def me(current_user: UserInDB = Depends(get_current_user)):
+def me(current_user: UserInDB = Depends(get_current_user), db=Depends(get_db)):
+    with db.cursor() as cur:
+        cur.execute(
+            """
+            SELECT b.id, b.label, b.description, b.icon, ub.earned_at
+              FROM user_badges ub
+              JOIN badges b ON b.id = ub.badge_id
+             WHERE ub.user_id = %s
+             ORDER BY ub.earned_at
+            """,
+            (str(current_user.id),),
+        )
+        from models.user import UserBadgeOut
+        badges = [UserBadgeOut(**row) for row in cur.fetchall()]
+
     return UserPublic(
         id=current_user.id,
         username=current_user.username,
@@ -412,6 +426,7 @@ def me(current_user: UserInDB = Depends(get_current_user)):
         xp=current_user.xp,
         streak_days=current_user.streak_days,
         challenges_completed=current_user.challenges_completed,
+        badges=badges,
     )
 
 

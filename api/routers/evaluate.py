@@ -23,7 +23,7 @@ from auth.dependencies import get_current_user
 from auth.apikey import decrypt_key
 from core.database import get_db
 from core.redis import cache_delete, LEADERBOARD_KEY
-from models.user import UserInDB
+from models.user import UserInDB, BadgeOut
 
 router = APIRouter(tags=["evaluate"])
 
@@ -45,6 +45,7 @@ class EvaluationFeedback(BaseModel):
     architecture_feedback: str
     xp_earned: int = 0
     is_first_completion: bool = True
+    badges_earned: list[BadgeOut] = []
 
 
 SYSTEM_PROMPT = """You are an expert software architect and OOP educator reviewing student code submissions on the Cr4ck platform.
@@ -64,6 +65,76 @@ Respond ONLY with a valid JSON object matching this exact schema (no markdown, n
   "oop_feedback": "<specific OOP/design patterns feedback>",
   "architecture_feedback": "<system design / architecture feedback>"
 }"""
+
+
+def _check_and_award_badges(
+    cur,
+    user_id: str,
+    score: int,
+    is_first_completion: bool,
+    new_xp_total: int,
+    new_streak: int,
+    new_challenges_completed: int,
+) -> list[BadgeOut]:
+    """Check which badges the user just unlocked and insert them. Returns newly earned badges."""
+
+    # Determine which badge ids the user already has
+    cur.execute("SELECT badge_id FROM user_badges WHERE user_id = %s", (user_id,))
+    already_earned: set[str] = {r["badge_id"] for r in cur.fetchall()}
+
+    candidates: list[str] = []
+
+    if is_first_completion:
+        candidates.append("first_solve")
+
+    if score == 100:
+        candidates.append("first_perfect")
+    if score >= 80:
+        candidates.append("score_80")
+    if score >= 90:
+        candidates.append("score_90")
+
+    if new_challenges_completed >= 10:
+        candidates.append("challenges_10")
+    if new_challenges_completed >= 25:
+        candidates.append("challenges_25")
+    if new_challenges_completed >= 50:
+        candidates.append("challenges_50")
+    if new_challenges_completed >= 100:
+        candidates.append("challenges_100")
+
+    if new_streak >= 3:
+        candidates.append("streak_3")
+    if new_streak >= 7:
+        candidates.append("streak_7")
+    if new_streak >= 30:
+        candidates.append("streak_30")
+
+    if new_xp_total >= 500:
+        candidates.append("xp_500")
+    if new_xp_total >= 1000:
+        candidates.append("xp_1000")
+    if new_xp_total >= 5000:
+        candidates.append("xp_5000")
+
+    newly_earned_ids = [bid for bid in candidates if bid not in already_earned]
+    if not newly_earned_ids:
+        return []
+
+    # Insert all at once, ignore duplicates (race-condition safety)
+    from psycopg2.extras import execute_values
+    execute_values(
+        cur,
+        "INSERT INTO user_badges (user_id, badge_id) VALUES %s ON CONFLICT DO NOTHING",
+        [(user_id, bid) for bid in newly_earned_ids],
+    )
+
+    # Fetch badge details to return
+    cur.execute(
+        "SELECT id, label, description, icon FROM badges WHERE id = ANY(%s)",
+        (newly_earned_ids,),
+    )
+    return [BadgeOut(**row) for row in cur.fetchall()]
 
 
 def _xp_for_score(score: int) -> int:
@@ -282,8 +353,25 @@ def evaluate(
             (xp_earned, 1 if is_first_completion else 0, new_streak, user_id),
         )
 
+        # Fetch updated totals for badge thresholds
+        cur.execute("SELECT xp, challenges_completed FROM users WHERE id = %s", (user_id,))
+        updated = cur.fetchone()
+        new_xp_total = updated["xp"]
+        new_challenges_completed = updated["challenges_completed"]
+
+        badges_earned = _check_and_award_badges(
+            cur,
+            user_id=user_id,
+            score=feedback.score,
+            is_first_completion=is_first_completion,
+            new_xp_total=new_xp_total,
+            new_streak=new_streak,
+            new_challenges_completed=new_challenges_completed,
+        )
+
     feedback.xp_earned = xp_earned
     feedback.is_first_completion = is_first_completion
+    feedback.badges_earned = badges_earned
 
     # Emit outcome metric
     logger.info(
@@ -312,6 +400,17 @@ def evaluate(
             }))
             # leaderboard_update is PII-free — broadcast to all connections
             asyncio.create_task(manager.broadcast({"type": "leaderboard_update"}))
+        except Exception:
+            pass
+
+    if badges_earned:
+        try:
+            from routers.ws import manager
+            asyncio.create_task(manager.broadcast_authenticated({
+                "type": "badge_earned",
+                "username": current_user.username,
+                "badges": [b.model_dump() for b in badges_earned],
+            }))
         except Exception:
             pass
 

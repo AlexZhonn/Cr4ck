@@ -44,6 +44,21 @@
           </div>
         </div>
 
+        <!-- Badges shelf -->
+        @if (user()!.badges && user()!.badges.length > 0) {
+          <div class="badges-section">
+            <h2 class="section-title">Achievements</h2>
+            <div class="badges-grid">
+              @for (badge of user()!.badges; track badge.id) {
+                <div class="badge-card" [title]="badge.description">
+                  <span class="badge-icon">{{ badge.icon }}</span>
+                  <span class="badge-label">{{ badge.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <!-- AI API Key settings -->
         <div class="settings-section">
           <h2 class="section-title">AI Provider</h2>

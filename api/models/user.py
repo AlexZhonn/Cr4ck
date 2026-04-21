@@ -5,6 +5,17 @@ from uuid import UUID
 from enum import Enum
 
 
+class BadgeOut(BaseModel):
+    id: str
+    label: str
+    description: str
+    icon: str
+
+
+class UserBadgeOut(BadgeOut):
+    earned_at: datetime
+
+
 class UserRole(str, Enum):
     user = "user"
     admin = "admin"
@@ -54,6 +65,7 @@ class UserPublic(BaseModel):
     xp: int
     streak_days: int
     challenges_completed: int
+    badges: list[UserBadgeOut] = []
 
 
 class TokenResponse(BaseModel):

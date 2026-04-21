@@ -13,6 +13,17 @@ function extractErrorMessage(err: any, fallback: string): string {
   return fallback;
 }
 
+export interface Badge {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+}
+
+export interface UserBadge extends Badge {
+  earned_at: string;
+}
+
 export interface UserPublic {
   id: string;
   username: string;
@@ -24,6 +35,7 @@ export interface UserPublic {
   xp: number;
   streak_days: number;
   challenges_completed: number;
+  badges: UserBadge[];
 }
 
 interface TokenResponse {

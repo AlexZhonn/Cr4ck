@@ -49,6 +49,7 @@ from routers import posts as posts_router
 from routers import profile as profile_router
 from routers import apikey as apikey_router
 from routers import daily as daily_router
+from routers import badges as badges_router
 
 # ── Structured JSON logging ────────────────────────────────────────────────────
 try:
@@ -158,6 +159,7 @@ app.include_router(posts_router.router, prefix="/api/v1")
 app.include_router(profile_router.router, prefix="/api/v1")
 app.include_router(daily_router.router, prefix="/api/v1")            # GET /api/v1/daily
 app.include_router(daily_router.admin_router, prefix="/api/admin")   # POST /api/admin/generate-daily
+app.include_router(badges_router.router, prefix="/api/v1")           # GET /api/v1/badges, /badges/me
 # WebSocket (unversioned — protocol-level, not an HTTP resource path)
 app.include_router(ws_router.router)
 

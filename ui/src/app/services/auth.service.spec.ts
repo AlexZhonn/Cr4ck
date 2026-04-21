@@ -13,6 +13,7 @@ const MOCK_USER: UserPublic = {
   xp: 100,
   streak_days: 3,
   challenges_completed: 5,
+  badges: [],
 };
 
 const MOCK_TOKENS = {

@@ -230,14 +230,14 @@ Currently `/profile` is auth-gated and self-only. Making profiles public creates
 - Angular `/profile/:username` route — public stats, topic radar/bar chart, recent activity, badge shelf
 - Link to profile from leaderboard rows and community post author names
 
-### 3. Badges / Achievements System
+### 3. ✅ Badges / Achievements System — DONE (migration 015)
 
-Streaks and XP alone aren't enough to drive daily habit formation. Badges are discrete, celebratory, and shareable.
-
-- Migration: `badges` table (`id`, `slug`, `label`, `description`, `icon`) + `user_badges` (`user_id`, `badge_id`, `earned_at`)
-- Award logic in `routers/evaluate.py` after XP update: `first_solve`, `perfect_score`, `streak_7`, `streak_30`, `topic_master`, `century` (100 challenges)
-- Badge shelf on profile page; badge pop-up notification in sandbox on first earn
-- Seed 10–15 badges via migration
+- `badges` catalog + `user_badges` join table (migration 015); 15 badges seeded
+- Award logic in `routers/evaluate.py` — `_check_and_award_badges()` after every XP update
+- `GET /api/v1/badges` (public catalog), `GET /api/v1/badges/me` (auth required)
+- `/auth/v1/me` returns `badges: UserBadgeOut[]`
+- WebSocket `badge_earned` event broadcast to authenticated clients
+- Profile badge shelf (emoji grid); sandbox slide-up toast on first earn
 
 ### 4. ✅ Daily Challenge (AI-Generated) — DONE (migration 014)
 

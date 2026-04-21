@@ -6,7 +6,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { marked } from 'marked';
 import { Challenge } from '../data/challenges';
 import { ChallengesService } from '../services/challenges.service';
-import { AuthService } from '../services/auth.service';
+import { AuthService, Badge } from '../services/auth.service';
 import { WebSocketService } from '../services/websocket.service';
 import { PostsService, Post } from '../services/posts.service';
 
@@ -19,6 +19,7 @@ interface EvaluationFeedback {
   architecture_feedback: string;
   xp_earned: number;
   is_first_completion: boolean;
+  badges_earned: Badge[];
 }
 
 interface TestResult {
@@ -126,6 +127,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
   isEvaluating = signal(false);
   feedback = signal<EvaluationFeedback | null>(null);
   evalError = signal<string | null>(null);
+  newBadges = signal<Badge[]>([]);
+  private _badgeToastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Tests panel
   activeTab = signal<'feedback' | 'tests' | 'community' | 'history'>('feedback');
@@ -263,6 +266,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.ws.disconnect();
     this._onDragEnd();
+    if (this._badgeToastTimer) clearTimeout(this._badgeToastTimer);
   }
 
   selectChallenge(id: string) {
@@ -289,9 +293,14 @@ export class SandboxComponent implements OnInit, OnDestroy {
   setLanguage(lang: string) {
     const challenge = this.activeChallenge;
     if (!challenge) return;
-    const currentStarter = (challenge.starterCodes ?? {})[this.selectedLanguage()] ?? challenge.starterCode;
+    const currentStarter =
+      (challenge.starterCodes ?? {})[this.selectedLanguage()] ?? challenge.starterCode;
     if (this.code !== currentStarter) {
-      if (!confirm('Switching languages will replace your current code with the starter code. Continue?')) {
+      if (
+        !confirm(
+          'Switching languages will replace your current code with the starter code. Continue?',
+        )
+      ) {
         return;
       }
     }
@@ -541,6 +550,16 @@ export class SandboxComponent implements OnInit, OnDestroy {
       console.log('[evaluateCode] success — feedback:', data);
       console.groupEnd();
       this.feedback.set(data);
+
+      // Show badge toast if any badges were just earned
+      if (data.badges_earned?.length) {
+        this.newBadges.set(data.badges_earned);
+        if (this._badgeToastTimer) clearTimeout(this._badgeToastTimer);
+        this._badgeToastTimer = setTimeout(() => this.newBadges.set([]), 6000);
+        // Refresh user profile so badge shelf updates immediately
+        await this.auth.fetchMe();
+      }
+
       if (this.activeTab() === 'history') {
         await this.loadHistory();
       } else {

@@ -7,6 +7,20 @@
 
 ## Features
 
+### Badges / Achievements System
+
+- **15 badges seeded** — `first_solve`, `first_perfect`, `score_80`, `score_90`, `challenges_10/25/50/100`, `streak_3/7/30`, `xp_500/1000/5000`, `perfect_streak`
+- **Migration 015** — `badges` catalog table + `user_badges` join table with unique constraint
+- **Award logic in `evaluate.py`** — `_check_and_award_badges()` called after every XP update; checks score, streak, XP total, and challenge count against thresholds; de-duplicates via ON CONFLICT
+- **`GET /api/v1/badges`** — public catalog endpoint
+- **`GET /api/v1/badges/me`** — auth-required list of user's earned badges with `earned_at` timestamps
+- **`/auth/v1/me`** — now includes `badges: UserBadgeOut[]` in the profile response
+- **WebSocket `badge_earned` event** — broadcast to authenticated connections on badge award
+- **Profile badge shelf** — emoji icon grid shown when user has earned badges; visible on `/profile`
+- **Sandbox badge toast** — slide-up notification on first earn; auto-dismisses after 6 s; calls `fetchMe()` to refresh badge count on profile page
+- **Angular `AuthService`** — `Badge` + `UserBadge` interfaces added; `UserPublic.badges` field added
+- **Backend tests** — `api/tests/test_badges.py`: catalog shape, unauthenticated guard, badge-on-first-solve, perfect-score badges, no-duplicate-on-retry, `/me` includes badges
+
 ### Daily Challenge
 - **Daily AI-generated challenge** — `POST /api/admin/generate-daily` (protected by `X-Admin-Secret`) calls Claude to create a fresh challenge each day following a weekly rotation schedule (Mon=Easy design_patterns … Sat=Hard behavioral_patterns). Retries up to 3× on malformed output; falls back to a random unshown challenge. `GET /api/v1/daily` returns today's challenge (Redis-cached until midnight UTC). Landing page shows a "Today's Challenge" card with title, topic, difficulty badge, and a "Solve it" deep-link into the sandbox. GitHub Actions cron runs at midnight UTC.
 - **Migration 014** — `is_ai_generated BOOLEAN`, `generated_at TIMESTAMPTZ` added to `challenges`; `daily_challenges` table (`date DATE PRIMARY KEY`, `challenge_id UUID FK`).
