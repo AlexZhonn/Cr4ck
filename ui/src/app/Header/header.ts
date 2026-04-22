@@ -32,6 +32,9 @@ export class HeaderComponent {
   GotoProblems() {
     this.router.navigate(['/problems']);
   }
+  GotoPaths() {
+    this.router.navigate(['/paths']);
+  }
   GotoLeaderboard() {
     this.router.navigate(['/leaderboard']);
   }

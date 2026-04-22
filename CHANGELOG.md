@@ -7,6 +7,25 @@
 
 ## Features
 
+### Learning Paths / Challenge Sequences
+
+- **Migration 016** — `paths` table (slug, title, description, topic, icon, order_index) + `path_challenges` join table (path_id, challenge_id, step_order); indexes on both tables
+- **8 curated paths seeded** across all 3 topics and all 3 difficulty levels:
+  - *OOP Foundations* — 9 Easy OOP challenges; encapsulation → state → polymorphism
+  - *OOP in Practice* — 9 Medium OOP challenges; real business domains with inheritance
+  - *Advanced OOP Systems* — 8 Hard OOP challenges; complex hierarchies and invariants
+  - *Creational Design Patterns* — 10 challenges; all 5 GoF creational patterns (Easy → Hard)
+  - *Structural Design Patterns* — 10 challenges; all 7 GoF structural patterns (Easy → Hard)
+  - *Behavioral Design Patterns* — 12 challenges; 9 GoF behavioral patterns (Easy → Hard)
+  - *System Design Foundations* — 9 Easy/Medium challenges; caching, queues, resilience
+  - *Distributed Systems Deep Dive* — 8 Hard challenges; consensus, CQRS, Saga, leader election
+- **`GET /api/v1/paths`** — public list of all paths with challenge counts and difficulty tags
+- **`GET /api/v1/paths/:slug`** — path detail with ordered `ChallengeOut[]` list
+- **`GET /api/v1/paths/:slug/progress`** — auth-required; returns per-challenge `attempted` flag + `best_score` + aggregate `completed` / `total` count
+- **Angular `/paths` route** (`PathsComponent`) — 2-column grid of path cards with topic badge, difficulty tags, challenge count, description preview
+- **Angular `/paths/:slug` route** (`PathDetailComponent`) — sequential challenge list with step numbers, completion check-marks, best-score badges, and a live progress bar (visible when logged in)
+- **Backend tests** — `api/tests/test_paths.py`: public list shape, 8 paths present, ordered by index, all slugs resolve, difficulty purity assertions (Foundations = Easy only, Distributed = Hard only), creational path covers all 5 patterns, progress shape, unauthenticated guard, 404 on unknown slug
+
 ### Badges / Achievements System
 
 - **15 badges seeded** — `first_solve`, `first_perfect`, `score_80`, `score_90`, `challenges_10/25/50/100`, `streak_3/7/30`, `xp_500/1000/5000`, `perfect_streak`

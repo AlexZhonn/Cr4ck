@@ -75,6 +75,8 @@ ui/src/app/
   sandbox/          Main IDE: sidebar + Monaco + AI feedback pane
   Login/            JWT login form
   Register/         Registration form
+  Paths/            Learning path grid — /paths
+  PathDetail/       Sequential challenge list + progress bar — /paths/:slug
   Profile/          User stats: XP, level, streak, challenges completed
   About/            Static about page
   data/challenges   Challenge[] + Topic type + TOPICS metadata (icons, labels, descriptions)
@@ -92,6 +94,7 @@ api/
   routers/challenges.py  GET /api/challenges, GET /api/challenges/:id (Redis-cached)
   routers/evaluate.py    POST /api/evaluate — Claude API, XP award, streak, WS broadcast
   routers/leaderboard.py GET /api/leaderboard (Redis-cached, cache-busted on XP award)
+  routers/paths.py       GET /api/paths, /paths/:slug, /paths/:slug/progress (learning paths)
   routers/run.py         POST /api/run — Docker-sandboxed code execution
   routers/ws.py          WS /ws — ConnectionManager, solve_event + leaderboard_update broadcasts
   migrations/       Raw SQL migration files (001–012)
@@ -126,6 +129,9 @@ api/
 | POST   | /api/v1/run                      | Run code against test cases (auth required)                                     |
 | GET    | /api/v1/daily                    | Today's daily challenge (public, Redis-cached until midnight UTC)               |
 | POST   | /api/admin/generate-daily        | Generate today's challenge via Claude (X-Admin-Secret required)                 |
+| GET    | /api/v1/paths                    | All learning paths with challenge counts + difficulty tags (public)             |
+| GET    | /api/v1/paths/:slug              | Path detail with ordered challenges (public)                                    |
+| GET    | /api/v1/paths/:slug/progress     | Per-challenge completion status for current user (auth required)                |
 | GET    | /api/v1/challenges/:id/posts     | Paginated post list for a challenge (public)                                    |
 | POST   | /api/v1/challenges/:id/posts     | Create top-level post or reply (auth required)                                  |
 | PUT    | /api/v1/posts/:id                | Edit own post (auth required)                                                   |
@@ -158,6 +164,8 @@ api/
 | `/problems/topic/:topic` | TopicProblemsComponent | Topic detail + difficulty filter                  |
 | `/problems/:id`          | ProblemComponent       | Problem detail, shows loading/error states        |
 | `/sandbox`               | SandboxComponent       | Auth-guarded; 401 mid-session redirects to /login |
+| `/paths`                 | PathsComponent         | Public; grid of all learning path cards           |
+| `/paths/:slug`           | PathDetailComponent    | Public; sequential challenge list + progress bar  |
 | `/leaderboard`           | LeaderboardComponent   | Public, fetches /api/leaderboard                  |
 | `/login`                 | LoginComponent         | GitHub OAuth button shows "coming soon" notice    |
 | `/register`              | RegisterComponent      | GitHub OAuth button shows "coming soon" notice    |
@@ -213,14 +221,25 @@ npm run build -- --configuration production
 
 ## What's Next (Priority Order)
 
-### 1. Learning Paths / Challenge Sequences
+### 1. ✅ Learning Paths / Challenge Sequences — DONE (migration 016)
 
-The single biggest differentiator from LeetCode. Random challenge lists = challenge dump. Curated sequences = curriculum.
+- **Migration 016** — `paths` table + `path_challenges` join table (step_order)
+- **8 curated paths seeded**: OOP Foundations (9 Easy), OOP in Practice (9 Medium), Advanced OOP Systems (8 Hard), Creational Patterns (10), Structural Patterns (10), Behavioral Patterns (12), System Design Foundations (9), Distributed Systems Deep Dive (8)
+- **`GET /api/v1/paths`** (public), **`GET /api/v1/paths/:slug`** (public), **`GET /api/v1/paths/:slug/progress`** (auth)
+- **Angular `/paths`** — `PathsComponent` 2-column grid of path cards with topic badge + difficulty tags
+- **Angular `/paths/:slug`** — `PathDetailComponent` sequential challenge list, step indicators, best-score badges, progress bar
 
-- Migration: `paths` table (`id`, `title`, `description`, `topic`, `order`) + `path_challenges` join table (ordered)
-- Endpoints: `GET /api/v1/paths`, `GET /api/v1/paths/:id`, `GET /api/v1/paths/:id/progress` (auth)
-- Angular `/paths` route — grid of learning path cards; `/paths/:id` — sequential challenge list with progress bar
-- Seed 5–10 paths from existing challenges (e.g. "SOLID Principles", "Design Patterns Fundamentals", "Concurrency Basics")
+#### Improvement: Path-scoped sandbox sidebar
+
+When a user clicks a challenge from `/paths/:slug`, the sandbox sidebar should show **only the challenges in that path** (in step order), not the full 300-challenge list. This makes the learning experience focused — users stay "inside" the path as they work through it.
+
+Implementation:
+- `PathDetailComponent.openChallenge()` passes `?challenge=:id&path=:slug` to `/sandbox`
+- `SandboxComponent` reads the `path` query param on `ngOnInit`; if present, fetches `/api/v1/paths/:slug` and stores the ordered challenge IDs
+- The sidebar `challenges` computed switches from the global `ChallengesService` list to the path-ordered subset when `pathChallengeIds` is non-empty
+- Sidebar header shows the path title (e.g. "OOP Foundations") instead of "Challenges"; filters (search, topic, difficulty) are hidden in path mode since the path is already curated
+- An "Exit path" link returns to `/paths/:slug` so users can continue tracking progress
+- `_syncParams` preserves the `path` query param so refreshing the page stays in path mode
 
 ### 2. Public User Profiles `/profile/:username`
 

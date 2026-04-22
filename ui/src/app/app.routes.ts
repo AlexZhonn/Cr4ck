@@ -10,6 +10,15 @@ export const routes: Routes = [
     path: 'problems',
     loadComponent: () => import('./ProblemSet/problem-set').then((m) => m.ProblemSetComponent),
   },
+  {
+    path: 'paths',
+    loadComponent: () => import('./Paths/paths').then((m) => m.PathsComponent),
+  },
+  // :slug must come before any wildcard — no conflict risk since slugs are kebab-case strings
+  {
+    path: 'paths/:slug',
+    loadComponent: () => import('./PathDetail/path-detail').then((m) => m.PathDetailComponent),
+  },
   // topic must come before :id so Angular doesn't treat "topic" as a problem id
   {
     path: 'problems/topic/:topic',

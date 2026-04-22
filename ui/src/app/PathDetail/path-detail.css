@@ -1,0 +1,361 @@
+.path-detail-page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #d1d5db;
+  font-family: sans-serif;
+}
+
+.path-detail-main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* Loading / error */
+.loading-state,
+.error-state {
+  padding: 4rem 0;
+  text-align: center;
+  color: #6b7280;
+}
+
+.error-text {
+  color: #fb7185;
+  margin-bottom: 1.25rem;
+}
+
+/* Back button */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 2rem;
+  transition: color 0.15s;
+}
+
+.btn-back:hover {
+  color: #34d399;
+}
+
+/* Path header */
+.path-header {
+  margin-bottom: 2.5rem;
+}
+
+.path-header-top {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.875rem;
+}
+
+/* Topic badges */
+.topic-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.375rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.topic-oop {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.topic-patterns {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+.topic-system {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #5eead4;
+}
+
+.topic-other {
+  background-color: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+
+.diff-tags {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.diff-tag {
+  font-size: 0.7rem;
+  font-family: monospace;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+}
+
+.badge-easy,
+.diff-easy {
+  background-color: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+
+.badge-medium,
+.diff-medium {
+  background-color: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.badge-hard,
+.diff-hard {
+  background-color: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+.path-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+}
+
+.path-desc {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+  max-width: 48rem;
+}
+
+/* Progress bar */
+.progress-section {
+  margin-top: 1.25rem;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fraction {
+  color: #34d399;
+  font-family: monospace;
+}
+
+.progress-bar-track {
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34d399, #059669);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.login-hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0.75rem 0 0;
+}
+
+.login-hint a {
+  color: #34d399;
+  text-decoration: none;
+}
+
+.login-hint a:hover {
+  text-decoration: underline;
+}
+
+/* Challenge list */
+.challenge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.challenge-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  padding: 1.25rem 1rem 1.25rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background-color 0.15s;
+  border-radius: 0.5rem;
+  position: relative;
+}
+
+.challenge-row:last-child {
+  border-bottom: none;
+}
+
+.challenge-row:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.challenge-row:hover .challenge-title {
+  color: #34d399;
+}
+
+.challenge-row:hover .challenge-arrow {
+  color: #34d399;
+  transform: translateX(3px);
+}
+
+/* Step indicator */
+.step-indicator {
+  grid-row: 1;
+  grid-column: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #6b7280;
+  align-self: start;
+  margin-top: 0.15rem;
+  z-index: 1;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.step-indicator.step-done {
+  background-color: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #34d399;
+}
+
+.step-number {
+  font-size: 0.75rem;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+/* Connector line between step bubbles */
+.step-connector {
+  grid-row: 2;
+  grid-column: 1;
+  width: 2px;
+  height: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.07);
+  margin: 0 auto;
+}
+
+/* Challenge info */
+.challenge-info {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.challenge-info-top {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 0.375rem;
+}
+
+.challenge-title {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin: 0;
+  line-height: 1.35;
+  transition: color 0.15s;
+  flex: 1;
+  min-width: 0;
+}
+
+.challenge-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.difficulty-badge,
+.lang-badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+  font-family: monospace;
+}
+
+.lang-badge {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #9ca3af;
+}
+
+.score-badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.score-excellent {
+  background-color: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
+.score-good {
+  background-color: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+}
+
+.score-fair {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.score-low {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.challenge-preview {
+  font-size: 0.825rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 40rem;
+}
+
+/* Completed row tint */
+.challenge-completed .challenge-title {
+  color: #d1fae5;
+}
+
+/* Arrow */
+.challenge-arrow {
+  grid-row: 1;
+  grid-column: 3;
+  color: #374151;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.2rem;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}

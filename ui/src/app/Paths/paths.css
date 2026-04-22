@@ -1,0 +1,214 @@
+.paths-page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #d1d5db;
+  font-family: sans-serif;
+}
+
+.paths-main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.paths-intro {
+  margin-bottom: 2.5rem;
+}
+
+.paths-intro h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.paths-intro p {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 1rem;
+  max-width: 56rem;
+}
+
+.load-error {
+  color: #fb7185 !important;
+}
+
+/* Grid — 2 columns on md+, 1 on mobile */
+.paths-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .paths-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Card */
+.path-card {
+  background-color: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.path-card:hover {
+  border-color: rgba(52, 211, 153, 0.35);
+  transform: translateY(-3px);
+}
+
+.path-card:hover .path-icon {
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.12);
+}
+
+.path-card:hover .path-title {
+  color: #34d399;
+}
+
+.path-card:hover .path-arrow {
+  color: #34d399;
+  transform: translateX(3px);
+}
+
+/* Top row: icon + topic badge */
+.path-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.path-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+/* Topic badges */
+.topic-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.375rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.topic-oop {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.topic-patterns {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+}
+
+.topic-system {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #5eead4;
+}
+
+.topic-other {
+  background-color: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+
+/* Body */
+.path-card-body {
+  flex: 1;
+}
+
+.path-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+  transition: color 0.2s;
+}
+
+.path-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Footer */
+.path-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.challenge-count {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.08);
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.375rem;
+  white-space: nowrap;
+}
+
+.diff-tags {
+  display: flex;
+  gap: 0.375rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.diff-tag {
+  font-size: 0.7rem;
+  font-family: monospace;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+}
+
+.diff-easy {
+  background-color: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+
+.diff-medium {
+  background-color: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.diff-hard {
+  background-color: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+.path-arrow {
+  color: #4b5563;
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  flex-shrink: 0;
+}

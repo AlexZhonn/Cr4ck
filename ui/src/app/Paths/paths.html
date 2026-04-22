@@ -1,0 +1,118 @@
+<div class="paths-page">
+  <app-header></app-header>
+
+  <main class="paths-main">
+    <div class="paths-intro">
+      <h1>Learning Paths</h1>
+      @if (isLoading()) {
+        <p>Loading paths…</p>
+      } @else if (error()) {
+        <p class="load-error">{{ error() }}</p>
+      } @else {
+        <p>
+          {{ paths().length }} curated paths across OOP, Design Patterns, and System Design.
+          Each path builds on the last — pick one and follow it from start to finish.
+        </p>
+      }
+    </div>
+
+    @if (!isLoading() && !error()) {
+      <div class="paths-grid">
+        @for (path of paths(); track path.slug) {
+          <button type="button" class="path-card" (click)="goToPath(path.slug)">
+            <div class="path-card-top">
+              <div class="path-icon">
+                @if (path.icon === 'oop') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                    <line x1="12" y1="12" x2="12" y2="16"></line>
+                    <line x1="10" y1="14" x2="14" y2="14"></line>
+                  </svg>
+                }
+                @if (path.icon === 'patterns') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                      d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                    ></path>
+                  </svg>
+                }
+                @if (path.icon === 'system') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                }
+              </div>
+              <span class="topic-badge" [ngClass]="topicClass(path.topic)">
+                {{ topicLabel(path.topic) }}
+              </span>
+            </div>
+
+            <div class="path-card-body">
+              <h2 class="path-title">{{ path.title }}</h2>
+              <p class="path-desc">{{ path.description }}</p>
+            </div>
+
+            <div class="path-card-footer">
+              <span class="challenge-count">
+                {{ path.challenge_count }} challenge{{ path.challenge_count !== 1 ? 's' : '' }}
+              </span>
+              <span class="diff-tags">
+                @for (tag of path.difficulty_tags; track tag) {
+                  <span class="diff-tag" [ngClass]="difficultyClass(tag)">{{ tag }}</span>
+                }
+              </span>
+              <svg
+                class="path-arrow"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </button>
+        }
+      </div>
+    }
+  </main>
+</div>

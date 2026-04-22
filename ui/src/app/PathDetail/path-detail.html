@@ -1,0 +1,146 @@
+<div class="path-detail-page">
+  <app-header></app-header>
+
+  <main class="path-detail-main">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading path…</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <p class="error-text">{{ error() }}</p>
+        <button type="button" class="btn-back" (click)="goBack()">← Back to Paths</button>
+      </div>
+    } @else if (path()) {
+      <!-- Back navigation -->
+      <button type="button" class="btn-back" (click)="goBack()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        All Paths
+      </button>
+
+      <!-- Path header -->
+      <div class="path-header">
+        <div class="path-header-top">
+          <span class="topic-badge" [ngClass]="topicClass(path()!.topic)">
+            {{ topicLabel(path()!.topic) }}
+          </span>
+          <span class="diff-tags">
+            @for (tag of path()!.difficulty_tags; track tag) {
+              <span class="diff-tag" [ngClass]="difficultyClass(tag)">{{ tag }}</span>
+            }
+          </span>
+        </div>
+        <h1 class="path-title">{{ path()!.title }}</h1>
+        <p class="path-desc">{{ path()!.description }}</p>
+
+        <!-- Progress bar (visible when logged in) -->
+        @if (authSvc.isLoggedIn() && progress()) {
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span class="progress-fraction">
+                {{ progress()!.completed }} / {{ progress()!.total }} completed
+              </span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" [style.width.%]="progressPercent()"></div>
+            </div>
+          </div>
+        } @else if (!authSvc.isLoggedIn()) {
+          <p class="login-hint">
+            <a routerLink="/login">Sign in</a> to track your progress through this path.
+          </p>
+        }
+      </div>
+
+      <!-- Challenge list -->
+      <div class="challenge-list">
+        @for (challenge of path()!.challenges; track challenge.id; let i = $index) {
+          @let stepProgress = getStepProgress(challenge.id);
+          <div
+            class="challenge-row"
+            [class.challenge-completed]="stepProgress?.attempted"
+            (click)="openChallenge(challenge.id)"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="openChallenge(challenge.id)"
+          >
+            <!-- Step number / completion indicator -->
+            <div class="step-indicator" [class.step-done]="stepProgress?.attempted">
+              @if (stepProgress?.attempted) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              } @else {
+                <span class="step-number">{{ i + 1 }}</span>
+              }
+            </div>
+
+            <!-- Connector line (between steps) -->
+            @if (i < path()!.challenges.length - 1) {
+              <div class="step-connector"></div>
+            }
+
+            <!-- Challenge info -->
+            <div class="challenge-info">
+              <div class="challenge-info-top">
+                <h3 class="challenge-title">{{ challenge.title }}</h3>
+                <div class="challenge-meta">
+                  <span class="difficulty-badge" [ngClass]="difficultyClass(challenge.difficulty)">
+                    {{ challenge.difficulty }}
+                  </span>
+                  <span class="lang-badge">{{ challenge.language }}</span>
+                  @if (stepProgress?.attempted && stepProgress!.best_score > 0) {
+                    <span class="score-badge" [ngClass]="scoreClass(stepProgress!.best_score)">
+                      {{ stepProgress!.best_score }}/100
+                    </span>
+                  }
+                </div>
+              </div>
+              <p class="challenge-preview">{{ descriptionPreview(challenge.description) }}</p>
+            </div>
+
+            <!-- Arrow -->
+            <div class="challenge-arrow">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>
