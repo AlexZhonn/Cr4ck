@@ -238,7 +238,14 @@ npm run build -- --configuration production
 - `exitPath()` clears path signals and navigates back to `/paths/:slug`
 - `_syncParams` preserves the `path` query param so page refresh stays in path mode
 
-### 2. Public User Profiles `/profile/:username`
+### 2. ✅ Sandbox Problem Description — Markdown Rendering — DONE
+
+- Replaced raw `{{ activeChallenge.description }}` with `[innerHTML]="renderMarkdown(activeChallenge.description)"` in `sandbox.html:245`
+- Added `.prose-desc` CSS class in `sandbox.css` — scoped styles for headings (h1/h2/h3), paragraphs, bold/em, inline code, fenced code blocks, blockquotes, lists, links, and hr
+- Reused existing `renderMarkdown()` (marked.parse) — no new TS logic needed
+- Added `ViewEncapsulation.None` to `SandboxComponent` so `sandbox.css` rules reach `[innerHTML]`-injected nodes (Tailwind Preflight + Angular's emulated encapsulation both blocked component-scoped styles from applying to dynamically injected DOM)
+
+### 3. Public User Profiles `/profile/:username`
 
 Currently `/profile` is auth-gated and self-only. Making profiles public creates social competition and organic word-of-mouth.
 
@@ -370,3 +377,7 @@ No backup strategy exists. A bad migration or accidental `DELETE` without `WHERE
 - **OpenAI + Google BYOK dispatch**: packages added to `requirements.txt`; provider-dispatch logic in `routers/evaluate.py` still routes everything through Anthropic — needs conditional branching for OpenAI/Google providers.
 - **Test harness required for Run Tests to work**: `POST /api/v1/run` concatenates `test_harness` from DB with user code before execution. Challenges with `test_harness IS NULL` fall back to raw user code (old behaviour — tests will fail). Run `api/scripts/generate_harnesses.py` and apply `013b_harness_data.sql` to populate harnesses for all 300 challenges.
 - **Harness conflicts stripped per language**: Java `public` stripped from user type declarations; C++ `int main()` stripped; Python `if __name__ == '__main__':` stripped. TypeScript harness must use `readline close` handler. See `routers/run.py` helpers.
+- **[HIGH] `generate_starter_codes.py` exposes unexecutable languages**: The backfill script (`api/scripts/generate_starter_codes.py:327-354`) populates `starter_codes` for all 4 languages, but `test_harness` is still a single-language blob. The sandbox surfaces every `starter_codes` key as a selectable language and sends it to `/api/v1/run`, which concatenates the original-language harness against wrong-language user code. Do not apply the generated SQL migration until `/api/v1/run` and harness storage are keyed per language, or restrict the backfill to the native language only.
+- **[HIGH] `generate_starter_codes.py` accepts raw Gemini output without validation**: At lines 174-187, any non-empty `response.text` is written into the migration after only stripping fences when the response starts with ` ``` `. Leading prose, trailing notes, wrong-language output, or syntactically invalid code all pass through. Add structured output enforcement or robust fenced-code extraction, then compile/smoke-test each snippet before writing an `UPDATE`.
+- **[HIGH] 96 challenges have placeholder descriptions**: `004_backfill_challenges.sql` contains 96 entries with the generic description `"Design an object‑oriented system modeling scenario #N. Focus on encapsulation, inheritance, and polymorphism."` These show verbatim in the sandbox description panel now that markdown rendering is live. Need a backfill script (similar to `generate_starter_codes.py`) that calls Claude to generate proper descriptions — with **Requirements** and **Constraints** sections — for each affected challenge and produces a migration SQL. Affected challenges are all in `004_backfill_challenges.sql`; grep for `"modeling scenario"` to find all 96.
+- **[MEDIUM] `generate_starter_codes.py` emits full-blob JSONB overwrites**: `write_sql` (lines 216-228) emits `SET starter_codes = ...::jsonb` for the entire JSON object. Because the script supports long-running resumable generation (`--offset`, `--append`), any manual fix or newer variant added after the snapshot is taken will be silently replaced when the SQL is applied. Change to a merge-style update: `starter_codes = COALESCE(starter_codes, '{}'::jsonb) || $new_blob::jsonb`, or add a guard that aborts if the live row no longer matches the snapshot.

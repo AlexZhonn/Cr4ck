@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -51,6 +51,7 @@ interface SubmissionRecord {
   imports: [CommonModule, FormsModule, MonacoEditorModule],
   templateUrl: './sandbox.html',
   styleUrl: './sandbox.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class SandboxComponent implements OnInit, OnDestroy {
   private svc = inject(ChallengesService);

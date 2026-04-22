@@ -242,9 +242,10 @@
                   {{ activeChallenge.difficulty }}
                 </span>
               </div>
-              <div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {{ activeChallenge.description }}
-              </div>
+              <div
+                class="prose-desc"
+                [innerHTML]="renderMarkdown(activeChallenge.description)"
+              ></div>
             </div>
           } @else if (!isLoadingChallenges()) {
             <p class="text-gray-500 text-sm">No challenge selected.</p>
