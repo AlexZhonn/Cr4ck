@@ -229,17 +229,14 @@ npm run build -- --configuration production
 - **Angular `/paths`** — `PathsComponent` 2-column grid of path cards with topic badge + difficulty tags
 - **Angular `/paths/:slug`** — `PathDetailComponent` sequential challenge list, step indicators, best-score badges, progress bar
 
-#### Improvement: Path-scoped sandbox sidebar
+#### ✅ Improvement: Path-scoped sandbox sidebar — DONE
 
-When a user clicks a challenge from `/paths/:slug`, the sandbox sidebar should show **only the challenges in that path** (in step order), not the full 300-challenge list. This makes the learning experience focused — users stay "inside" the path as they work through it.
-
-Implementation:
 - `PathDetailComponent.openChallenge()` passes `?challenge=:id&path=:slug` to `/sandbox`
-- `SandboxComponent` reads the `path` query param on `ngOnInit`; if present, fetches `/api/v1/paths/:slug` and stores the ordered challenge IDs
-- The sidebar `challenges` computed switches from the global `ChallengesService` list to the path-ordered subset when `pathChallengeIds` is non-empty
-- Sidebar header shows the path title (e.g. "OOP Foundations") instead of "Challenges"; filters (search, topic, difficulty) are hidden in path mode since the path is already curated
-- An "Exit path" link returns to `/paths/:slug` so users can continue tracking progress
-- `_syncParams` preserves the `path` query param so refreshing the page stays in path mode
+- `SandboxComponent` reads `path` query param on `ngOnInit`; fetches `/api/v1/paths/:slug` and stores `pathSlug`, `pathTitle`, `pathChallengeIds` signals
+- `challenges` computed returns path-ordered subset (no filters) when `pathChallengeIds` is non-empty
+- Sidebar shows path title + "Exit path" chevron link in path mode; search/topic/difficulty filters are hidden
+- `exitPath()` clears path signals and navigates back to `/paths/:slug`
+- `_syncParams` preserves the `path` query param so page refresh stays in path mode
 
 ### 2. Public User Profiles `/profile/:username`
 

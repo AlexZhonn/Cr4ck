@@ -103,7 +103,10 @@ export class PathDetailComponent implements OnInit {
   }
 
   openChallenge(challengeId: string) {
-    this.router.navigate(['/sandbox'], { queryParams: { challenge: challengeId } });
+    const slug = this.route.snapshot.paramMap.get('slug');
+    this.router.navigate(['/sandbox'], {
+      queryParams: { challenge: challengeId, path: slug },
+    });
   }
 
   getStepProgress(challengeId: string): ChallengeProgress | null {

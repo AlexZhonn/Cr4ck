@@ -61,6 +61,11 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   readonly isLoadingChallenges = signal(true);
 
+  // Path mode — populated when ?path=:slug is present
+  pathSlug = signal<string>('');
+  pathTitle = signal<string>('');
+  pathChallengeIds = signal<string[]>([]);
+
   // Sidebar filters — initialised from URL params, written back on change
   filterTopic = signal<string>('');
   filterDifficulty = signal<string>('');
@@ -73,6 +78,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
         difficulty: this.filterDifficulty() || null,
         q: this.filterSearch() || null,
         challenge: this.activeChallengeId() || null,
+        path: this.pathSlug() || null,
         ...overrides,
       },
       replaceUrl: true,
@@ -101,6 +107,12 @@ export class SandboxComponent implements OnInit, OnDestroy {
   });
 
   readonly challenges = computed(() => {
+    const pathIds = this.pathChallengeIds();
+    if (pathIds.length > 0) {
+      // Path mode: return challenges in step order, no filters applied
+      const byId = new Map(this.svc.challenges().map((c) => [c.id, c]));
+      return pathIds.map((id) => byId.get(id)).filter((c): c is Challenge => !!c);
+    }
     let list = this.svc.challenges();
     const topic = this.filterTopic();
     const diff = this.filterDifficulty();
@@ -257,6 +269,22 @@ export class SandboxComponent implements OnInit, OnDestroy {
     if (topicParam) this.filterTopic.set(topicParam);
     if (diffParam) this.filterDifficulty.set(diffParam);
     if (searchParam) this.filterSearch.set(searchParam);
+
+    // Path mode: fetch ordered challenge list for the path
+    const pathParam = params.get('path');
+    if (pathParam) {
+      this.pathSlug.set(pathParam);
+      try {
+        const res = await fetch(`/api/v1/paths/${pathParam}`);
+        if (res.ok) {
+          const data = await res.json();
+          this.pathTitle.set(data.title ?? '');
+          this.pathChallengeIds.set((data.challenges ?? []).map((c: { id: string }) => c.id));
+        }
+      } catch {
+        // silently fall back to full list if path fetch fails
+      }
+    }
 
     const challengeId = params.get('challenge');
     const initial = challengeId ? this.svc.byId(challengeId) : null;
@@ -447,6 +475,14 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   goHome() {
     this.router.navigate(['/']);
+  }
+
+  exitPath() {
+    const slug = this.pathSlug();
+    this.pathSlug.set('');
+    this.pathTitle.set('');
+    this.pathChallengeIds.set([]);
+    this.router.navigate(['/paths', slug]);
   }
 
   renderMarkdown(text: string): string {

@@ -84,62 +84,92 @@
       style="flex-shrink: 0; flex-grow: 0; min-width: 0; overflow-y: auto; overflow-x: hidden"
       class="border-r border-white/10 bg-[#0f0f0f] flex flex-col"
     >
-      <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">Challenges</div>
-
-      <!-- Filters -->
-      <div class="px-3 pb-3 space-y-2">
-        <input
-          type="text"
-          [value]="filterSearch()"
-          (input)="setFilterSearch($any($event.target).value)"
-          placeholder="Search challenges…"
-          class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 placeholder-gray-600 focus:outline-none focus:border-emerald-500/40"
-        />
-        <select
-          [value]="filterTopic()"
-          (change)="setFilterTopic($any($event.target).value)"
-          class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 focus:outline-none focus:border-emerald-500/40 appearance-none"
-        >
-          <option value="">All Topics</option>
-          @for (topic of allTopics(); track topic) {
-            <option [value]="topic">{{ topic }}</option>
-          }
-        </select>
-        <div class="flex gap-1.5">
-          @for (d of ['', 'Easy', 'Medium', 'Hard']; track d) {
-            <button
-              type="button"
-              (click)="setFilterDifficulty(d)"
-              [class]="
-                'flex-1 py-1 rounded text-xs font-mono transition-colors ' +
-                (filterDifficulty() === d
-                  ? d === 'Easy'
-                    ? 'bg-emerald-500/20 text-emerald-400'
-                    : d === 'Medium'
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : d === 'Hard'
-                        ? 'bg-rose-500/20 text-rose-400'
-                        : 'bg-white/10 text-gray-300'
-                  : 'bg-white/5 text-gray-600 hover:text-gray-300')
-              "
+      @if (pathChallengeIds().length > 0) {
+        <!-- Path mode header -->
+        <div class="p-4 flex flex-col gap-1">
+          <div class="text-xs font-mono text-gray-500 uppercase tracking-wider">Path</div>
+          <div class="text-sm font-mono font-semibold text-emerald-400 truncate">
+            {{ pathTitle() }}
+          </div>
+          <button
+            type="button"
+            (click)="exitPath()"
+            class="mt-1 flex items-center gap-1 text-xs font-mono text-gray-500 hover:text-gray-300 transition-colors bg-transparent border-0 p-0 cursor-pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
             >
-              {{ d || 'All' }}
-            </button>
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Exit path
+          </button>
+        </div>
+      } @else {
+        <!-- Normal mode header + filters -->
+        <div class="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">Challenges</div>
+        <div class="px-3 pb-3 space-y-2">
+          <input
+            type="text"
+            [value]="filterSearch()"
+            (input)="setFilterSearch($any($event.target).value)"
+            placeholder="Search challenges…"
+            class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 placeholder-gray-600 focus:outline-none focus:border-emerald-500/40"
+          />
+          <select
+            [value]="filterTopic()"
+            (change)="setFilterTopic($any($event.target).value)"
+            class="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs font-mono text-gray-300 focus:outline-none focus:border-emerald-500/40 appearance-none"
+          >
+            <option value="">All Topics</option>
+            @for (topic of allTopics(); track topic) {
+              <option [value]="topic">{{ topic }}</option>
+            }
+          </select>
+          <div class="flex gap-1.5">
+            @for (d of ['', 'Easy', 'Medium', 'Hard']; track d) {
+              <button
+                type="button"
+                (click)="setFilterDifficulty(d)"
+                [class]="
+                  'flex-1 py-1 rounded text-xs font-mono transition-colors ' +
+                  (filterDifficulty() === d
+                    ? d === 'Easy'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : d === 'Medium'
+                        ? 'bg-amber-500/20 text-amber-400'
+                        : d === 'Hard'
+                          ? 'bg-rose-500/20 text-rose-400'
+                          : 'bg-white/10 text-gray-300'
+                    : 'bg-white/5 text-gray-600 hover:text-gray-300')
+                "
+              >
+                {{ d || 'All' }}
+              </button>
+            }
+          </div>
+          @if (filterTopic() || filterDifficulty() || filterSearch()) {
+            <div class="flex items-center justify-between text-xs font-mono text-gray-600">
+              <span>{{ challenges().length }} shown</span>
+              <button
+                type="button"
+                (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')"
+                class="text-gray-600 hover:text-gray-400"
+              >
+                Clear filters
+              </button>
+            </div>
           }
         </div>
-        @if (filterTopic() || filterDifficulty() || filterSearch()) {
-          <div class="flex items-center justify-between text-xs font-mono text-gray-600">
-            <span>{{ challenges().length }} shown</span>
-            <button
-              type="button"
-              (click)="setFilterTopic(''); setFilterDifficulty(''); setFilterSearch('')"
-              class="text-gray-600 hover:text-gray-400"
-            >
-              Clear filters
-            </button>
-          </div>
-        }
-      </div>
+      }
 
       @if (isLoadingChallenges()) {
         <div class="px-4 py-6 text-xs font-mono text-gray-600 text-center">Loading…</div>
