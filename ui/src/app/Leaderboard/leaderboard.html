@@ -24,13 +24,13 @@
       <!-- Top 3 podium -->
       <div class="podium">
         @for (entry of entries().slice(0, 3); track entry.rank) {
-          <div [class]="'podium-card podium-' + entry.rank">
+          <a [routerLink]="['/profile', entry.username]" [class]="'podium-card podium-' + entry.rank">
             <div class="podium-avatar">{{ entry.username[0].toUpperCase() }}</div>
             <div class="podium-medal">{{ rankIcon(entry.rank) }}</div>
             <div class="podium-username">{{ entry.username }}</div>
             <div class="podium-xp">{{ entry.xp }} XP</div>
             <div class="podium-level">Lv {{ entry.level }}</div>
-          </div>
+          </a>
         }
       </div>
 
@@ -46,7 +46,7 @@
         </div>
 
         @for (entry of entries(); track entry.rank) {
-          <div [class]="'table-row ' + rankClass(entry.rank)">
+          <a [routerLink]="['/profile', entry.username]" [class]="'table-row ' + rankClass(entry.rank)">
             <span class="col-rank rank-num">{{ rankIcon(entry.rank) }}</span>
             <span class="col-user">
               <span class="avatar-sm">{{ entry.username[0].toUpperCase() }}</span>
@@ -56,7 +56,7 @@
             <span class="col-xp xp-val">{{ entry.xp }}</span>
             <span class="col-solved">{{ entry.challenges_completed }}</span>
             <span class="col-streak">{{ entry.streak_days }}d</span>
-          </div>
+          </a>
         }
       </div>
     }

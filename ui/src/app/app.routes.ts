@@ -55,6 +55,11 @@ export const routes: Routes = [
     loadComponent: () => import('./Profile/profile').then((m) => m.ProfileComponent),
   },
   {
+    path: 'profile/:username',
+    loadComponent: () =>
+      import('./PublicProfile/public-profile').then((m) => m.PublicProfileComponent),
+  },
+  {
     path: 'verify-email',
     loadComponent: () => import('./VerifyEmail/verify-email').then((m) => m.VerifyEmailComponent),
   },

@@ -76,6 +76,12 @@
   padding: 1.5rem 2rem;
   min-width: 9rem;
   transition: border-color 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.podium-card:hover {
+  border-color: rgba(52, 211, 153, 0.3);
 }
 
 .podium-1 {
@@ -155,6 +161,9 @@
 .table-row {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   transition: background-color 0.15s;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .table-row:last-child {

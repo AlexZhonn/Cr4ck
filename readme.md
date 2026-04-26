@@ -277,6 +277,7 @@ All endpoints are versioned under `/api/v1/` and `/auth/v1/`. Unversioned aliase
 | --- | --- | --- | --- |
 | GET | `/api/v1/leaderboard` | — | Top 50 users by XP |
 | GET | `/api/v1/profile/completed` | Required | Challenges attempted by current user |
+| GET | `/api/v1/users/:username/profile` | — | Public profile: XP, level, streak, badges, topic breakdown (no email) |
 | GET | `/health` | — | Reports `{ status, db, redis }` — returns 503 if degraded |
 | WS | `/ws?token=` | — | Real-time `solve_event` (auth only) + `leaderboard_update` + `badge_earned` broadcasts |
 
@@ -413,8 +414,8 @@ VALUES (
 See [CLAUDE.md](CLAUDE.md) for the detailed roadmap with implementation notes. High-level items:
 
 - [x] Learning Paths / Challenge Sequences
-- [ ] Public User Profiles (`/profile/:username`)
-- [ ] Badges / Achievements System
+- [x] Public User Profiles (`/profile/:username`)
+- [x] Badges / Achievements System
 - [x] Daily AI-Generated Challenge
 - [ ] Solution Showcase (opt-in public solutions after scoring ≥ 80)
 - [ ] Admin Panel for Challenge Management

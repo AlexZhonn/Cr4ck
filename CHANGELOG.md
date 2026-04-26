@@ -7,6 +7,15 @@
 
 ## Features
 
+### Public User Profiles
+
+- **`GET /api/v1/users/:username/profile`** — public endpoint (no auth required); returns `username`, `xp`, `level`, `streak_days`, `challenges_completed`, `member_since`, `badges[]`, and `topic_breakdown[]`; email and credentials are never exposed; returns 404 for unknown or inactive users
+- **`PublicProfileComponent`** at `/profile/:username` — shows avatar, level + XP progress bar, 3-stat grid (solved / streak / level), badge shelf, and topic breakdown table; fully public, no login gate
+- **Route `/profile/:username`** added to `app.routes.ts` (appears after `/profile` self-profile route to avoid conflicts)
+- **Leaderboard links** — podium cards and table rows converted from `<div>` to `<a [routerLink]>` pointing at `/profile/:username`; `text-decoration: none; color: inherit` styles prevent default link appearance; hover effect added to podium cards
+- **`api/routers/users.py`** — new router registered under `/api/v1`; included in `main.py`
+- **Backend tests** — `api/tests/test_users.py`: 200 for existing user, full response shape, no email/hash leakage, level = XP//100+1, 404 for nonexistent user, no auth required
+
 ### Learning Paths / Challenge Sequences
 
 - **Migration 016** — `paths` table (slug, title, description, topic, icon, order_index) + `path_challenges` join table (path_id, challenge_id, step_order); indexes on both tables

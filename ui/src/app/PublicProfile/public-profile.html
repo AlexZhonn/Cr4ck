@@ -1,0 +1,88 @@
+<div class="public-profile-root">
+  <app-header></app-header>
+
+  <main class="public-profile-container">
+    @if (loading()) {
+      <div class="state-center">
+        <div class="loading-spinner"></div>
+        <span class="state-text">Loading profile…</span>
+      </div>
+    } @else if (error()) {
+      <div class="state-center">
+        <p class="error-text">{{ error() }}</p>
+      </div>
+    } @else if (profile()) {
+      <div class="profile-content">
+        <!-- Hero -->
+        <div class="profile-hero">
+          <div class="avatar">{{ profile()!.username[0].toUpperCase() }}</div>
+          <div class="hero-info">
+            <h1 class="profile-name">{{ profile()!.username }}</h1>
+            <p class="member-since">Member since {{ memberSince(profile()!.member_since) }}</p>
+          </div>
+        </div>
+
+        <!-- Level + XP -->
+        <div class="xp-card">
+          <div class="xp-header">
+            <span class="xp-label">Level {{ profile()!.level }}</span>
+            <span class="xp-count font-mono">{{ profile()!.xp }} XP</span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" [style.width.%]="xpProgress(profile()!.xp)"></div>
+          </div>
+          <p class="xp-next">
+            {{ 100 - xpProgress(profile()!.xp) }} XP to level {{ profile()!.level + 1 }}
+          </p>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value text-emerald-400">{{ profile()!.challenges_completed }}</span>
+            <span class="stat-label">Solved</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value text-amber-400">{{ profile()!.streak_days }}</span>
+            <span class="stat-label">Day streak</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value text-purple-400">{{ profile()!.level }}</span>
+            <span class="stat-label">Level</span>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        @if (profile()!.badges.length > 0) {
+          <div class="section-card">
+            <h2 class="section-title">Achievements</h2>
+            <div class="badges-grid">
+              @for (badge of profile()!.badges; track badge.id) {
+                <div class="badge-card" [title]="badge.description">
+                  <span class="badge-icon">{{ badge.icon }}</span>
+                  <span class="badge-label">{{ badge.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Topic breakdown -->
+        @if (profile()!.topic_breakdown.length > 0) {
+          <div class="section-card">
+            <h2 class="section-title">Topics</h2>
+            <div class="topic-list">
+              @for (t of profile()!.topic_breakdown; track t.topic; let i = $index) {
+                <div class="topic-row">
+                  <span class="topic-name" [style.color]="topicColor(i)">{{ t.topic }}</span>
+                  <span class="topic-count font-mono">{{ t.count }} solved</span>
+                  <span class="topic-score font-mono">best {{ t.best_score }}/100</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

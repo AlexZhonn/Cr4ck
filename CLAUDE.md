@@ -132,6 +132,7 @@ api/
 | GET    | /api/v1/paths                    | All learning paths with challenge counts + difficulty tags (public)             |
 | GET    | /api/v1/paths/:slug              | Path detail with ordered challenges (public)                                    |
 | GET    | /api/v1/paths/:slug/progress     | Per-challenge completion status for current user (auth required)                |
+| GET    | /api/v1/users/:username/profile  | Public profile: XP, level, streak, badges, topic breakdown (no email)           |
 | GET    | /api/v1/challenges/:id/posts     | Paginated post list for a challenge (public)                                    |
 | POST   | /api/v1/challenges/:id/posts     | Create top-level post or reply (auth required)                                  |
 | PUT    | /api/v1/posts/:id                | Edit own post (auth required)                                                   |
@@ -245,13 +246,12 @@ npm run build -- --configuration production
 - Reused existing `renderMarkdown()` (marked.parse) — no new TS logic needed
 - Added `ViewEncapsulation.None` to `SandboxComponent` so `sandbox.css` rules reach `[innerHTML]`-injected nodes (Tailwind Preflight + Angular's emulated encapsulation both blocked component-scoped styles from applying to dynamically injected DOM)
 
-### 3. Public User Profiles `/profile/:username`
+### 3. ✅ Public User Profiles `/profile/:username` — DONE
 
-Currently `/profile` is auth-gated and self-only. Making profiles public creates social competition and organic word-of-mouth.
-
-- `GET /api/v1/users/:username/profile` — public endpoint returning XP, level, streak, challenges completed, topic breakdown, badges (no email)
-- Angular `/profile/:username` route — public stats, topic radar/bar chart, recent activity, badge shelf
-- Link to profile from leaderboard rows and community post author names
+- `GET /api/v1/users/:username/profile` — public endpoint: XP, level, streak, challenges completed, topic breakdown, badges (no email/hash)
+- Angular `/profile/:username` route (`PublicProfileComponent`) — avatar, XP progress, 3-stat grid, badge shelf, topic breakdown table
+- Leaderboard podium cards + table rows link to `/profile/:username` via `routerLink`
+- Backend tests in `api/tests/test_users.py`
 
 ### 3. ✅ Badges / Achievements System — DONE (migration 015)
 
