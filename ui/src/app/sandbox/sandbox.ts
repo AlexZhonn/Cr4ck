@@ -136,7 +136,50 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   activeChallengeId = signal<string>('');
   selectedLanguage = signal<string>('');
-  code = '';
+  hasDraft = signal(false);
+
+  private _draftDebounce: ReturnType<typeof setTimeout> | null = null;
+
+  // Two-way binding target for Monaco ngModel — writes are intercepted to
+  // trigger a debounced localStorage save.
+  get code(): string {
+    return this._code;
+  }
+  set code(value: string) {
+    this._code = value;
+    this._scheduleDraftSave();
+  }
+  private _code = '';
+
+  private _draftKey(challengeId: string, lang: string): string {
+    return `cr4ck:code:${challengeId}:${lang}`;
+  }
+
+  private _scheduleDraftSave() {
+    if (this._draftDebounce) clearTimeout(this._draftDebounce);
+    this._draftDebounce = setTimeout(() => {
+      const id = this.activeChallengeId();
+      const lang = this.selectedLanguage();
+      if (!id || !lang) return;
+      localStorage.setItem(this._draftKey(id, lang), this._code);
+    }, 1000);
+  }
+
+  private _loadCodeDraft(challengeId: string, lang: string): string | null {
+    return localStorage.getItem(this._draftKey(challengeId, lang));
+  }
+
+  clearCodeDraft() {
+    const id = this.activeChallengeId();
+    const lang = this.selectedLanguage();
+    if (id && lang) localStorage.removeItem(this._draftKey(id, lang));
+    const challenge = this.activeChallenge;
+    if (challenge) {
+      this.code = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    }
+    this.hasDraft.set(false);
+  }
+
   isEvaluating = signal(false);
   feedback = signal<EvaluationFeedback | null>(null);
   evalError = signal<string | null>(null);
@@ -296,6 +339,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.ws.disconnect();
     this._onDragEnd();
     if (this._badgeToastTimer) clearTimeout(this._badgeToastTimer);
+    if (this._draftDebounce) clearTimeout(this._draftDebounce);
   }
 
   selectChallenge(id: string) {
@@ -305,7 +349,15 @@ export class SandboxComponent implements OnInit, OnDestroy {
     const langs = Object.keys(challenge.starterCodes ?? {});
     const lang = langs.length > 0 ? langs[0] : challenge.language;
     this.selectedLanguage.set(lang);
-    this.code = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    const starter = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    const draft = this._loadCodeDraft(id, lang);
+    if (draft !== null && draft !== starter) {
+      this._code = draft; // set backing field directly to skip re-saving the draft
+      this.hasDraft.set(true);
+    } else {
+      this._code = starter;
+      this.hasDraft.set(false);
+    }
     this.feedback.set(null);
     this.runResults.set(null);
     this.runError.set(null);
@@ -322,9 +374,22 @@ export class SandboxComponent implements OnInit, OnDestroy {
   setLanguage(lang: string) {
     const challenge = this.activeChallenge;
     if (!challenge) return;
+    const id = this.activeChallengeId();
+    const newStarter = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    const existingDraft = this._loadCodeDraft(id, lang);
+
+    if (existingDraft !== null && existingDraft !== newStarter) {
+      // Silently restore saved draft — no confirmation needed
+      this.selectedLanguage.set(lang);
+      this._code = existingDraft;
+      this.hasDraft.set(true);
+      this.editorOptions = this.buildEditorOptions(lang);
+      return;
+    }
+
     const currentStarter =
       (challenge.starterCodes ?? {})[this.selectedLanguage()] ?? challenge.starterCode;
-    if (this.code !== currentStarter) {
+    if (this._code !== currentStarter) {
       if (
         !confirm(
           'Switching languages will replace your current code with the starter code. Continue?',
@@ -334,7 +399,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
       }
     }
     this.selectedLanguage.set(lang);
-    this.code = (challenge.starterCodes ?? {})[lang] ?? challenge.starterCode;
+    this._code = newStarter;
+    this.hasDraft.set(false);
     this.editorOptions = this.buildEditorOptions(lang);
   }
 
@@ -385,7 +451,8 @@ export class SandboxComponent implements OnInit, OnDestroy {
   }
 
   loadSubmissionIntoEditor(code: string) {
-    this.code = code;
+    this.code = code; // setter will debounce-save this as new draft
+    this.hasDraft.set(false); // hide chip — they loaded a submission, not a draft
   }
 
   async submitPost() {

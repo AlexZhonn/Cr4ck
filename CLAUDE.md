@@ -324,6 +324,27 @@ jobs:
 - "Today's Challenge" card on landing page — title, topic, difficulty badge, "Solve it" deep-link to `/sandbox?challenge=:id`
 - `isDaily()` signal badges matching challenge in sidebar
 
+### 5. ✅ Persist User Code Per Challenge (localStorage) — DONE
+
+When a user edits code in the sandbox, save it locally so it survives page reloads and re-visits without touching the backend.
+
+#### Approach — `localStorage` only (no cloud, no DB change)
+
+- **Key format**: `cr4ck:code:{challengeId}:{language}` — scoped per challenge + language so switching languages never clobbers another language's draft.
+- **Write**: debounce writes to `localStorage` ~1 s after the last keystroke to avoid thrashing (Monaco fires `onChange` on every character). Angular `effect()` watching `this.code` + `this.selectedLanguage` is the cleanest hook.
+- **Read**: in `selectChallenge()` / `loadChallenge()`, after resolving the starter code, check `localStorage` for a saved draft; if found, use it instead of the starter code. Inform the user with a subtle chip/banner: "Restored your last draft — [Reset to starter]".
+- **Reset**: "Reset to starter" chip clears the `localStorage` key and reloads the starter code.
+- **Eviction**: cap total sandbox keys at ~50 challenges × 4 languages = 200 entries (well under typical 5 MB quota). No explicit eviction needed for now; add an LRU evict pass if quota errors are ever thrown.
+- **Language-switch guard**: the existing confirm dialog (`Switching languages will replace your current code…`) should be skipped when switching to a language that already has a saved draft — just restore the draft silently.
+- **No backend changes needed** — purely frontend, no migration, no new API endpoints.
+
+#### Files to touch
+
+- `ui/src/app/sandbox/sandbox.ts` — add `_saveCodeDraft()`, `_loadCodeDraft()`, `_clearCodeDraft()` helpers; wire debounce in `ngOnInit` / `effect()`; update `selectChallenge()` and `onLanguageChange()`.
+- `ui/src/app/sandbox/sandbox.html` — add the "Restored draft · Reset" chip near the editor toolbar (conditionally shown via a `hasDraft` signal).
+- `ui/src/app/sandbox/sandbox.css` — style the chip (small, muted, dismissible).
+- `ui/src/app/sandbox/sandbox.spec.ts` — unit tests for save/load/clear helpers and the draft-restore path in `selectChallenge()`.
+
 ### 5. Solution Showcase
 
 After scoring ≥ 80, prompt users to opt-in to share their solution publicly.

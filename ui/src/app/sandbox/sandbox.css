@@ -118,6 +118,39 @@ ngx-monaco-editor {
   background: rgba(16, 185, 129, 0.2);
 }
 
+/* Draft restored chip */
+.draft-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.draft-chip__reset {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 10px;
+  font-family: inherit;
+  color: #d97706;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.draft-chip__reset:hover {
+  color: #fbbf24;
+}
+
 /* Hide the text label when the editor pane is narrow */
 .btn-label {
   display: inline;
@@ -205,7 +238,10 @@ aside::-webkit-scrollbar-thumb:hover {
 .prose-desc h3:first-child {
   margin-top: 0;
 }
-.prose-desc h1 { font-size: 1.05rem; color: #ffffff; }
+.prose-desc h1 {
+  font-size: 1.05rem;
+  color: #ffffff;
+}
 .prose-desc h2 {
   font-size: 0.95rem;
   color: #34d399;
@@ -213,7 +249,10 @@ aside::-webkit-scrollbar-thumb:hover {
   letter-spacing: 0.05em;
   font-weight: 600;
 }
-.prose-desc h3 { font-size: 0.9rem; color: #f3f4f6; }
+.prose-desc h3 {
+  font-size: 0.9rem;
+  color: #f3f4f6;
+}
 .prose-desc ul,
 .prose-desc ol {
   padding-left: 1.5em;

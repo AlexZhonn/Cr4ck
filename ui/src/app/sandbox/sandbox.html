@@ -295,6 +295,15 @@
                   }
                 </select>
               }
+              <!-- Draft restored chip -->
+              @if (hasDraft()) {
+                <span class="draft-chip">
+                  Draft restored
+                  <button type="button" class="draft-chip__reset" (click)="clearCodeDraft()">
+                    Reset
+                  </button>
+                </span>
+              }
               <!-- Run Tests button -->
               @if (hasTestCases) {
                 <button
