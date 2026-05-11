@@ -401,7 +401,7 @@ def run_code(
 
     with db.cursor() as cur:
         cur.execute(
-            "SELECT test_cases, test_harness FROM challenges WHERE id = %s AND is_active = TRUE",
+            "SELECT test_cases, test_harness, test_harnesses FROM challenges WHERE id = %s AND is_active = TRUE",
             (body.challenge_id,),
         )
         row = cur.fetchone()
@@ -413,7 +413,11 @@ def run_code(
     if not test_cases:
         return RunResponse(results=[], passed=0, total=0)
 
-    test_harness: str | None = row["test_harness"]
+    # Prefer per-language harness; fall back to legacy single-language harness.
+    harnesses: dict | None = row["test_harnesses"]
+    test_harness: str | None = (
+        (harnesses or {}).get(lang) or row["test_harness"]
+    )
     results: list[TestResult] = []
 
     with tempfile.TemporaryDirectory() as tmpdir:

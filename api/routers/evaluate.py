@@ -194,7 +194,7 @@ def _call_google(api_key: str, user_message: str) -> dict:
         raise HTTPException(status_code=503, detail="Google provider not available on this server.")
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        "gemini-1.5-pro",
+        "gemini-2.0-flash",
         system_instruction=SYSTEM_PROMPT,
         generation_config={"response_mime_type": "application/json"},
     )
@@ -243,12 +243,16 @@ def evaluate(
         except Exception:
             raise HTTPException(status_code=500, detail="Failed to decrypt stored API key.")
     else:
-        # Fall back to server key (Anthropic only) if configured
-        server_key = os.getenv("ANTHROPIC_API_KEY")
+        # Fall back to server key if configured; prefer Google, then Anthropic
         allow_fallback = os.getenv("ALLOW_SERVER_KEY", "true").lower() != "false"
-        if server_key and allow_fallback:
+        google_key = os.getenv("GOOGLE_API_KEY")
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        if allow_fallback and google_key:
+            provider = "google"
+            api_key = google_key
+        elif allow_fallback and anthropic_key:
             provider = "anthropic"
-            api_key = server_key
+            api_key = anthropic_key
         else:
             raise HTTPException(
                 status_code=402,
