@@ -1,4 +1,12 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  OnInit,
+  OnDestroy,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,6 +17,8 @@ import { ChallengesService } from '../services/challenges.service';
 import { AuthService, Badge } from '../services/auth.service';
 import { WebSocketService } from '../services/websocket.service';
 import { PostsService, Post } from '../services/posts.service';
+import { ProfileService } from '../services/profile.service';
+import { SolutionsService, TopSolution } from '../services/solutions.service';
 
 interface EvaluationFeedback {
   score: number;
@@ -56,6 +66,7 @@ interface SubmissionRecord {
 export class SandboxComponent implements OnInit, OnDestroy {
   private svc = inject(ChallengesService);
   readonly auth = inject(AuthService);
+  readonly profileSvc = inject(ProfileService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   readonly ws = inject(WebSocketService);
@@ -210,6 +221,16 @@ export class SandboxComponent implements OnInit, OnDestroy {
   editingPostId = signal<string | null>(null);
   editBody = signal('');
 
+  // Solution Showcase
+  readonly solutionsSvc = inject(SolutionsService);
+  topSolutions = signal<TopSolution[]>([]);
+  solutionsLoading = signal(false);
+  solutionsError = signal<string | null>(null);
+  shareStatus = signal<'idle' | 'sharing' | 'shared' | 'error'>('idle');
+  shareError = signal<string | null>(null);
+  /** Whether the current user has already shared this solution (set when top-solutions loads). */
+  hasShared = signal(false);
+
   // -----------------------------------------------------------------------
   // Draggable panel sizes (px), persisted in localStorage
   // New layout: sidebar | [desc | editor] / bottom-tabs
@@ -301,6 +322,7 @@ export class SandboxComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.ws.connect();
     await this.svc.load();
+    this.profileSvc.load();
     this.isLoadingChallenges.set(false);
 
     const all = this.svc.challenges();
@@ -368,6 +390,11 @@ export class SandboxComponent implements OnInit, OnDestroy {
     this.submissions.set([]);
     this.historyError.set(null);
     this.expandedSubmissionId.set(null);
+    this.topSolutions.set([]);
+    this.solutionsError.set(null);
+    this.shareStatus.set('idle');
+    this.shareError.set(null);
+    this.hasShared.set(false);
     this.editorOptions = this.buildEditorOptions(lang);
   }
 
@@ -420,8 +447,9 @@ export class SandboxComponent implements OnInit, OnDestroy {
 
   async switchTab(tab: 'feedback' | 'tests' | 'community' | 'history') {
     this.activeTab.set(tab);
-    if (tab === 'community' && this.posts().length === 0) {
-      await this.loadPosts();
+    if (tab === 'community') {
+      if (this.posts().length === 0) await this.loadPosts();
+      if (this.topSolutions().length === 0 && this.auth.isLoggedIn()) await this.loadTopSolutions();
     }
     if (tab === 'history') {
       await this.loadHistory();
@@ -561,6 +589,53 @@ export class SandboxComponent implements OnInit, OnDestroy {
     return !!this.auth.user() && post.author.username === this.auth.user()!.username;
   }
 
+  async loadTopSolutions() {
+    const id = this.activeChallengeId();
+    if (!id) return;
+    this.solutionsLoading.set(true);
+    this.solutionsError.set(null);
+    try {
+      const sols = await this.solutionsSvc.getTopSolutions(id);
+      this.topSolutions.set(sols);
+      const me = this.auth.user()?.username;
+      this.hasShared.set(me ? sols.some((s) => s.author.username === me) : false);
+    } catch (e: any) {
+      this.solutionsError.set(e.message ?? 'Failed to load solutions');
+    } finally {
+      this.solutionsLoading.set(false);
+    }
+  }
+
+  async shareSolution() {
+    const id = this.activeChallengeId();
+    if (!id) return;
+    this.shareStatus.set('sharing');
+    this.shareError.set(null);
+    try {
+      await this.solutionsSvc.shareSolution(id, this.code, this.selectedLanguage());
+      this.shareStatus.set('shared');
+      this.hasShared.set(true);
+      // Refresh the solutions list so the user's entry appears
+      await this.loadTopSolutions();
+    } catch (e: any) {
+      this.shareStatus.set('error');
+      this.shareError.set(e.message ?? 'Failed to share solution');
+    }
+  }
+
+  async unshareSolution() {
+    const id = this.activeChallengeId();
+    if (!id) return;
+    try {
+      await this.solutionsSvc.unshareSolution(id);
+      this.hasShared.set(false);
+      this.shareStatus.set('idle');
+      await this.loadTopSolutions();
+    } catch (e: any) {
+      this.shareError.set(e.message ?? 'Failed to unshare solution');
+    }
+  }
+
   async evaluateCode() {
     const challenge = this.activeChallenge;
     console.group('[evaluateCode] started');
@@ -662,6 +737,12 @@ export class SandboxComponent implements OnInit, OnDestroy {
         this._badgeToastTimer = setTimeout(() => this.newBadges.set([]), 6000);
         // Refresh user profile so badge shelf updates immediately
         await this.auth.fetchMe();
+      }
+
+      // Reset share status so the share prompt re-evaluates for the new submission
+      if (data.score >= 80) {
+        this.shareStatus.set('idle');
+        this.shareError.set(null);
       }
 
       if (this.activeTab() === 'history') {

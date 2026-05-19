@@ -138,6 +138,9 @@ api/
 | PUT    | /api/v1/posts/:id                | Edit own post (auth required)                                                   |
 | DELETE | /api/v1/posts/:id                | Soft-delete own post (auth required)                                            |
 | POST   | /api/v1/posts/:id/vote           | Upvote (+1) / downvote (-1) / remove (0) a post (auth required)                 |
+| POST   | /api/v1/challenges/:id/share     | Share solution publicly (score ≥ 80, auth required)                             |
+| DELETE | /api/v1/challenges/:id/share     | Remove shared solution (auth required)                                          |
+| GET    | /api/v1/challenges/:id/top-solutions | Top 20 public solutions; caller must have attempted (auth required)         |
 | WS     | /ws                              | WebSocket — real-time solve events + leaderboard updates                        |
 
 ---
@@ -345,14 +348,17 @@ When a user edits code in the sandbox, save it locally so it survives page reloa
 - `ui/src/app/sandbox/sandbox.css` — style the chip (small, muted, dismissible).
 - `ui/src/app/sandbox/sandbox.spec.ts` — unit tests for save/load/clear helpers and the draft-restore path in `selectChallenge()`.
 
-### 5. Solution Showcase
+### 5. ✅ Solution Showcase — DONE (migration 019)
 
 After scoring ≥ 80, prompt users to opt-in to share their solution publicly.
 
-- Add `is_public BOOLEAN DEFAULT FALSE` + `public_code TEXT` to `user_challenges`
-- `POST /api/v1/challenges/:id/share` — sets `is_public = TRUE`, stores code
-- `GET /api/v1/challenges/:id/top-solutions` — top public solutions sorted by score; visible only after user has attempted the challenge
-- Community tab in sandbox: "Top Solutions" section below posts
+- **Migration 019** — `is_public BOOLEAN DEFAULT FALSE`, `public_code TEXT`, `public_language VARCHAR(20)` added to `user_challenges`; partial index on `(challenge_id, is_public, best_score DESC)`
+- **`POST /api/v1/challenges/:id/share`** — sets `is_public = TRUE`, stores code + language (requires `best_score ≥ 80`)
+- **`DELETE /api/v1/challenges/:id/share`** — clears shared state
+- **`GET /api/v1/challenges/:id/top-solutions`** — top 20 public solutions sorted by score; only callable after user has attempted the challenge
+- **Share prompt** in sandbox feedback panel when `score ≥ 80`; shows Shared/Remove toggle
+- **Top Solutions section** in Community tab; loads on tab open; code preview + score + language + author level
+- Backend tests in `api/tests/test_solutions.py`
 
 ### 6. Admin Panel for Challenge Management
 

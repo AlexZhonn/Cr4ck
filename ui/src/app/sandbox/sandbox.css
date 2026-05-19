@@ -118,6 +118,128 @@ ngx-monaco-editor {
   background: rgba(16, 185, 129, 0.2);
 }
 
+/* ── Sidebar challenge rows ────────────────────────────────────────────────── */
+.sidebar-challenge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.sidebar-challenge-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.sidebar-challenge-row--active {
+  background: rgba(52, 211, 153, 0.08) !important;
+  border-color: rgba(52, 211, 153, 0.22) !important;
+}
+
+.sidebar-challenge-row--done {
+  border-color: rgba(52, 211, 153, 0.07);
+}
+
+/* Vertical difficulty stripe */
+.sidebar-diff-dot {
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.sidebar-diff-dot--easy {
+  background: #34d399;
+  opacity: 0.7;
+}
+.sidebar-diff-dot--medium {
+  background: #fbbf24;
+  opacity: 0.7;
+}
+.sidebar-diff-dot--hard {
+  background: #fb7185;
+  opacity: 0.7;
+}
+
+.sidebar-challenge-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #d1d5db;
+  line-height: 1.3;
+  transition: color 0.15s;
+}
+
+.sidebar-challenge-row:hover .sidebar-challenge-title,
+.sidebar-challenge-row--active .sidebar-challenge-title {
+  color: #ffffff;
+}
+
+.sidebar-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-family: monospace;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 999px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.sidebar-badge {
+  font-size: 0.6rem;
+  font-family: monospace;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sidebar-badge--easy {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+.sidebar-badge--medium {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+.sidebar-badge--hard {
+  background: rgba(251, 113, 133, 0.12);
+  color: #fb7185;
+}
+
+.sidebar-framework {
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: #4b5563;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-chevron {
+  color: #4b5563;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+.sidebar-challenge-row:hover .sidebar-chevron,
+.sidebar-chevron--visible {
+  opacity: 1;
+  color: #34d399;
+}
+
 /* Draft restored chip */
 .draft-chip {
   display: flex;

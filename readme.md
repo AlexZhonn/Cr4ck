@@ -249,6 +249,14 @@ All endpoints are versioned under `/api/v1/` and `/auth/v1/`. Unversioned aliase
 | DELETE | `/api/v1/posts/:id` | Required | Soft-delete own post |
 | POST | `/api/v1/posts/:id/vote` | Required | Vote: `+1` upvote, `-1` downvote, `0` remove |
 
+### Solution Showcase
+
+| Method | Path | Auth | Description |
+| --- | --- | --- | --- |
+| POST | `/api/v1/challenges/:id/share` | Required | Opt-in share solution (score must be ≥ 80) |
+| DELETE | `/api/v1/challenges/:id/share` | Required | Remove shared solution |
+| GET | `/api/v1/challenges/:id/top-solutions` | Required | Top 20 public solutions (caller must have attempted) |
+
 ### Daily Challenge
 
 | Method | Path | Auth | Description |
@@ -291,7 +299,7 @@ Cr4ck/
 │   ├── auth/                   # tokens.py, password.py, dependencies.py, apikey.py
 │   ├── core/                   # config.py, database.py (connection pool), redis.py
 │   ├── models/                 # Pydantic schemas (user.py)
-│   ├── routers/                # auth, badges, challenges, daily, evaluate, leaderboard, paths, posts, profile, run, ws
+│   ├── routers/                # auth, badges, challenges, daily, evaluate, leaderboard, paths, posts, profile, run, solutions, ws
 │   ├── migrations/             # SQL migration files (001–016)
 │   ├── tests/                  # pytest suite (unit + integration)
 │   ├── email_service.py        # Postmark transactional email

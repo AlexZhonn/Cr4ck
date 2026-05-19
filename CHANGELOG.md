@@ -7,6 +7,18 @@
 
 ## Features
 
+### Solution Showcase
+
+- **Migration 019** — adds `is_public BOOLEAN DEFAULT FALSE`, `public_code TEXT`, `public_language VARCHAR(20)` to `user_challenges`; partial index on `(challenge_id, is_public, best_score DESC)` for fast top-solutions queries
+- **`POST /api/v1/challenges/:id/share`** — authenticated; requires `best_score ≥ 80` for the challenge, stores code + language, idempotent on repeat calls
+- **`DELETE /api/v1/challenges/:id/share`** — authenticated; clears `is_public`, `public_code`, `public_language`
+- **`GET /api/v1/challenges/:id/top-solutions`** — authenticated; caller must have attempted the challenge (returns 403 otherwise); returns up to 20 public solutions ordered by score desc
+- **`api/routers/solutions.py`** — new router, registered under `/api/v1` in `main.py`
+- **`SolutionsService`** (`ui/src/app/services/solutions.service.ts`) — `shareSolution()`, `unshareSolution()`, `getTopSolutions()`
+- **Sandbox share prompt** — appears in the feedback panel when `score ≥ 80`; shows "Shared / Remove" toggle when already shared
+- **Top Solutions section** in sandbox Community tab — loads automatically when tab opens (auth required); displays code preview, score badge, language tag, and author level; reloads after share/unshare
+- **Backend tests** — `api/tests/test_solutions.py`: unauthenticated guard (401), no-attempt guard (404/403), low-score guard (403), happy-path share/unshare/list, idempotent share, solution shape validation, unshared solution no longer appears in list
+
 ### Public User Profiles
 
 - **`GET /api/v1/users/:username/profile`** — public endpoint (no auth required); returns `username`, `xp`, `level`, `streak_days`, `challenges_completed`, `member_since`, `badges[]`, and `topic_breakdown[]`; email and credentials are never exposed; returns 404 for unknown or inactive users
