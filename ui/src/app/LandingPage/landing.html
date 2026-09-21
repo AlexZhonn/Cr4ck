@@ -4,11 +4,6 @@
   <!-- Hero -->
   <main class="landing-hero">
     <div class="hero-content">
-      <div class="hero-badge">
-        <span class="badge-dot"></span>
-        <span>AI-Powered Code Evaluation</span>
-      </div>
-
       <h1 class="hero-title">
         Master <span class="text-emerald-400">OOP</span> &amp; System Design
       </h1>
@@ -33,15 +28,6 @@
         </button>
       </div>
 
-      <!-- Feature pills -->
-      <div class="feature-pills">
-        <span class="pill">Java</span>
-        <span class="pill">Python</span>
-        <span class="pill">TypeScript</span>
-        <span class="pill">C++</span>
-        <span class="pill pill-accent">AI Feedback</span>
-      </div>
-
       <!-- Today's Challenge card -->
       @if (daily.loading()) {
         <div class="daily-card daily-card--loading" aria-busy="true">
@@ -62,8 +48,17 @@
           <p class="daily-topic">{{ challenge.topic | titlecase }}</p>
           <button type="button" class="btn-daily" (click)="solveDaily()">
             Solve it
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
