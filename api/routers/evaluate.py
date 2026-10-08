@@ -13,6 +13,7 @@ import os
 import json
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
+from psycopg2.extras import Json
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -24,6 +25,7 @@ from auth.apikey import decrypt_key
 from core.database import get_db
 from core.redis import cache_delete, LEADERBOARD_KEY
 from models.user import UserInDB, BadgeOut
+from models.evaluation import EvaluationFeedback
 
 router = APIRouter(tags=["evaluate"])
 
@@ -34,18 +36,6 @@ class EvaluateRequest(BaseModel):
     language: str
     code: str
     problem_description: str = ""
-
-
-class EvaluationFeedback(BaseModel):
-    score: int          # 0-100
-    summary: str
-    strengths: list[str]
-    improvements: list[str]
-    oop_feedback: str
-    architecture_feedback: str
-    xp_earned: int = 0
-    is_first_completion: bool = True
-    badges_earned: list[BadgeOut] = []
 
 
 SYSTEM_PROMPT = """You are an expert software architect and OOP educator reviewing student code submissions on the Cr4ck platform.
@@ -194,7 +184,7 @@ def _call_google(api_key: str, user_message: str) -> dict:
         raise HTTPException(status_code=503, detail="Google provider not available on this server.")
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        "gemini-2.0-flash",
+        "gemini-3.6-flash",
         system_instruction=SYSTEM_PROMPT,
         generation_config={"response_mime_type": "application/json"},
     )
@@ -334,12 +324,6 @@ def evaluate(
                 (new_best, body.code, feedback.score, body.language, user_id, body.challenge_id),
             )
 
-        # Always record full submission history
-        cur.execute(
-            "INSERT INTO submissions (user_id, challenge_id, score, language, code) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, body.challenge_id, feedback.score, body.language, body.code),
-        )
-
         cur.execute("SELECT last_login_at, streak_days FROM users WHERE id = %s", (user_id,))
         urow = cur.fetchone()
         last_login = urow["last_login_at"]
@@ -373,9 +357,17 @@ def evaluate(
             new_challenges_completed=new_challenges_completed,
         )
 
-    feedback.xp_earned = xp_earned
-    feedback.is_first_completion = is_first_completion
-    feedback.badges_earned = badges_earned
+        feedback.xp_earned = xp_earned
+        feedback.is_first_completion = is_first_completion
+        feedback.badges_earned = badges_earned
+
+        # Keep the exact feedback returned to the user with this attempt.
+        cur.execute(
+            """INSERT INTO submissions (user_id, challenge_id, score, language, code, feedback)
+               VALUES (%s, %s, %s, %s, %s, %s)""",
+            (user_id, body.challenge_id, feedback.score, body.language, body.code,
+             Json(feedback.model_dump(mode="json"))),
+        )
 
     # Emit outcome metric
     logger.info(

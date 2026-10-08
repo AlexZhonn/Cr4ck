@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from auth.dependencies import get_current_user
 from core.database import get_db
+from models.evaluation import EvaluationFeedback
 from core.redis import cache_get, cache_set, CHALLENGES_KEY, CHALLENGES_TTL
 
 router = APIRouter(tags=["challenges"])
@@ -112,6 +113,7 @@ class SubmissionOut(BaseModel):
     language: str
     code: str
     submitted_at: datetime
+    feedback: EvaluationFeedback | None = None
 
 
 @router.get("/challenges/{challenge_id}/my-submissions", response_model=list[SubmissionOut])
@@ -122,7 +124,7 @@ def my_submissions(
 ):
     with db.cursor() as cur:
         cur.execute(
-            """SELECT id, score, language, code, submitted_at
+            """SELECT id, score, language, code, submitted_at, feedback
                FROM submissions
                WHERE user_id = %s AND challenge_id = %s
                ORDER BY submitted_at DESC

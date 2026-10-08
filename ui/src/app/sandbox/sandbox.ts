@@ -53,6 +53,7 @@ interface SubmissionRecord {
   language: string;
   code: string;
   submitted_at: string;
+  feedback: EvaluationFeedback | null;
 }
 
 @Component({

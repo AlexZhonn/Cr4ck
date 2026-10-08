@@ -1331,7 +1331,7 @@
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                       </button>
-                      <!-- Expanded code view -->
+                      <!-- Saved feedback and code for this attempt -->
                       @if (expandedSubmissionId() === sub.id) {
                         <div class="border-t border-white/10">
                           <div
@@ -1350,6 +1350,52 @@
                             class="p-3 text-xs font-mono text-gray-300 overflow-x-auto bg-[#0a0a0a] whitespace-pre-wrap break-all"
                             >{{ sub.code }}</pre
                           >
+                          <section class="p-3 border-t border-white/10 space-y-4 text-sm">
+                            <h3 class="text-xs font-mono text-gray-400 uppercase tracking-wider">
+                              AI Feedback
+                            </h3>
+                            @if (sub.feedback; as savedFeedback) {
+                              <p class="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                                {{ savedFeedback.summary }}
+                              </p>
+                              @if (savedFeedback.strengths.length) {
+                                <div>
+                                  <h4 class="text-emerald-400 mb-2">Strengths</h4>
+                                  <ul class="list-disc pl-5 space-y-1 text-gray-400">
+                                    @for (strength of savedFeedback.strengths; track $index) {
+                                      <li>{{ strength }}</li>
+                                    }
+                                  </ul>
+                                </div>
+                              }
+                              @if (savedFeedback.improvements.length) {
+                                <div>
+                                  <h4 class="text-amber-400 mb-2">Improvements</h4>
+                                  <ul class="list-disc pl-5 space-y-1 text-gray-400">
+                                    @for (improvement of savedFeedback.improvements; track $index) {
+                                      <li>{{ improvement }}</li>
+                                    }
+                                  </ul>
+                                </div>
+                              }
+                              <div>
+                                <h4 class="text-gray-300 mb-2">OOP & Design Patterns</h4>
+                                <p class="text-gray-400 leading-relaxed whitespace-pre-wrap">
+                                  {{ savedFeedback.oop_feedback }}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 class="text-gray-300 mb-2">Architecture</h4>
+                                <p class="text-gray-400 leading-relaxed whitespace-pre-wrap">
+                                  {{ savedFeedback.architecture_feedback }}
+                                </p>
+                              </div>
+                            } @else {
+                              <p class="text-gray-500">
+                                AI feedback wasn't saved for this submission.
+                              </p>
+                            }
+                          </section>
                         </div>
                       }
                     </div>
