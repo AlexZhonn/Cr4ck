@@ -1,7 +1,7 @@
 """
 AES-256-GCM encryption/decryption for user API keys.
 
-Requires API_KEY_SECRET env var: 64-char hex string (32 bytes).
+Requires SECRET_KEY env var: 64-char hex string (32 bytes).
 Generate with: python3 -c "import secrets; print(secrets.token_hex(32))"
 """
 
@@ -15,10 +15,10 @@ _secret: bytes | None = None
 def _get_secret() -> bytes:
     global _secret
     if _secret is None:
-        raw = os.getenv("API_KEY_SECRET", "")
+        raw = os.getenv("SECRET_KEY", "")
         if len(raw) != 64:
             raise RuntimeError(
-                "API_KEY_SECRET must be a 64-char hex string (32 bytes). "
+                "SECRET_KEY must be a 64-char hex string (32 bytes). "
                 "Generate with: python3 -c \"import secrets; print(secrets.token_hex(32))\""
             )
         _secret = bytes.fromhex(raw)

@@ -51,13 +51,13 @@ jobs:
       # AUDIT-F3: bundle size tracking
       - name: Bundle size check
         run: npx bundlesize --config .bundlesizerc.json
-        continue-on-error: true  # informational for now; tighten limits as Monaco is optimized
+        continue-on-error: true # informational for now; tighten limits as Monaco is optimized
 
   # ── E2E tests: Playwright (AUDIT-T3) ──────────────────────────────────────
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [frontend, backend]   # only run if unit tests pass
+    needs: [frontend, backend] # only run if unit tests pass
 
     services:
       postgres:
@@ -256,14 +256,14 @@ jobs:
       # AUDIT-C3: mypy static type checking
       - name: mypy type check
         run: mypy . --ignore-missing-imports
-        continue-on-error: true  # non-blocking until type coverage improves
+        continue-on-error: true # non-blocking until type coverage improves
 
       # AUDIT-C4: Bandit SAST for first-party code
       - name: Bandit SAST
         run: |
           pip install bandit
           bandit -r . -ll --exclude ./venv,./tests -q
-        continue-on-error: true  # non-blocking until findings are triaged
+        continue-on-error: true # non-blocking until findings are triaged
 
       - name: Import check (catch missing deps)
         run: python -c "import main"
